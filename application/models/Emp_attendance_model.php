@@ -31,6 +31,17 @@ class Emp_attendance_model extends CI_Model{
 	{
 		$this->db->select('*');
 		$this->db->from('emp_attendance');
+		$this->db->join('sys_user', 'emp_attendance.uploaded_by = sys_user.user_id','left');	
+		$query = $this->db->get();
+		return $query->result_array();
+	}
+	
+	function fetch_single_join($id)
+	{
+		$this->db->select('*');
+		$this->db->from('emp_attendance');
+		$this->db->join('sys_user', 'emp_attendance.uploaded_by = sys_user.user_id','left');
+		$this->db->where('attendance_id', $id);
 		$query = $this->db->get();
 		return $query->result_array();
 	}

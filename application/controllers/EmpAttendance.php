@@ -58,8 +58,7 @@ class EmpAttendance extends CI_Controller {
 						//var_dump($item);
 						
 						$count = $this->Emp_attendance_model->fetch_single_by_epf_and_date($item[0], $item[1])->num_rows();
-						$val = $this->Emp_attendance_model->fetch_single_by_epf_and_date($item[0], $item[1]);
-						var_dump($val);
+						
 						$data = array(
 							'emp_epf'		=>	$item[0],
 							'date'			=>	$item[1],
@@ -69,11 +68,17 @@ class EmpAttendance extends CI_Controller {
 							'approved_by'	=>	""
 						);
 						
-						if($count>0){
-							$this->Emp_attendance_model->update($data);
+						
+						if($count==0){
+							$this->Emp_attendance_model->insert($data);
+						}
+						else if($count>0){
+							$val = $this->Emp_attendance_model->fetch_single_by_epf_and_date($item[0], $item[1]);
+							//var_dump($val->result_array());
+							$this->Emp_attendance_model->update_single($val[''], $data);
 						}
 						else{
-							$this->Emp_attendance_model->update_single($data);
+							$this->Emp_attendance_model->update_single($val[''], $data);
 						}
 												
 					}
