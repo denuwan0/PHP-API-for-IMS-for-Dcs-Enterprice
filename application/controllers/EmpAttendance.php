@@ -30,7 +30,7 @@ class EmpAttendance extends CI_Controller {
 		$branch_id = $this->session->userdata('emp_branch_id');
 		$user_group_name = $this->session->userdata('sys_user_group_name');	
 		
-		$this->form_validation->set_rules('date', 'date', 'required');
+		$this->form_validation->set_rules('branch_id', 'branch_id', 'required');
 		//$this->form_validation->set_rules('formFile', 'formFile', 'required');
 			
 		if($this->form_validation->run())
@@ -49,13 +49,14 @@ class EmpAttendance extends CI_Controller {
 								
 				if(move_uploaded_file($_FILES['formFile']['tmp_name'], $location)){
 					//var_dump($location);
-					$company_logo_path = base_url().'assets/attendanceUpload/'.$name;;
+					$csv_path = base_url().'assets/attendanceUpload/'.$name;;
 					$file_uploaded = 1;
 					
-					$csv_data = array_map('str_getcsv', file($company_logo_path));					
+					$csv_data = array_map('str_getcsv', file($csv_path));					
 					
 					foreach($csv_data as $item){
 						//var_dump($item);
+						
 						
 						$count = $this->Emp_attendance_model->fetch_single_by_epf_and_date($item[0], $item[1])->num_rows();
 						
@@ -64,6 +65,7 @@ class EmpAttendance extends CI_Controller {
 							'date'			=>	$item[1],
 							'time_in'		=>	$item[2],
 							'time_out'		=>	$item[3],
+							'branch_id'		=> $branch_id,
 							'uploaded_by'	=>	$user_id,
 							'approved_by'	=>	""
 						);
@@ -71,14 +73,27 @@ class EmpAttendance extends CI_Controller {
 						
 						if($count==0){
 							$this->Emp_attendance_model->insert($data);
+							$array = array(
+								'success'		=>	true,
+								'message'		=>	"Data Saved!"
+							);
 						}
 						else if($count>0){
 							$val = $this->Emp_attendance_model->fetch_single_by_epf_and_date($item[0], $item[1]);
+							$val = $val->result_array();
 							//var_dump($val->result_array());
-							$this->Emp_attendance_model->update_single($val[''], $data);
+							$this->Emp_attendance_model->update_single($val[0]['attendance_id'], $data);
+							$array = array(
+								'success'		=>	true,
+								'message'		=>	"Data Saved!"
+							);
 						}
 						else{
-							$this->Emp_attendance_model->update_single($val[''], $data);
+							$this->Emp_attendance_model->update_single($val[0]['attendance_id'], $data);
+							$array = array(
+								'success'		=>	true,
+								'message'		=>	"Data Saved!"
+							);
 						}
 												
 					}
@@ -92,10 +107,7 @@ class EmpAttendance extends CI_Controller {
 			}
 									
 
-			$array = array(
-				'success'		=>	true,
-				'message'		=>	"Data Saved!"
-			);
+			
 		}
 		else
 		{
@@ -138,24 +150,68 @@ class EmpAttendance extends CI_Controller {
 	
 	function fetch_all_join()
 	{	
-		$data = $this->Emp_attendance_model->fetch_all_join();
 		
-		echo json_encode($data);
+		
+		$sys_user_group_name = $this->session->userdata('sys_user_group_name');
+		//var_dump($this->session->userdata());
+		$emp_branch_id = $this->session->userdata('emp_branch_id');
+		if($sys_user_group_name == "Admin"){
+			$data = $this->Emp_attendance_model->fetch_all_join();
+			echo json_encode($data);
+		}
+		else{
+			$data = $this->Emp_attendance_model->fetch_all_active_by_emp_branch_id($emp_branch_id);
+			echo json_encode($data);
+		}
+	}
+	
+	function fetch_all_days()
+	{
+		$sys_user_group_name = $this->session->userdata('sys_user_group_name');
+		//var_dump($this->session->userdata());
+		$branch_id =$this->input->get('branch_id');
+		if($sys_user_group_name == "Admin"){
+			$data = $this->Emp_attendance_model->fetch_all_days_join($branch_id);
+			echo json_encode($data);
+		}
+		else{
+			$data = $this->Emp_attendance_model->fetch_all_days_join($branch_id);
+			echo json_encode($data);
+		}
+	}
+	
+	function fetch_all_months()
+	{
+		$sys_user_group_name = $this->session->userdata('sys_user_group_name');
+		//var_dump($this->session->userdata());
+		$branch_id =$this->input->get('branch_id');
+		if($sys_user_group_name == "Admin"){
+			$data = $this->Emp_attendance_model->fetch_all_months_join($branch_id);
+			echo json_encode($data);
+		}
+		else{
+			$data = $this->Emp_attendance_model->fetch_all_months_join($branch_id);
+			echo json_encode($data);
+		}
 	}
 
 	function update()
 	{
-		$this->form_validation->set_rules('allowance_name', 'Allowance Name', 'required');
-		$this->form_validation->set_rules('allowance_desc', 'Allowance Desc', 'required');
-		$this->form_validation->set_rules('allowance_id', 'allowance_id', 'required');
+		$this->form_validation->set_rules('attendance_id', 'attendance_id', 'required');
+		$this->form_validation->set_rules('emp_epf', 'emp_epf', 'required');
+		$this->form_validation->set_rules('date', 'date', 'required');
+		$this->form_validation->set_rules('time_in', 'time_in', 'required');
+		$this->form_validation->set_rules('time_out', 'time_out', 'required');
+		$this->form_validation->set_rules('uploaded_by', 'uploaded_by', 'required');
+		$this->form_validation->set_rules('approved_by', 'approved_by', 'required');
 		
 		if($this->form_validation->run())
 		{			
-			if($this->input->post('is_active_emp_allow') == 0){		
-			/* SELECT DISTINCT TABLE_NAME 
+/* 			if($this->input->post('is_active_emp_allow') == 0){		
+			 SELECT DISTINCT TABLE_NAME 
 				FROM INFORMATION_SCHEMA.COLUMNS
 				WHERE COLUMN_NAME IN ('driving_license_id')
-					AND TABLE_SCHEMA='dcs_db'; */
+					AND TABLE_SCHEMA='dcs_db'; 
 				$status = 0;
 				$status += ($this->emp_salary_allowance_model->fetch_single_by_allowance_id($this->input->post('allowance_id')))->num_rows();
 				
@@ -195,7 +251,25 @@ class EmpAttendance extends CI_Controller {
 					'success'		=>	true,
 					'message'		=>	'Changes Updated!'
 				);
-			}			
+			}	 */	
+			
+			$data = array(
+				'attendance_id'	=>	$this->input->post('attendance_id'),
+				'emp_epf'	=>	$this->input->post('emp_epf'),
+				'date'	=>	$this->input->post('date'),
+				'time_in'	=>	$this->input->post('time_in,'),
+				'time_out'	=>	$this->input->post('time_out'),
+				'uploaded_by'	=>	$this->input->post('uploaded_by'),
+				'date'	=>	$this->input->post('date'),
+				'approved_by'	=>	$this->input->post('approved_by,')
+			);
+
+			$this->Emp_attendance_model->update_single($this->input->post('allowance_id'), $data);
+
+			$array = array(
+				'success'		=>	true,
+				'message'		=>	'Changes Updated!'
+			);	
 			
 		}
 		else

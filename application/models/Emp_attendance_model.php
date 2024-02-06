@@ -31,7 +31,41 @@ class Emp_attendance_model extends CI_Model{
 	{
 		$this->db->select('*');
 		$this->db->from('emp_attendance');
-		$this->db->join('sys_user', 'emp_attendance.uploaded_by = sys_user.user_id','left');	
+		$this->db->join('sys_user', 'emp_attendance.uploaded_by = sys_user.user_id','left');
+		$this->db->join('company_branch', 'emp_attendance.branch_id = company_branch.company_branch_id','left');
+		$query = $this->db->get();
+		return $query->result_array();
+	}
+	
+	function fetch_all_days_join($branch_id)
+	{
+		$this->db->select('date');
+		$this->db->from('emp_attendance');
+		$this->db->where('branch_id', $branch_id);
+		$this->db->group_by('date'); 
+		$query = $this->db->get();
+		return $query->result_array();
+	}
+	
+	function fetch_all_months_join($branch_id)
+	{
+		$this->db->select("DISTINCT MONTH(STR_TO_DATE(date, '%Y-%m-%d')) as month");
+		$this->db->from('emp_attendance');
+		$this->db->where('branch_id', $branch_id);
+		$this->db->group_by('month'); 
+		$query = $this->db->get();
+		return $query->result_array();
+		
+		//var_dump($this->db->last_query());
+	}
+	
+	function fetch_all_active_by_emp_branch_id($branch_id)
+	{
+		$this->db->select('*');
+		$this->db->from('emp_attendance');
+		$this->db->join('sys_user', 'emp_attendance.uploaded_by = sys_user.user_id','left');
+		$this->db->join('company_branch', 'emp_attendance.branch_id = company_branch.company_branch_id','left');	
+		$this->db->where('branch_id', $branch_id);
 		$query = $this->db->get();
 		return $query->result_array();
 	}
