@@ -143,6 +143,13 @@ class Employee extends CI_Controller {
 		}
 	}
 	
+	function fetch_single_join_by_emp_id($id)
+	{
+		$data = $this->emp_model->fetch_single_by_emp_id($id);
+		
+		echo json_encode($data);
+	}
+	
 	function fetch_all_join()
 	{	
 		$data = $this->emp_model->fetch_all_join();

@@ -27,12 +27,16 @@ class EmpLeaveQuota extends CI_Controller {
 	{		
 		$this->form_validation->set_rules('year', 'year', 'required');
 		$this->form_validation->set_rules('leave_type_id', 'leave_type_id', 'required');
+		$this->form_validation->set_rules('valid_from_date', 'valid_from_date', 'required');
+		$this->form_validation->set_rules('valid_to_date', 'valid_to_date', 'required');
 		$this->form_validation->set_rules('amount', 'amount', 'required');
 		if($this->form_validation->run())
 		{
 			$data = array(
 				'year'	=>	$this->input->post('year'),
 				'leave_type_id'	=>	$this->input->post('leave_type_id'),
+				'valid_from_date'	=>	$this->input->post('valid_from_date'),
+				'valid_to_date'	=>	$this->input->post('valid_to_date'),
 				'amount'	=>	$this->input->post('amount'),
 				'is_active_leave_quota' =>	$this->input->post('is_active_leave_quota')
 			);
@@ -51,6 +55,8 @@ class EmpLeaveQuota extends CI_Controller {
 				'message'		=>	'Error!',
 				'year'		=>	form_error('year'),
 				'leave_type_id'		=>	form_error('leave_type_id'),
+				'valid_from_date'		=>	form_error('valid_from_date'),
+				'valid_to_date'		=>	form_error('valid_to_date'),
 				'amount'		=>	form_error('amount')
 			);
 		}
@@ -92,17 +98,30 @@ class EmpLeaveQuota extends CI_Controller {
 		
 		echo json_encode($data->result_array());
 	}
+	
+	function fetch_all_active_join()
+	{	
+		$data = $this->Emp_leave_quota_model->fetch_all_active_join();
+		
+		echo json_encode($data->result_array());
+	}
 
 	function update()
 	{
 		$this->form_validation->set_rules('leave_quota_id', 'leave_quota_id ', 'required');
 		$this->form_validation->set_rules('year', 'year', 'required');
 		$this->form_validation->set_rules('leave_type_id', 'leave_type_id', 'required');
+		$this->form_validation->set_rules('valid_from_date', 'valid_from_date', 'required');
+		$this->form_validation->set_rules('valid_to_date', 'valid_to_date', 'required');
 		$this->form_validation->set_rules('amount', 'amount', 'required');
 		
 		if($this->form_validation->run())
 		{			
-			if($this->input->post('is_active_leave_quota') == 0){	
+			if($this->input->post('is_active_leave_quota') == 0){
+				/* SELECT DISTINCT TABLE_NAME 
+				FROM INFORMATION_SCHEMA.COLUMNS
+				WHERE COLUMN_NAME IN ('branch_id')
+					AND TABLE_SCHEMA='dcs_db'; */	
 				$status = 0;
 				//$status += $this->Emp_leave_quota_model->fetch_single($this->input->post('leave_quota_id'));
 				if($status>0){
@@ -116,6 +135,8 @@ class EmpLeaveQuota extends CI_Controller {
 						'leave_quota_id'	=>	$this->input->post('leave_quota_id'),
 						'year'	=>	$this->input->post('year'),
 						'leave_type_id'	=>	$this->input->post('leave_type_id'),
+						'valid_from_date'	=>	$this->input->post('valid_from_date'),
+						'valid_to_date'	=>	$this->input->post('valid_to_date'),
 						'amount'	=>	$this->input->post('amount'),
 						'is_active_leave_quota' =>	$this->input->post('is_active_leave_quota')
 					);
@@ -133,6 +154,8 @@ class EmpLeaveQuota extends CI_Controller {
 					'leave_quota_id'	=>	$this->input->post('leave_quota_id'),
 					'year'	=>	$this->input->post('year'),
 					'leave_type_id'	=>	$this->input->post('leave_type_id'),
+					'valid_from_date'	=>	$this->input->post('valid_from_date'),
+					'valid_to_date'	=>	$this->input->post('valid_to_date'),
 					'amount'	=>	$this->input->post('amount'),
 					'is_active_leave_quota' =>	$this->input->post('is_active_leave_quota')
 				);

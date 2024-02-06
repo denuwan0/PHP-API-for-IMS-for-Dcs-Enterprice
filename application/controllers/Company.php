@@ -12,9 +12,9 @@ class Company extends CI_Controller {
 		
 		//$is_ajax = 'xmlhttprequest' == strtolower( $_SERVER['HTTP_X_REQUESTED_WITH'] ?? '' );
 		
-		if (!$this->input->is_ajax_request()) {
+		/* if (!$this->input->is_ajax_request()) {
 			exit('No direct script access allowed');
-		}
+		} */
 		
 	}
 
@@ -122,6 +122,13 @@ class Company extends CI_Controller {
 	}
 	
 	function fetch_all_active()
+	{		
+		$data = $this->company_model->fetch_all_active();
+		echo json_encode($data->result_array());
+		
+	}
+	
+	function fetch_active_join()
 	{		
 		$data = $this->company_model->fetch_all_active();
 		echo json_encode($data->result_array());

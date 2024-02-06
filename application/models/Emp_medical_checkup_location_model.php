@@ -3,7 +3,13 @@
 class Emp_medical_checkup_location_model extends CI_Model{   
     
 	function fetch_all(){
-		$this->db->order_by('emp_med_loc_id', 'DESC');
+		$this->db->order_by('emp_med_loc_id', 'ASC');
+		return $this->db->get('emp_medical_checkup_location');
+	}
+	
+	function fetch_all_active(){
+		$this->db->order_by('emp_med_loc_id', 'ASC');
+		$this->db->where('is_active_medical_checkup', 1);
 		return $this->db->get('emp_medical_checkup_location');
 	}
 	

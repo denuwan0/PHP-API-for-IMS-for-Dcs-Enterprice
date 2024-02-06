@@ -3,7 +3,7 @@
 class Vehicle_service_center_model extends CI_Model{   
     
 	function fetch_all(){
-		$this->db->order_by('service_center_id', 'DESC');
+		$this->db->order_by('service_center_id', 'ASC');
 		return $this->db->get('vehicle_service_center');
 	}
 	
@@ -18,6 +18,7 @@ class Vehicle_service_center_model extends CI_Model{
 		$query = $this->db->get('vehicle_service_center');
 		return $query->result_array();
 	}
+	
 
 	function update_single($service_center_id, $data)
 	{

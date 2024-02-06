@@ -36,6 +36,16 @@ class Company_model extends CI_Model{
 		return $this->db->get('company');
 	}
 	
+	function fetch_active_join()
+	{
+		$this->db->select('*');
+		$this->db->from('company');
+		$this->db->join('country', 'company.company_country = country.country_id','left');
+		$this->db->where('company.is_active_company', 1);
+		$query = $this->db->get();
+		return $query->result_array();		
+	}
+	
 	function fetch_all_by_country_id($country_id)
 	{		
 		$this->db->select('*');

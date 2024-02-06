@@ -131,5 +131,12 @@ class Sys_user_model extends CI_Model{
 		return $query;
 	}
 	
-	
+	function fetch_active_single_join($user_id)
+	{
+		$this->db->where('sys_user.user_id', $user_id);
+		$this->db->where('sys_user.is_active_sys_user', 1);
+		$this->db->join('sys_user_group', 'sys_user.sys_user_group_id = sys_user_group.sys_user_group_id','left');
+		$query = $this->db->get('sys_user');
+		return $query->result_array();
+	}
 }

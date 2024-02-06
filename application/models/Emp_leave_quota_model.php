@@ -65,4 +65,14 @@ class Emp_leave_quota_model extends CI_Model{
 		$query = $this->db->get();
 		return $query;
 	}
+	
+	function fetch_all_active_join()
+	{
+		$this->db->select('*');
+		$this->db->from('emp_leave_quota');
+		$this->db->join('emp_leave_type', 'emp_leave_quota.leave_type_id = emp_leave_type.leave_type_id','left');
+		$this->db->where('is_active_leave_quota', 1);
+		$query = $this->db->get();
+		return $query;
+	}
 }
