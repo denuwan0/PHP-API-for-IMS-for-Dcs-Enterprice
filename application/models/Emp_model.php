@@ -32,9 +32,16 @@ class Emp_model extends CI_Model{
 		return $query->result_array();
 	}
 	
-	function fetch_single_by_emp_epf($emp_id)
+	function fetch_single_by_emp_id($emp_id)
 	{		
 		$this->db->where('emp_id', $emp_id);
+		$query = $this->db->get('emp_details');
+		return $query->result_array();
+	}
+	
+	function fetch_single_by_emp_epf($emp_epf)
+	{		
+		$this->db->where('emp_epf', $emp_epf);
 		$query = $this->db->get('emp_details');
 		return $query->result_array();
 	}

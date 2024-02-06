@@ -25,6 +25,13 @@ class Emp_leave_details_model extends CI_Model{
 		$query = $this->db->get('emp_leave_details');
 		return $query;
 	}
+	
+	function fetch_single_by_emp_wise_leave_quota_id($id)
+	{
+		$this->db->where('emp_wise_leave_quota_id', $id);
+		$query = $this->db->get('emp_leave_details');
+		return $query;
+	}
 
 	function update_single($leave_detail_id, $data)
 	{

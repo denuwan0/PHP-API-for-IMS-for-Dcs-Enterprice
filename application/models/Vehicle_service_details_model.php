@@ -39,4 +39,11 @@ class Vehicle_service_details_model extends CI_Model{
 		}
 	}
 	
+	function fetch_all_by_service_center_id($service_center_id)
+	{
+		$this->db->where('service_center_id', $service_center_id);
+		$query = $this->db->get('vehicle_service_details');
+		return $query;
+	}
+	
 }
