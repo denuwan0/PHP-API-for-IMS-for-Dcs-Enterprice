@@ -19,6 +19,14 @@ class Emp_attendance_model extends CI_Model{
 		return $query->result_array();
 	}
 	
+	function fetch_single_by_epf_and_date($emp_epf, $date)
+	{
+		$this->db->where('emp_epf', $emp_epf);
+		$this->db->where('date', $date);
+		$query = $this->db->get('emp_attendance');
+		return $query;
+	}
+	
 	function fetch_all_join()
 	{
 		$this->db->select('*');
