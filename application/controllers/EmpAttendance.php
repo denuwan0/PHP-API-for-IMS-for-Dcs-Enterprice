@@ -257,14 +257,14 @@ class EmpAttendance extends CI_Controller {
 				'attendance_id'	=>	$this->input->post('attendance_id'),
 				'emp_epf'	=>	$this->input->post('emp_epf'),
 				'date'	=>	$this->input->post('date'),
-				'time_in'	=>	$this->input->post('time_in,'),
+				'time_in'	=>	$this->input->post('time_in'),
 				'time_out'	=>	$this->input->post('time_out'),
 				'uploaded_by'	=>	$this->input->post('uploaded_by'),
 				'date'	=>	$this->input->post('date'),
 				'approved_by'	=>	$this->input->post('approved_by,')
 			);
 
-			$this->Emp_attendance_model->update_single($this->input->post('allowance_id'), $data);
+			$this->Emp_attendance_model->update_single($this->input->post('attendance_id'), $data);
 
 			$array = array(
 				'success'		=>	true,
