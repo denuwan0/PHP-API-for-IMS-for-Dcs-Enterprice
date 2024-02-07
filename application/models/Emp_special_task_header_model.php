@@ -39,4 +39,14 @@ class Emp_special_task_header_model extends CI_Model{
 		}
 	}
 	
+	function fetch_all_join()
+	{
+		$this->db->select('*');
+		$this->db->from('emp_special_task_header');
+		$this->db->join('inventory_rental_invoice_header', 'emp_special_task_header.invoice_id =  inventory_rental_invoice_header.invoice_id','left');
+		//$this->db->where('company.company_id', $company_id);
+		$query = $this->db->get();
+		return $query;
+	}
+	
 }
