@@ -14,7 +14,14 @@ class Vehicle_details_model extends CI_Model{
 	
 	function fetch_all_active(){
 		$this->db->where('is_active_vhcl_details', 1);
-		$this->db->order_by('vehicle_id', 'DESC');
+		$this->db->order_by('vehicle_id', 'ASC');
+		return $this->db->get('vehicle_details');
+	}
+	
+	function fetch_all_active_by_branch_id($branch_id){
+		$this->db->where('is_active_vhcl_details', 1);
+		$this->db->where('branch_id', $branch_id);
+		$this->db->order_by('vehicle_id', 'ASC');
 		return $this->db->get('vehicle_details');
 	}
 

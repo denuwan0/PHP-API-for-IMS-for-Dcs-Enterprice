@@ -7,6 +7,12 @@ class Vehicle_service_center_model extends CI_Model{
 		return $this->db->get('vehicle_service_center');
 	}
 	
+	function fetch_all_active(){
+		$this->db->order_by('service_center_id', 'ASC');
+		$this->db->where('is_active_vhcl_srv_cntr', 1);
+		return $this->db->get('vehicle_service_center');
+	}
+	
 	function insert($data)
 	{
 		$this->db->insert('vehicle_service_center', $data);

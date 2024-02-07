@@ -46,4 +46,14 @@ class Vehicle_service_details_model extends CI_Model{
 		return $query;
 	}
 	
+	function fetch_all_join()
+	{
+		$this->db->select('*');
+		$this->db->from('vehicle_service_details');
+		$this->db->join('vehicle_service_center', 'vehicle_service_details.service_center_id = vehicle_service_center.service_center_id','left');
+		$this->db->join('vehicle_details', 'vehicle_service_details.vehicle_id = vehicle_details.vehicle_id','left');
+		$query = $this->db->get();
+		return $query;
+	}
+	
 }
