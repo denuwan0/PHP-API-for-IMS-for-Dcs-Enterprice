@@ -49,7 +49,7 @@ class Emp_attendance_model extends CI_Model{
 	
 	function fetch_all_months_join($branch_id)
 	{
-		$this->db->select("DISTINCT MONTH(STR_TO_DATE(date, '%Y-%m-%d')) as month");
+		$this->db->select("DISTINCT MONTH(STR_TO_DATE(date, '%Y-%m-%d')) as month, MONTHNAME(STR_TO_DATE(date, '%Y-%m-%d')) as month_name");
 		$this->db->from('emp_attendance');
 		$this->db->where('branch_id', $branch_id);
 		$this->db->group_by('month'); 
@@ -85,6 +85,20 @@ class Emp_attendance_model extends CI_Model{
 	{
 		$this->db->where('attendance_id', $attendance_id);
 		$this->db->update('emp_attendance', $data);
+	}
+	
+	function approve_single_date($date, $data)
+	{
+		$this->db->where('date', $date);
+		$this->db->update('emp_attendance', $data);
+	}
+	
+	function approve_single_month($month, $data)
+	{
+		$this->db->where("MONTH(STR_TO_DATE(date, '%Y-%m-%d')) =", $month);
+		$this->db->update('emp_attendance', $data);
+		
+		//var_dump($this->db->last_query());
 	}
 
 	function delete_single($attendance_id)

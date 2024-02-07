@@ -282,6 +282,50 @@ class EmpAttendance extends CI_Controller {
 		
 		echo json_encode($array);
 	}
+	
+	function approve()
+	{
+		$this->form_validation->set_rules('branch_id', 'branch_id', 'required');
+		//$this->form_validation->set_rules('day', 'day', 'required');
+		//$this->form_validation->set_rules('month', 'month', 'required');
+		
+		$sys_user_group_name = $this->session->userdata('sys_user_group_name');
+		//var_dump($this->session->userdata());
+		$emp_id = $this->session->userdata('emp_id');
+		$branch_id =$this->input->get('branch_id');
+		
+		
+		
+		if($this->form_validation->run())
+		{	
+			$data = array(
+				'approved_by'	=>	$emp_id,
+				'is_approved'	=>	1,
+			);
+			
+			if($this->input->post('day') != ""){				
+				$this->Emp_attendance_model->approve_single_date($this->input->post('day'), $data);
+			}
+			else if($this->input->post('month') != ""){
+				$this->Emp_attendance_model->approve_single_month($this->input->post('month'), $data);
+			}
+			
+			$array = array(
+				'success'		=>	true,
+				'message'		=>	'Changes Updated!'
+			);	
+			
+		}
+		else
+		{
+			$array = array(
+				'error'			=>	true,
+				'message'		=>	'Please Fill Required Fields!'
+			);
+		}
+		
+		echo json_encode($array);
+	}
 
 	function delete()
 	{
