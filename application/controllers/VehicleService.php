@@ -37,12 +37,14 @@ class VehicleService extends CI_Controller {
 		
 		if($this->form_validation->run())
 		{
+			$nextService_date = date('Y-m-d', strtotime("+".$this->input->post('next_service_in_months')." months", strtotime($this->input->post('service_date'))));
 			$data = array(
 				'service_center_id'	=>	$this->input->post('service_center_id'),
 				'vehicle_id'	=>	$this->input->post('vehicle_id'),
 				'next_service_in_kms' =>	$this->input->post('next_service_in_kms'),
 				'next_service_in_months'	=>	$this->input->post('next_service_in_months'),
 				'service_date'	=>	$this->input->post('service_date'),
+				'next_service_date'	=>	$nextService_date,
 				'service_invoice_number'	=>	$this->input->post('service_invoice_number'),
 				'service_cost' =>	$this->input->post('service_cost'),
 				'description'	=>	$this->input->post('description'),
@@ -59,6 +61,7 @@ class VehicleService extends CI_Controller {
 		}
 		else
 		{
+			$nextService_date = date('Y-m-d', strtotime("+".$this->input->post('next_service_in_months')." months", strtotime($this->input->post('service_date'))));
 			$array = array(
 				'error'			=>	true,
 				'message'		=>	'Error!',
@@ -165,6 +168,7 @@ class VehicleService extends CI_Controller {
 					);
 				}
 				else{
+					$nextService_date = date('Y-m-d', strtotime("+".$this->input->post('next_service_in_months')." months", strtotime($this->input->post('service_date'))));
 					$data = array(
 						'service_detail_id'	=>	$this->input->post('service_detail_id'),
 						'service_center_id'	=>	$this->input->post('service_center_id'),
@@ -172,6 +176,7 @@ class VehicleService extends CI_Controller {
 						'next_service_in_kms'	=>	$this->input->post('next_service_in_kms'),
 						'next_service_in_months'	=>	$this->input->post('next_service_in_months'),
 						'service_date'	=>	$this->input->post('service_date'),
+						'next_service_date'	=>	$nextService_date,
 						'service_invoice_number' =>	$this->input->post('service_invoice_number'),
 						'service_cost'	=>	$this->input->post('service_cost'),
 						'description'	=>	$this->input->post('description'),
@@ -188,6 +193,7 @@ class VehicleService extends CI_Controller {
 				}
 			}
 			else{
+				$nextService_date = date('Y-m-d', strtotime("+".$this->input->post('next_service_in_months')." months", strtotime($this->input->post('service_date'))));
 				$data = array(
 						'service_detail_id'	=>	$this->input->post('service_detail_id'),
 						'service_center_id'	=>	$this->input->post('service_center_id'),
@@ -195,6 +201,7 @@ class VehicleService extends CI_Controller {
 						'next_service_in_kms'	=>	$this->input->post('next_service_in_kms'),
 						'next_service_in_months'	=>	$this->input->post('next_service_in_months'),
 						'service_date'	=>	$this->input->post('service_date'),
+						'next_service_date'	=>	$nextService_date,
 						'service_invoice_number' =>	$this->input->post('service_invoice_number'),
 						'service_cost'	=>	$this->input->post('service_cost'),
 						'description'	=>	$this->input->post('description'),
