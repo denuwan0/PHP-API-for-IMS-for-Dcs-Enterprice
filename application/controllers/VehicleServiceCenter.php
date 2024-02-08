@@ -59,7 +59,7 @@ class VehicleServiceCenter extends CI_Controller {
 	
 	function fetch_all_active()
 	{		
-		$data = $this->Vehicle_service_center_model->fetch_all_join();
+		$data = $this->Vehicle_service_center_model->fetch_all_active();
 		echo json_encode($data->result_array());
 		
 	}
