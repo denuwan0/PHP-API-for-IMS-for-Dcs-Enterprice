@@ -26,23 +26,28 @@ class EmpSpecialTask extends CI_Controller {
 	
 	function insert()
 	{		
-		$this->form_validation->set_rules('this_med_checkup_date', 'this_med_checkup_date', 'required');
-		$this->form_validation->set_rules('next_med_checkup_date', 'next_med_checkup_date', 'required');
-		$this->form_validation->set_rules('special_note', 'special_note', 'required');
-		$this->form_validation->set_rules('emp_id', 'emp_id', 'required');
-		$this->form_validation->set_rules('med_loc_id', 'med_loc_id', 'required');
-		$this->form_validation->set_rules('emp_med_status', 'emp_med_status', 'required');
+		$this->form_validation->set_rules('branch_id', 'branch_id', 'required');
+		$this->form_validation->set_rules('task_name', 'task_name', 'required');
+		$this->form_validation->set_rules('invoice_id', 'invoice_id', 'required');
+		$this->form_validation->set_rules('task_type', 'task_type', 'required');
+		$this->form_validation->set_rules('task_start_date', 'task_start_date', 'required');
+		$this->form_validation->set_rules('task_end_date', 'task_end_date', 'required');
+		$this->form_validation->set_rules('task_start_time', 'task_start_time', 'required');
+		$this->form_validation->set_rules('task_end_time', 'task_end_time', 'required');
 		
 		if($this->form_validation->run())
 		{
 			$data = array(
-				'this_med_checkup_date'	=>	$this->input->post('this_med_checkup_date'),
-				'next_med_checkup_date'	=>	$this->input->post('next_med_checkup_date'),
-				'special_note'	=>	$this->input->post('special_note'),
-				'emp_id' =>	$this->input->post('emp_id'),
-				'med_loc_id'	=>	$this->input->post('med_loc_id'),
-				'emp_med_status' =>	$this->input->post('emp_med_status'),
-				'is_active_medical_records' =>	$this->input->post('is_active_medical_records')
+				'branch_id'	=>	$this->input->post('branch_id'),
+				'task_name'	=>	$this->input->post('task_name'),
+				'invoice_id'	=>	$this->input->post('invoice_id'),
+				'task_type' =>	$this->input->post('task_type'),
+				'task_start_date'	=>	$this->input->post('task_start_date'),
+				'task_end_date' =>	$this->input->post('task_end_date'),
+				'task_start_time' =>	$this->input->post('task_start_time'),
+				'task_end_time' =>	$this->input->post('task_end_time'),
+				'is_active_sp_task' =>	$this->input->post('is_active_sp_task'),
+				'is_complete' =>	$this->input->post('is_complete')
 			);
 
 			$this->Emp_special_task_header_model->insert($data);
@@ -57,12 +62,14 @@ class EmpSpecialTask extends CI_Controller {
 			$array = array(
 				'error'			=>	true,
 				'message'		=>	'Error!',
-				'this_med_checkup_date'		=>	form_error('this_med_checkup_date'),
-				'next_med_checkup_date'		=>	form_error('next_med_checkup_date'),
-				'special_note'		=>	form_error('special_note'),
-				'emp_id'		=>	form_error('emp_id'),
-				'med_loc_id'		=>	form_error('med_loc_id'),
-				'emp_med_status'		=>	form_error('emp_med_status')
+				'branch_id'		=>	form_error('branch_id'),
+				'task_name'		=>	form_error('task_name'),
+				'invoice_id'		=>	form_error('invoice_id'),
+				'task_type'		=>	form_error('task_type'),
+				'task_start_date'		=>	form_error('task_start_date'),
+				'task_end_date'		=>	form_error('task_end_date'),
+				'task_start_time'		=>	form_error('task_start_time'),
+				'task_end_time'		=>	form_error('task_end_time')
 			);
 		}
 		echo json_encode($array);
