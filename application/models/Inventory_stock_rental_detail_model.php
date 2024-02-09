@@ -70,4 +70,11 @@ class inventory_stock_rental_detail_model extends CI_Model{
 		//var_dump($query->result_array());
 		return $query;
 	}
+	
+	function inactive_single($rental_stock_detail_id, $data)
+	{
+		$this->db->where('rental_stock_id', $rental_stock_detail_id);
+		$query = $this->db->update('inventory_stock_rental_detail', $data);
+		return $query;
+	}
 }

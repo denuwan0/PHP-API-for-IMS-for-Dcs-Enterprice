@@ -61,7 +61,7 @@ class Inventory_stock_purchase_detail_model extends CI_Model{
 	
 	function fetch_available_no_of_items_by_main_and_sub_item_id_item_type($stock_batch_id, $item_id, $item_type)
 	{
-		$this->db->select('available_no_of_items');
+		$this->db->select('*');
 		$this->db->where('stock_batch_id', $stock_batch_id );
 		$this->db->where('item_id', $item_id );
 		$this->db->where('is_sub_item', $item_type );

@@ -92,6 +92,7 @@ class Inventory_stock_retail_header_model extends CI_Model{
 		$query = $this->db->query("SELECT inventory_stock_retail_header.branch_id, company_branch.company_branch_name , inventory_stock_retail_detail.retail_stock_header_id, inventory_stock_retail_detail.item_id, inventory_stock_retail_detail.max_sale_price, inventory_stock_retail_detail.min_sale_price, inventory_stock_retail_detail.full_stock_count, SUM(inventory_stock_retail_detail.available_stock_count) AS tot_available_stock_count,  inventory_stock_retail_detail.stock_re_order_level, inventory_stock_retail_detail.is_sub_item, inventory_stock_retail_detail.is_active_retail_stock_detail,
 		IF(inventory_stock_retail_detail.is_sub_item = 0, inventory_item.item_name, inventory_sub_item.sub_item_name)  as item_name FROM inventory_stock_retail_detail left join inventory_item on inventory_stock_retail_detail.item_id = inventory_item.item_id left join inventory_sub_item on inventory_stock_retail_detail.item_id = inventory_sub_item.sub_item_id left join inventory_stock_retail_header on inventory_stock_retail_detail.retail_stock_header_id = inventory_stock_retail_header.retail_stock_header_id
 		left join company_branch ON inventory_stock_retail_header.branch_id = company_branch.company_branch_id
+		WHERE inventory_stock_retail_detail.is_active_retail_stock_detail = 1
 		GROUP BY inventory_stock_retail_header.branch_id, inventory_stock_retail_detail.item_id, inventory_stock_retail_detail.is_sub_item;");
 		
 		return $query->result_array();
@@ -101,7 +102,7 @@ class Inventory_stock_retail_header_model extends CI_Model{
 	{
 		$query = $this->db->query("SELECT inventory_stock_retail_header.branch_id, company_branch.company_branch_name , inventory_stock_retail_detail.retail_stock_header_id, inventory_stock_retail_detail.item_id, inventory_stock_retail_detail.max_sale_price, inventory_stock_retail_detail.min_sale_price, inventory_stock_retail_detail.full_stock_count, SUM(inventory_stock_retail_detail.available_stock_count) AS tot_available_stock_count,inventory_stock_retail_detail.stock_re_order_level, inventory_stock_retail_detail.is_sub_item, inventory_stock_retail_detail.is_active_retail_stock_detail,
 		IF(inventory_stock_retail_detail.is_sub_item = 0, inventory_item.item_name, inventory_sub_item.sub_item_name)  as item_name FROM inventory_stock_retail_detail left join inventory_item on inventory_stock_retail_detail.item_id = inventory_item.item_id left join inventory_sub_item on inventory_stock_retail_detail.item_id = inventory_sub_item.sub_item_id left join inventory_stock_retail_header on inventory_stock_retail_detail.retail_stock_header_id = inventory_stock_retail_header.retail_stock_header_id
-		left join company_branch ON inventory_stock_retail_header.branch_id = company_branch.company_branch_id WHERE inventory_stock_retail_header.branch_id = '$emp_branch_id'
+		left join company_branch ON inventory_stock_retail_header.branch_id = company_branch.company_branch_id WHERE inventory_stock_retail_header.branch_id = '$emp_branch_id' AND inventory_stock_retail_detail.is_active_retail_stock_detail = 1
 		GROUP BY inventory_stock_retail_detail.item_id, inventory_stock_retail_detail.is_sub_item;");
 		
 		return $query->result_array();
