@@ -89,6 +89,7 @@ class Sys_user_model extends CI_Model{
 	{
 		$this->db->where('sys_user.username', $username);
 		$this->db->where('sys_user.password', $password);
+		$this->db->where('sys_user.is_active_sys_user', 1);
 		$this->db->join('sys_user_group', 'sys_user.sys_user_group_id = sys_user_group.sys_user_group_id','left');
 		$query = $this->db->get('sys_user');
 		return $query->result_array();
