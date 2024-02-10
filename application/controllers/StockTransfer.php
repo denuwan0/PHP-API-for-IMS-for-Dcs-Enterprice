@@ -91,8 +91,7 @@ class StockTransfer extends CI_Controller {
 				
 			}
 			
-			$userData = $this->Emp_model->fetch_single($emp_id);
-			$this->stockTransferMail($userData);
+			
 			
 			//var_dump($userData);
 
@@ -254,15 +253,23 @@ class StockTransfer extends CI_Controller {
 			//var_dump($emp_branch_id);
 			if($sys_user_group_name == "Admin" ){
 				$data1[0]['show_accept'] = 1;
+				$data1[0]['show_approve'] = 1;
 			}
 			else if($sys_user_group_name == "Manager" && $emp_branch_id == $data1[0]['branch_id_to']){
 				$data1[0]['show_accept'] = 1;
+				$data1[0]['show_approve'] = 0;
+			}
+			else if($sys_user_group_name == "Manager" && $emp_branch_id == $data1[0]['branch_id_from']){
+				$data1[0]['show_accept'] = 0;
+				$data1[0]['show_approve'] = 1;
 			}
 			else{
 				$data1[0]['show_accept'] = 0;
+				$data1[0]['show_approve'] = 0;
 			}
 			
 			$jsonArr = array('header' => $data1, 'detail' => $data2);
+			
 			
 			echo json_encode($jsonArr);
 		}
@@ -279,6 +286,21 @@ class StockTransfer extends CI_Controller {
 		}
 		else{
 			$data = $this->inventory_stock_transfer_header_model->fetch_all_by_branch_id($emp_branch_id);		
+			echo json_encode($data);
+		}
+	}
+	
+	function fetch_all_other()
+	{			
+		$sys_user_group_name = $this->session->userdata('sys_user_group_name');
+		//var_dump($this->session->userdata());
+		$emp_branch_id = $this->session->userdata('emp_branch_id');
+		if($sys_user_group_name == "Admin"){
+			$data = $this->inventory_stock_transfer_header_model->fetch_all_join();		
+			echo json_encode($data);
+		}
+		else{
+			$data = $this->inventory_stock_transfer_header_model->fetch_all_by_other_branch_id($emp_branch_id);		
 			echo json_encode($data);
 		}
 	}
@@ -302,9 +324,9 @@ class StockTransfer extends CI_Controller {
 		$created_by = $this->session->userdata('user_id');
 		$emp_id =  $this->session->userdata('emp_id');
 		
-		if($phparray["stockHeader"][0]->stock_purchase_date != '' )
+		if($phparray["stockHeader"][0]->create_date != '' )
 		{			
-			if($phparray["stockHeader"][0]->is_active_stock_purchase == 0){
+			if($phparray["stockHeader"][0]->is_active_inv_stock_trans == 0){
 				/* SELECT DISTINCT TABLE_NAME 
 				FROM INFORMATION_SCHEMA.COLUMNS
 				WHERE COLUMN_NAME IN ('bank_id')
@@ -337,79 +359,94 @@ class StockTransfer extends CI_Controller {
 						'is_active_inv_stock_trans' =>	$phparray["stockHeader"][0]->is_active_inv_stock_trans
 					);
 					
-					$header_id = $this->inventory_stock_transfer_header_model->insert($data);
-					$header_id = $this->inventory_stock_transfer_header_model->update_single($phparray["stockHeader"][0]->inventory_stock_transfer_header_id, $data);
+					
+					$this->inventory_stock_transfer_header_model->update_single($phparray["stockHeader"][0]->inventory_stock_transfer_header_id, $data);
+					
+					$this->inventory_stock_transfer_detail_model->delete_all_items_by_header_id($phparray["stockHeader"][0]->inventory_stock_transfer_header_id);
+					
+					$db_count = $this->inventory_stock_transfer_detail_model->count_items_by_batch_id($phparray["stockHeader"][0]->inventory_stock_transfer_header_id);
+					
+					if($db_count == 0){
 
+						foreach($phparray["itemsArr"] as $value){
+							
+							if($value->is_sub_item == 0){
+								$itemData = array(
+									'inventory_stock_transfer_header_id' =>	$header_id ,
+									'item_id' =>	$value->item_id,
+									'no_of_items' =>	$value->no_of_items,
+									'is_sub_item' =>	$value->is_sub_item,
+									'is_active_stock_transfer_detail' =>	1
+								);
+							}
+							if($value->is_sub_item == 1){
+								$itemData = array(
+									'inventory_stock_transfer_header_id' =>	$header_id ,
+									'item_id' =>	$value->item_id,
+									'no_of_items' =>	$value->no_of_items,
+									'is_sub_item' =>	$value->is_sub_item,
+									'is_active_stock_transfer_detail' =>	1
+								);
+							}
+							
+							$this->inventory_stock_transfer_detail_model->insert($itemData);
+						}
+						
+					}
 
-					if($value->is_sub_item == 0){
-						$itemData = array(
-							'inventory_stock_transfer_header_id' =>	$header_id ,
-							'item_id' =>	$value->item_id,
-							'no_of_items' =>	$value->no_of_items,
-							'is_sub_item' =>	$value->is_sub_item,
-							'is_active_stock_transfer_detail' =>	1
-						);
-					}
-					if($value->is_sub_item == 1){
-						$itemData = array(
-							'inventory_stock_transfer_header_id' =>	$header_id ,
-							'item_id' =>	$value->item_id,
-							'no_of_items' =>	$value->no_of_items,
-							'is_sub_item' =>	$value->is_sub_item,
-							'is_active_stock_transfer_detail' =>	1
-						);
-					}
+					$array = array(
+						'success'		=>	true,
+						'message'		=>	'Data Updated!'
+					);
 					
 				}
 			}			
-			else{
+			else if($phparray["stockHeader"][0]->is_active_inv_stock_trans == 1 && $phparray["stockHeader"][0]->is_approved == 0){
 				
 				$data = array(
-					'stock_purchase_date'	=>	$phparray["stockHeader"][0]->stock_purchase_date,
-					//'is_allocated_stock' =>	$phparray["stockHeader"][0]->is_allocated_stock,
-					'is_approved_stock' =>	$phparray["stockHeader"][0]->is_approved_stock,
-					'created_by' =>	$this->session->userdata('user_id'),
-					'branch_id' =>	$this->session->userdata('emp_branch_id'),
-					'is_active_stock_purchase' =>	1
+					'create_date'	=>	$phparray["stockHeader"][0]->create_date,
+					'branch_id_from' =>	$phparray["stockHeader"][0]->branch_id_from,
+					'branch_id_to' =>	$phparray["stockHeader"][0]->branch_id_to,
+					'transfer_type' =>	$phparray["stockHeader"][0]->transfer_type,
+					'stock_type' =>	$phparray["stockHeader"][0]->stock_type,
+					'approved_by' =>	($phparray["stockHeader"][0]->is_approved == 1) ? $emp_id : 0,
+					'is_approved' =>	$phparray["stockHeader"][0]->is_approved,
+					'is_accepted' =>	$phparray["stockHeader"][0]->is_accepted,
+					'accepted_by' =>	($phparray["stockHeader"][0]->is_accepted == 1) ? $emp_id : 0,
+					'is_active_inv_stock_trans' =>	$phparray["stockHeader"][0]->is_active_inv_stock_trans
 				);
-
-				$this->inventory_stock_transfer_header_model->update_single($phparray["stockHeader"][0]->stock_batch_id, $data);
 				
-				$this->inventory_stock_purchase_detail_model->delete_all_items_by_stock_batch_id($phparray["stockHeader"][0]->stock_batch_id);	
 				
-				$db_count = $this->inventory_stock_purchase_detail_model->count_items_by_batch_id($phparray["stockHeader"][0]->stock_batch_id);			
-								
+				$this->inventory_stock_transfer_header_model->update_single($phparray["stockHeader"][0]->inventory_stock_transfer_header_id, $data);
 				
-					
+				$this->inventory_stock_transfer_detail_model->delete_all_items_by_header_id($phparray["stockHeader"][0]->inventory_stock_transfer_header_id);
+				
+				$db_count = $this->inventory_stock_transfer_detail_model->count_items_by_batch_id($phparray["stockHeader"][0]->inventory_stock_transfer_header_id);
+				
 				if($db_count == 0){
-					
+
 					foreach($phparray["itemsArr"] as $value){
-						//var_dump($value);
-						if($value->item_type == 'main_item_id'){
+						
+						if($value->is_sub_item == 0){
 							$itemData = array(
-								'stock_batch_id' =>	$phparray["stockHeader"][0]->stock_batch_id,
+								'inventory_stock_transfer_header_id' =>	$header_id ,
 								'item_id' =>	$value->item_id,
-								'item_cost' => $value->item_cost,
 								'no_of_items' =>	$value->no_of_items,
-								'allocated_no_of_items' =>	0,
-								'available_no_of_items' =>	$value->no_of_items,
-								'is_sub_item' =>	0
+								'is_sub_item' =>	$value->is_sub_item,
+								'is_active_stock_transfer_detail' =>	1
 							);
 						}
-						if($value->item_type == 'sub_item_id'){
+						if($value->is_sub_item == 1){
 							$itemData = array(
-								'stock_batch_id' =>	$phparray["stockHeader"][0]->stock_batch_id,
+								'inventory_stock_transfer_header_id' =>	$header_id ,
 								'item_id' =>	$value->item_id,
-								'item_cost' => $value->item_cost,
 								'no_of_items' =>	$value->no_of_items,
-								'allocated_no_of_items' =>	0,
-								'available_no_of_items' =>	$value->no_of_items,
-								'is_sub_item' =>	1
+								'is_sub_item' =>	$value->is_sub_item,
+								'is_active_stock_transfer_detail' =>	1
 							);
-						}			
+						}
 						
-						$this->inventory_stock_purchase_detail_model->insert($itemData);
-						
+						$this->inventory_stock_transfer_detail_model->insert($itemData);
 					}
 					
 				}
@@ -418,6 +455,19 @@ class StockTransfer extends CI_Controller {
 					'success'		=>	true,
 					'message'		=>	'Data Updated!'
 				);
+			}
+			else if($phparray["stockHeader"][0]->is_approved == 1){
+				$data = array(
+					'approved_by' =>	($phparray["stockHeader"][0]->is_approved == 1) ? $emp_id : 0,
+					'is_approved' =>	$phparray["stockHeader"][0]->is_approved,
+				);
+				$this->inventory_stock_transfer_header_model->update_single($phparray["stockHeader"][0]->inventory_stock_transfer_header_id, $data);
+				
+				$userData = $this->inventory_stock_transfer_header_model->fetch_single($phparray["stockHeader"][0]->inventory_stock_transfer_header_id);
+				
+				var_dump($userData[0]);
+				//$this->stockTransferMail($userData);
+				
 			}
 			
 		}
@@ -428,7 +478,7 @@ class StockTransfer extends CI_Controller {
 				'message'		=>	'Error!'
 			);
 		}
-		echo json_encode($array);
+		//echo json_encode($array);
 	}
 
 	function delete()

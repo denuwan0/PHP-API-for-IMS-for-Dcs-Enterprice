@@ -52,4 +52,18 @@ class Inventory_stock_transfer_detail_model extends CI_Model{
 		return $query->result_array();
 	}
 	
+	function delete_all_items_by_header_id($transfer_id)
+	{
+		$this->db->where('inventory_stock_transfer_header_id', $transfer_id);
+		$query = $this->db->get('inventory_stock_transfer_detail');
+		return $query;
+	}
+	
+	function count_items_by_batch_id($transfer_id )
+	{
+		$this->db->where('inventory_stock_transfer_header_id ', $transfer_id );
+		$query = $this->db->get('inventory_stock_transfer_detail');
+		return $this->db->affected_rows();
+	}
+	
 }

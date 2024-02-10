@@ -91,10 +91,18 @@ class Branch extends CI_Controller {
 	}
 	
 	function fetch_all_active_other_branches()
-	{		
+	{	
+		$sys_user_group_name = $this->session->userdata('sys_user_group_name');
 		$emp_branch_id = $this->session->userdata('emp_branch_id');
-		$data = $this->branch_model->fetch_all_active_other_branches_by_emp_branch_id($emp_branch_id);
-		echo json_encode($data->result_array());
+		
+		if($sys_user_group_name == "Admin"){
+			$data = $this->branch_model->fetch_all_active();
+			echo json_encode($data->result_array());
+		}
+		else{
+			$data = $this->branch_model->fetch_all_active_other_branches_by_emp_branch_id($emp_branch_id);
+			echo json_encode($data->result_array());
+		}
 		
 	}
 	
