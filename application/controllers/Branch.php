@@ -76,7 +76,6 @@ class Branch extends CI_Controller {
 	function fetch_all_active()
 	{		
 		
-		
 		$sys_user_group_name = $this->session->userdata('sys_user_group_name');
 		//var_dump($this->session->userdata());
 		$emp_branch_id = $this->session->userdata('emp_branch_id');
@@ -88,6 +87,14 @@ class Branch extends CI_Controller {
 			$data = $this->branch_model->fetch_all_active_by_emp_branch_id($emp_branch_id);
 			echo json_encode($data->result_array());
 		}
+		
+	}
+	
+	function fetch_all_active_other_branches()
+	{		
+		$emp_branch_id = $this->session->userdata('emp_branch_id');
+		$data = $this->branch_model->fetch_all_active_other_branches_by_emp_branch_id($emp_branch_id);
+		echo json_encode($data->result_array());
 		
 	}
 	

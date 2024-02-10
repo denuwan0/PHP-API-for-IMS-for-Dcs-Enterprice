@@ -3,20 +3,27 @@
 class Branch_model extends CI_Model{   
     
 	function fetch_all(){
-		$this->db->order_by('company_branch_id', 'DESC');
+		$this->db->order_by('company_branch_id', 'ASC');
 		return $this->db->get('company_branch');
 	}
 	
 	function fetch_all_active(){
 		$this->db->where('is_active_branch', 1);
-		$this->db->order_by('company_branch_id', 'DESC');
+		$this->db->order_by('company_branch_id', 'ASC');
 		return $this->db->get('company_branch');
 	}
 	
 	function fetch_all_active_by_emp_branch_id($company_branch_id){
 		$this->db->where('is_active_branch', 1);
 		$this->db->where('company_branch_id', $company_branch_id);
-		$this->db->order_by('company_branch_id', 'DESC');
+		$this->db->order_by('company_branch_id', 'ASC');
+		return $this->db->get('company_branch');
+	}
+	
+	function fetch_all_active_other_branches_by_emp_branch_id($company_branch_id){
+		$this->db->where('is_active_branch', 1);
+		$this->db->where_not_in('company_branch_id', $company_branch_id);
+		$this->db->order_by('company_branch_id', 'ASC');
 		return $this->db->get('company_branch');
 	}
 	
