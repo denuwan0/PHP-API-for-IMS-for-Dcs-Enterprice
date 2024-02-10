@@ -42,6 +42,13 @@ class Inventory_stock_retail_header_model extends CI_Model{
 		return $query;
 	}
 	
+	function fetch_all_by_purchase_stock_header_id($stock_batch_id)
+	{
+		$this->db->where('stock_batch_id', $stock_batch_id);
+		$query = $this->db->get('inventory_stock_retail_header');
+		return $query;
+	}
+	
 	function fetch_all_approved_by_retail_stock_header_id($retail_stock_header_id)
 	{
 		$this->db->where('retail_stock_header_id', $retail_stock_header_id);

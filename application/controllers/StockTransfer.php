@@ -238,7 +238,11 @@ class StockTransfer extends CI_Controller {
 	{
 				
 		if($this->input->get('id'))
-		{			
+		{
+			$sys_user_group_name = $this->session->userdata('sys_user_group_name');
+			//var_dump($this->session->userdata());
+			$emp_branch_id = $this->session->userdata('emp_branch_id');
+			
 			$stock_batch_id = $this->input->get('id');
 			$data1 = $this->inventory_stock_transfer_header_model->fetch_single($stock_batch_id);
 			
@@ -246,6 +250,17 @@ class StockTransfer extends CI_Controller {
 			
 			$retail_stock_header_id = $this->input->get('id');
 			$data2 = $this->inventory_stock_transfer_detail_model->fetch_single_join($stock_batch_id);
+			
+			//var_dump($emp_branch_id);
+			if($sys_user_group_name == "Admin" ){
+				$data1[0]['show_accept'] = 1;
+			}
+			else if($sys_user_group_name == "Manager" && $emp_branch_id == $data1[0]['branch_id_to']){
+				$data1[0]['show_accept'] = 1;
+			}
+			else{
+				$data1[0]['show_accept'] = 0;
+			}
 			
 			$jsonArr = array('header' => $data1, 'detail' => $data2);
 			
@@ -282,7 +297,10 @@ class StockTransfer extends CI_Controller {
 		$phparray = (array) $json;
 		
 		$itemArray = array();
-		$itemArray = $phparray["itemsArr"];		
+		$itemArray = $phparray["itemsArr"];	
+		$branch_id = $this->session->userdata('emp_branch_id');
+		$created_by = $this->session->userdata('user_id');
+		$emp_id =  $this->session->userdata('emp_id');
 		
 		if($phparray["stockHeader"][0]->stock_purchase_date != '' )
 		{			
@@ -296,7 +314,7 @@ class StockTransfer extends CI_Controller {
 				inventory_stock_rental
 				inventory_stock_retail */
 				$status = 0;
-				$status += ($this->inventory_stock_retail_detail_model->fetch_all_by_retail_stock_header_id($phparray["stockHeader"][0]->stock_batch_id))->num_rows();
+				//$status += ($this->inventory_stock_t_detail_model->fetch_all_by_retail_stock_header_id($phparray["stockHeader"][0]->stock_batch_id))->num_rows();
 				
 				if($status>0){
 					$array = array(
@@ -305,19 +323,46 @@ class StockTransfer extends CI_Controller {
 					);
 				}
 				else{
+										
 					$data = array(
-						'stock_purchase_date'	=>	$phparray["stockHeader"][0]->stock_purchase_date,
-						'is_allocated_stock' =>	0,
-						'is_approved_stock' =>	0,
-						'created_by' =>	$this->session->userdata('user_id'),
-						'branch_id' =>	$this->session->userdata('emp_branch_id'),
-						'is_allocated_stock' =>	0,
-						'is_approved_stock' =>	0,
-						'is_active_stock_purchase' =>	1
+						'create_date'	=>	$phparray["stockHeader"][0]->create_date,
+						'branch_id_from' =>	$phparray["stockHeader"][0]->branch_id_from,
+						'branch_id_to' =>	$phparray["stockHeader"][0]->branch_id_to,
+						'transfer_type' =>	$phparray["stockHeader"][0]->transfer_type,
+						'stock_type' =>	$phparray["stockHeader"][0]->stock_type,
+						'approved_by' =>	$emp_id,
+						'is_approved' =>	$phparray["stockHeader"][0]->is_approved,
+						'is_accepted' =>	$phparray["stockHeader"][0]->is_accepted,
+						'accepted_by' =>	$emp_id,
+						'is_active_inv_stock_trans' =>	$phparray["stockHeader"][0]->is_active_inv_stock_trans
 					);
+					
+					$header_id = $this->inventory_stock_transfer_header_model->insert($data);
+
+
+					if($value->is_sub_item == 0){
+						$itemData = array(
+							'inventory_stock_transfer_header_id' =>	$header_id ,
+							'item_id' =>	$value->item_id,
+							'no_of_items' =>	$value->no_of_items,
+							'is_sub_item' =>	$value->is_sub_item,
+							'is_active_stock_transfer_detail' =>	1
+						);
+					}
+					if($value->is_sub_item == 1){
+						$itemData = array(
+							'inventory_stock_transfer_header_id' =>	$header_id ,
+							'item_id' =>	$value->item_id,
+							'no_of_items' =>	$value->no_of_items,
+							'is_sub_item' =>	$value->is_sub_item,
+							'is_active_stock_transfer_detail' =>	1
+						);
+					}
+					
 				}
 			}			
 			else{
+				
 				$data = array(
 					'stock_purchase_date'	=>	$phparray["stockHeader"][0]->stock_purchase_date,
 					//'is_allocated_stock' =>	$phparray["stockHeader"][0]->is_allocated_stock,

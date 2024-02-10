@@ -20,6 +20,14 @@ class inventory_stock_rental_header_model extends CI_Model{
 		return $query->result_array();
 	}
 	
+	
+	function fetch_all_by_purchase_stock_header_id($stock_batch_id)
+	{
+		$this->db->where('stock_batch_id', $stock_batch_id);
+		$query = $this->db->get('inventory_stock_rental_header');
+		return $query;
+	}
+	
 	function fetch_all_by_branch_id($branch_id)
 	{
 		$this->db->where('branch_id', $branch_id);

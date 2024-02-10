@@ -9,7 +9,7 @@ class Stock extends CI_Controller {
 		$this->load->model('inventory_stock_purchase_header_model');
 		$this->load->model('inventory_stock_purchase_detail_model');
 		$this->load->model('inventory_stock_retail_header_model');
-		$this->load->model('inventory_stock_retail_detail_model');
+		$this->load->model('inventory_stock_rental_header_model');
 		
 		//$is_ajax = 'xmlhttprequest' == strtolower( $_SERVER['HTTP_X_REQUESTED_WITH'] ?? '' );
 		
@@ -168,7 +168,9 @@ class Stock extends CI_Controller {
 		$phparray = (array) $json;
 		
 		$itemArray = array();
-		$itemArray = $phparray["itemsArr"];		
+		$itemArray = $phparray["itemsArr"];
+
+		
 		
 		if($phparray["stockHeader"][0]->stock_purchase_date != '' )
 		{			
@@ -181,8 +183,15 @@ class Stock extends CI_Controller {
 				/*
 				inventory_stock_rental
 				inventory_stock_retail */
+				
+						
+				
 				$status = 0;
-				$status += ($this->inventory_stock_retail_detail_model->fetch_all_by_retail_stock_header_id($phparray["stockHeader"][0]->stock_batch_id))->num_rows();
+				$status += ($this->inventory_stock_retail_header_model->fetch_all_by_purchase_stock_header_id($phparray["stockHeader"][0]->stock_batch_id))->num_rows();
+				
+				$status += ($this->inventory_stock_rental_header_model->fetch_all_by_purchase_stock_header_id($phparray["stockHeader"][0]->stock_batch_id))->num_rows();
+				
+				
 				
 				if($status>0){
 					$array = array(
@@ -193,32 +202,72 @@ class Stock extends CI_Controller {
 				else{
 					$data = array(
 						'stock_purchase_date'	=>	$phparray["stockHeader"][0]->stock_purchase_date,
-						'is_allocated_stock' =>	0,
-						'is_approved_stock' =>	0,
+						'is_approved_stock' =>	$phparray["stockHeader"][0]->is_approved_stock,
 						'created_by' =>	$this->session->userdata('user_id'),
 						'branch_id' =>	$this->session->userdata('emp_branch_id'),
-						'is_allocated_stock' =>	0,
-						'is_approved_stock' =>	0,
-						'is_active_stock_purchase' =>	1
+						'is_active_stock_purchase' =>	$phparray["stockHeader"][0]->is_active_stock_purchase
 					);
+					
+					$this->inventory_stock_purchase_header_model->update_single($phparray["stockHeader"][0]->stock_batch_id, $data);
+					
+					$this->inventory_stock_purchase_detail_model->delete_all_items_by_stock_batch_id($phparray["stockHeader"][0]->stock_batch_id);	
+					
+					$db_count = $this->inventory_stock_purchase_detail_model->count_items_by_batch_id($phparray["stockHeader"][0]->stock_batch_id);
+					
+					if($db_count == 0){
+					
+						foreach($phparray["itemsArr"] as $value){
+							//var_dump($value);
+							if($value->item_type == 'main_item_id'){
+								$itemData = array(
+									'stock_batch_id' =>	$phparray["stockHeader"][0]->stock_batch_id,
+									'item_id' =>	$value->item_id,
+									'item_cost' => $value->item_cost,
+									'no_of_items' =>	$value->no_of_items,
+									'allocated_no_of_items' =>	0,
+									'available_no_of_items' =>	$value->no_of_items,
+									'is_sub_item' =>	0
+								);
+							}
+							if($value->item_type == 'sub_item_id'){
+								$itemData = array(
+									'stock_batch_id' =>	$phparray["stockHeader"][0]->stock_batch_id,
+									'item_id' =>	$value->item_id,
+									'item_cost' => $value->item_cost,
+									'no_of_items' =>	$value->no_of_items,
+									'allocated_no_of_items' =>	0,
+									'available_no_of_items' =>	$value->no_of_items,
+									'is_sub_item' =>	1
+								);
+							}			
+							
+							$this->inventory_stock_purchase_detail_model->insert($itemData);
+							
+						}
+						
+					}
+
+					$array = array(
+						'success'		=>	true,
+						'message'		=>	'Data Updated!'
+					);
+					
 				}
 			}			
 			else{
 				$data = array(
 					'stock_purchase_date'	=>	$phparray["stockHeader"][0]->stock_purchase_date,
-					//'is_allocated_stock' =>	$phparray["stockHeader"][0]->is_allocated_stock,
 					'is_approved_stock' =>	$phparray["stockHeader"][0]->is_approved_stock,
 					'created_by' =>	$this->session->userdata('user_id'),
 					'branch_id' =>	$this->session->userdata('emp_branch_id'),
-					'is_active_stock_purchase' =>	1
+					'is_active_stock_purchase' =>	$phparray["stockHeader"][0]->is_active_stock_purchase
 				);
-
-				$this->inventory_stock_purchase_header_model->update_single($phparray["stockHeader"][0]->stock_batch_id, $data);
 				
+				$this->inventory_stock_purchase_header_model->update_single($phparray["stockHeader"][0]->stock_batch_id, $data);
+								
 				$this->inventory_stock_purchase_detail_model->delete_all_items_by_stock_batch_id($phparray["stockHeader"][0]->stock_batch_id);	
 				
-				$db_count = $this->inventory_stock_purchase_detail_model->count_items_by_batch_id($phparray["stockHeader"][0]->stock_batch_id);			
-								
+				$db_count = $this->inventory_stock_purchase_detail_model->count_items_by_batch_id($phparray["stockHeader"][0]->stock_batch_id);		
 				
 					
 				if($db_count == 0){
