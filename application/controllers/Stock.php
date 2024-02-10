@@ -204,6 +204,7 @@ class Stock extends CI_Controller {
 						'stock_purchase_date'	=>	$phparray["stockHeader"][0]->stock_purchase_date,
 						'is_approved_stock' =>	$phparray["stockHeader"][0]->is_approved_stock,
 						'created_by' =>	$this->session->userdata('user_id'),
+						'approved_by' =>	($phparray["stockHeader"][0]->is_approved_stock == 1) ? $this->session->userdata('user_id') : 0,
 						'branch_id' =>	$this->session->userdata('emp_branch_id'),
 						'is_active_stock_purchase' =>	$phparray["stockHeader"][0]->is_active_stock_purchase
 					);
@@ -259,6 +260,7 @@ class Stock extends CI_Controller {
 					'stock_purchase_date'	=>	$phparray["stockHeader"][0]->stock_purchase_date,
 					'is_approved_stock' =>	$phparray["stockHeader"][0]->is_approved_stock,
 					'created_by' =>	$this->session->userdata('user_id'),
+					'approved_by' =>	($phparray["stockHeader"][0]->is_approved_stock == 1) ? $this->session->userdata('user_id') : 0,
 					'branch_id' =>	$this->session->userdata('emp_branch_id'),
 					'is_active_stock_purchase' =>	$phparray["stockHeader"][0]->is_active_stock_purchase
 				);

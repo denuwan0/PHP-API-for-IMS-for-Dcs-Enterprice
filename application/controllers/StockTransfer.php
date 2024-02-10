@@ -330,14 +330,15 @@ class StockTransfer extends CI_Controller {
 						'branch_id_to' =>	$phparray["stockHeader"][0]->branch_id_to,
 						'transfer_type' =>	$phparray["stockHeader"][0]->transfer_type,
 						'stock_type' =>	$phparray["stockHeader"][0]->stock_type,
-						'approved_by' =>	$emp_id,
+						'approved_by' =>	($phparray["stockHeader"][0]->is_approved == 1) ? $emp_id : 0,
 						'is_approved' =>	$phparray["stockHeader"][0]->is_approved,
 						'is_accepted' =>	$phparray["stockHeader"][0]->is_accepted,
-						'accepted_by' =>	$emp_id,
+						'accepted_by' =>	($phparray["stockHeader"][0]->is_accepted == 1) ? $emp_id : 0,
 						'is_active_inv_stock_trans' =>	$phparray["stockHeader"][0]->is_active_inv_stock_trans
 					);
 					
 					$header_id = $this->inventory_stock_transfer_header_model->insert($data);
+					$header_id = $this->inventory_stock_transfer_header_model->update_single($phparray["stockHeader"][0]->inventory_stock_transfer_header_id, $data);
 
 
 					if($value->is_sub_item == 0){
