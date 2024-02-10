@@ -663,6 +663,13 @@ class SysUser extends CI_Controller {
 		echo json_encode($data->result_array());
 	}
 	
+	function fetch_all_active_join()
+	{	
+		$data = $this->Sys_user_model->fetch_all_active_join();
+		
+		echo json_encode($data->result_array());
+	}
+	
 	function fetch_single_join()
 	{	
 		if($this->input->get('id'))

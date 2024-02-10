@@ -52,6 +52,7 @@ class StockTransfer extends CI_Controller {
 				'created_by' =>	$created_by,
 				'transfer_type' =>	$phparray["stockHeader"][0]->transfer_type,
 				'stock_type' =>	$phparray["stockHeader"][0]->stock_type,
+				'inform_user_id' =>	$phparray["stockHeader"][0]->inform_user_id,
 				'approved_by' =>	0,
 				'is_approved' =>	0,
 				'is_accepted' =>	0,
@@ -352,6 +353,7 @@ class StockTransfer extends CI_Controller {
 						'branch_id_to' =>	$phparray["stockHeader"][0]->branch_id_to,
 						'transfer_type' =>	$phparray["stockHeader"][0]->transfer_type,
 						'stock_type' =>	$phparray["stockHeader"][0]->stock_type,
+						'inform_user_id' =>	$phparray["stockHeader"][0]->inform_user_id,
 						'approved_by' =>	($phparray["stockHeader"][0]->is_approved == 1) ? $emp_id : 0,
 						'is_approved' =>	$phparray["stockHeader"][0]->is_approved,
 						'is_accepted' =>	$phparray["stockHeader"][0]->is_accepted,
@@ -409,6 +411,7 @@ class StockTransfer extends CI_Controller {
 					'branch_id_to' =>	$phparray["stockHeader"][0]->branch_id_to,
 					'transfer_type' =>	$phparray["stockHeader"][0]->transfer_type,
 					'stock_type' =>	$phparray["stockHeader"][0]->stock_type,
+					'inform_user_id' =>	$phparray["stockHeader"][0]->inform_user_id,
 					'approved_by' =>	($phparray["stockHeader"][0]->is_approved == 1) ? $emp_id : 0,
 					'is_approved' =>	$phparray["stockHeader"][0]->is_approved,
 					'is_accepted' =>	$phparray["stockHeader"][0]->is_accepted,
@@ -460,6 +463,19 @@ class StockTransfer extends CI_Controller {
 				$data = array(
 					'approved_by' =>	($phparray["stockHeader"][0]->is_approved == 1) ? $emp_id : 0,
 					'is_approved' =>	$phparray["stockHeader"][0]->is_approved,
+				);
+				$this->inventory_stock_transfer_header_model->update_single($phparray["stockHeader"][0]->inventory_stock_transfer_header_id, $data);
+				
+				$userData = $this->inventory_stock_transfer_header_model->fetch_single($phparray["stockHeader"][0]->inventory_stock_transfer_header_id);
+				
+				var_dump($userData[0]);
+				//$this->stockTransferMail($userData);
+				
+			}
+			else if($phparray["stockHeader"][0]->is_accepted == 1){
+				$data = array(
+					'is_accepted' =>	$phparray["stockHeader"][0]->is_accepted,
+					'accepted_by' =>	($phparray["stockHeader"][0]->is_accepted == 1) ? $emp_id : 0,
 				);
 				$this->inventory_stock_transfer_header_model->update_single($phparray["stockHeader"][0]->inventory_stock_transfer_header_id, $data);
 				

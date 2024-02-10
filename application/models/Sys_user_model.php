@@ -132,6 +132,19 @@ class Sys_user_model extends CI_Model{
 		return $query;
 	}
 	
+	function fetch_all_active_join()
+	{
+		$this->db->select('*');
+		$this->db->from('sys_user');
+		$this->db->where('sys_user.is_active_sys_user', 1);
+		$this->db->where('sys_user.is_customer', 0);
+		$this->db->join('sys_user_group', 'sys_user.sys_user_group_id = sys_user_group.sys_user_group_id','left');
+		$this->db->join('emp_details', 'sys_user.emp_cust_id = emp_details.emp_id','left');
+		$this->db->join('company_branch', 'emp_details.emp_branch_id = company_branch.company_branch_id','left');
+		$query = $this->db->get();
+		return $query;
+	}
+	
 	function fetch_active_single_join($user_id)
 	{
 		$this->db->where('sys_user.user_id', $user_id);
