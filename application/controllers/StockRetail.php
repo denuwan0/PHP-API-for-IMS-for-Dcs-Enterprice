@@ -10,6 +10,7 @@ class StockRetail extends CI_Controller {
 		$this->load->model('Inventory_stock_retail_detail_model');
 		$this->load->model('Inventory_stock_purchase_header_model');
 		$this->load->model('Inventory_stock_purchase_detail_model');
+		$this->load->model('Inventory_retail_total_stock_model');
 		$this->load->model('Inventory_item_model');
 		
 		//var_dump();
@@ -68,10 +69,7 @@ class StockRetail extends CI_Controller {
 					$itemData = array(
 						'retail_stock_header_id' =>	$retail_stock_header_id,
 						'item_id' =>	$value->item_id,
-						'max_sale_price' =>	$value->max_sale_price,
-						'min_sale_price' =>	$value->min_sale_price,
 						'full_stock_count' =>	$value->full_stock_count,
-						'stock_re_order_level' =>	$value->stock_re_order_level,
 						'is_sub_item' =>	$value->is_sub_item,
 						'is_active_retail_stock_detail' =>	1
 					);	
@@ -265,14 +263,13 @@ class StockRetail extends CI_Controller {
 								$itemData = array(
 									'retail_stock_header_id' =>	$retail_stock_header_id,
 									'item_id' =>	$value->item_id,
-									'max_sale_price' =>	$value->max_sale_price,
-									'min_sale_price' =>	$value->min_sale_price,
 									'full_stock_count' =>	$value->full_stock_count,
-									'stock_re_order_level' =>	$value->stock_re_order_level,
 									'is_sub_item' =>	$value->is_sub_item
 								);	
 								
-								$status = $this->Inventory_stock_retail_detail_model->update_single($value->retail_stock_detail_id, $itemData);					
+								$status = $this->Inventory_stock_retail_detail_model->update_single($value->retail_stock_detail_id, $itemData);
+								
+								
 							}
 						}
 					}
@@ -305,10 +302,7 @@ class StockRetail extends CI_Controller {
 							$itemData = array(
 								'retail_stock_header_id' =>	$retail_stock_header_id,
 								'item_id' =>	$value->item_id,
-								'max_sale_price' =>	$value->max_sale_price,
-								'min_sale_price' =>	$value->min_sale_price,
 								'full_stock_count' =>	$value->full_stock_count,
-								'stock_re_order_level' =>	$value->stock_re_order_level,
 								'is_sub_item' =>	$value->is_sub_item
 							);	
 							
@@ -335,62 +329,76 @@ class StockRetail extends CI_Controller {
 				);	
 				
 				$status = $this->Inventory_stock_retail_header_model->update_single($phparray["stockHeader"][0]->retail_stock_header_id, $data);
-				$available_sum = 0;
-				//if($status != null){
-					//var_dump($itemArray);
-					foreach($itemArray as $value){
-						$status = 0;
-						if($retail_stock_header_id){
-							$itemData = array(
-								'retail_stock_header_id' =>	$retail_stock_header_id,
-								'item_id' =>	$value->item_id,
-								'max_sale_price' =>	$value->max_sale_price,
-								'min_sale_price' =>	$value->min_sale_price,
-								'full_stock_count' =>	$value->full_stock_count,
-								'stock_re_order_level' =>	$value->stock_re_order_level,
-								'is_sub_item' =>	$value->is_sub_item
-							);	
-							
-							$status = $this->Inventory_stock_retail_detail_model->update_single($retail_stock_header_id, $value->retail_stock_detail_id, $itemData);
-												
-						}
-						
-						$available_no_of_items = $this->Inventory_stock_purchase_detail_model->fetch_available_no_of_items_by_main_and_sub_item_id_item_type($phparray["stockHeader"][0]->stock_batch_id, $value->item_id, $value->is_sub_item);
-						
-						//var_dump($available_no_of_items);
-						
-						//var_dump($available_no_of_items[0]["available_no_of_items"]);
-						if($available_no_of_items){
-							$available_no_of_items = ($available_no_of_items[0]["available_no_of_items"]) - ($value->full_stock_count);
-							
-							$itemData1 = array(
-								'allocated_no_of_items' =>	$value->full_stock_count,
-								'available_no_of_items' =>	$available_no_of_items
-							);
-							
-							$this->Inventory_stock_purchase_detail_model->update_single_main_and_sub_item_with_item_type($phparray["stockHeader"][0]->stock_batch_id, $value->item_id, $value->is_sub_item, $itemData1);
-							
-							
-							
-							
-						}
-						
+				
+				foreach($itemArray as $value){
+					$itemData1 = array(
+						'item_id' =>	$value->item_id,
+						'full_stock_count' =>	$value->full_stock_count,
+						'is_sub_item' =>	$value->is_sub_item,
+						'is_active_retail_stock_detail' =>	1
+					);
+					
+					$status = $this->Inventory_stock_retail_detail_model->update_single($phparray["stockHeader"][0]->retail_stock_header_id, $value->retail_stock_detail_id, $itemData1);
+					
+					$available_no_of_items = $this->Inventory_stock_purchase_detail_model->fetch_available_no_of_items_by_main_and_sub_item_id_item_type($phparray["stockHeader"][0]->stock_batch_id, $value->item_id, $value->is_sub_item);
 						
 										
-						//var_dump($itemData);
+					if($available_no_of_items){
+						$available_no_of_items = ($available_no_of_items[0]["available_no_of_items"]) - ($value->full_stock_count);
 						
-					}
-					
-					$available_sum = $this->Inventory_stock_purchase_detail_model->fetch_sum_of_available_items($phparray["stockHeader"][0]->stock_batch_id);
-					//var_dump($available_sum[0]["available_no_of_items"]);
-					if($available_sum[0]["available_no_of_items"] == 0){
-						$data = array(
-							'is_allocated_stock' =>	1,
+						$itemData2 = array(
+							'allocated_no_of_items' =>	$value->full_stock_count,
+							'available_no_of_items' =>	$available_no_of_items
 						);
 						
-						$this->Inventory_stock_purchase_header_model->update_single($phparray["stockHeader"][0]->stock_batch_id, $data);
+						$this->Inventory_stock_purchase_detail_model->update_single_main_and_sub_item_with_item_type($phparray["stockHeader"][0]->stock_batch_id, $value->item_id, $value->is_sub_item, $itemData2);
+												
 					}
-				//}
+					
+					$totStockData = $this->Inventory_retail_total_stock_model->fetch_single_by_branch_id_item_id_is_sub($value->item_id, $branch_id, $value->is_sub_item);
+					
+					
+					if(empty($totStockData)){
+						
+						$itemData1 = array(
+							'item_id' =>	$value->item_id,
+							'full_stock_count' =>	$value->full_stock_count,
+							'is_sub_item' =>	$value->is_sub_item,
+							'branch_id' =>	$branch_id,
+							'is_active_retail_stock' =>	1
+						);
+						
+						$this->Inventory_retail_total_stock_model->insert($itemData1);
+					}
+					else{
+						$full_stock_count = $totStockData[0]["full_stock_count"] + $value->full_stock_count;
+						$retail_stock_id = $totStockData[0]["retail_stock_id"];
+						
+						$itemData1 = array(
+							'item_id' =>	$value->item_id,
+							'full_stock_count' =>	$full_stock_count,
+							'is_sub_item' =>	$value->is_sub_item,
+							'branch_id' =>	$branch_id,
+							'is_active_retail_stock' =>	1
+						);
+						
+						$this->Inventory_retail_total_stock_model->update_single($retail_stock_id, $itemData1);
+					}
+					
+					
+				}
+				
+				$available_sum = $this->Inventory_stock_purchase_detail_model->fetch_sum_of_available_items($phparray["stockHeader"][0]->stock_batch_id);
+				if($available_sum[0]["available_no_of_items"] == 0){
+					
+					$data = array(
+						'is_allocated_stock' =>	1
+					);
+					
+					$available_sum = $this->Inventory_stock_purchase_header_model->update_single($phparray["stockHeader"][0]->stock_batch_id, $data);
+				}
+					
+					
 
 				$array = array(
 					'success'		=>	true,

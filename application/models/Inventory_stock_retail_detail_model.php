@@ -40,7 +40,7 @@ class Inventory_stock_retail_detail_model extends CI_Model{
 	{
 		//var_dump($retail_stock_header_id);
 		
-		$query = $this->db->query("SELECT inventory_stock_retail_detail.retail_stock_detail_id, inventory_stock_retail_detail.retail_stock_header_id, inventory_stock_retail_detail.item_id, inventory_stock_retail_detail.max_sale_price, inventory_stock_retail_detail.min_sale_price, inventory_stock_retail_detail.full_stock_count, inventory_stock_retail_detail.stock_re_order_level, inventory_stock_retail_detail.is_sub_item, IF(inventory_stock_retail_detail.is_sub_item = 0, inventory_item.item_name, inventory_sub_item.sub_item_name)  as item_name FROM `inventory_stock_retail_detail` left join inventory_item on inventory_stock_retail_detail.item_id = inventory_item.item_id left join inventory_sub_item on inventory_stock_retail_detail.item_id = inventory_sub_item.sub_item_id WHERE `retail_stock_header_id` = '$retail_stock_header_id' AND inventory_stock_retail_detail.is_active_retail_stock_detail = 1");
+		$query = $this->db->query("SELECT inventory_stock_retail_detail.retail_stock_detail_id, inventory_stock_retail_detail.retail_stock_header_id, inventory_stock_retail_detail.item_id,  inventory_stock_retail_detail.full_stock_count,  inventory_stock_retail_detail.is_sub_item, IF(inventory_stock_retail_detail.is_sub_item = 0, inventory_item.item_name, inventory_sub_item.sub_item_name)  as item_name FROM `inventory_stock_retail_detail` left join inventory_item on inventory_stock_retail_detail.item_id = inventory_item.item_id left join inventory_sub_item on inventory_stock_retail_detail.item_id = inventory_sub_item.sub_item_id WHERE `retail_stock_header_id` = '$retail_stock_header_id' AND inventory_stock_retail_detail.is_active_retail_stock_detail = 1;");
 		
 		/* $this->db->where('retail_stock_header_id', $retail_stock_header_id);
 		$this->db->where('is_active_retail_stock_detail', 1);
@@ -85,6 +85,24 @@ class Inventory_stock_retail_detail_model extends CI_Model{
 		{
 			return false;
 		}
+	}
+	
+	function fetch_item_count_by_item_id_type_branch($item_id, $is_sub_item, $branch_id)
+	{
+		
+		$query = $this->db->query("SELECT IFNULL(SUM(inventory_stock_retail_detail.available_stock_count), 0) as available_stock FROM `inventory_stock_retail_detail` 
+		left join inventory_stock_retail_header on inventory_stock_retail_header.retail_stock_header_id = inventory_stock_retail_detail.retail_stock_header_id
+		WHERE inventory_stock_retail_detail.item_id = '$item_id' AND inventory_stock_retail_detail.is_sub_item = '$is_sub_item' AND inventory_stock_retail_detail.is_active_retail_stock_detail = 1 AND inventory_stock_retail_header.branch_id = '$branch_id';");
+		//var_dump($this->db->last_query());
+		return $query->result_array();
+	}
+	
+	function fetch_items_for_transfer($item_id, $is_sub_item, $branch_id)
+	{
+		
+		$query = $this->db->query("SELECT * FROM `inventory_stock_retail_detail` left join inventory_stock_retail_header on inventory_stock_retail_header.retail_stock_header_id = inventory_stock_retail_detail.retail_stock_header_id WHERE inventory_stock_retail_detail.item_id = '$item_id' AND inventory_stock_retail_detail.is_sub_item = '$is_sub_item' AND inventory_stock_retail_detail.is_active_retail_stock_detail = 1 AND inventory_stock_retail_header.branch_id = '$branch_id';");
+		
+		return $query->result_array();
 	}
 	
 }

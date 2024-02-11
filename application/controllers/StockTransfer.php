@@ -111,7 +111,7 @@ class StockTransfer extends CI_Controller {
 		echo json_encode($array);
 	}
 	
-	function stockTransferMail($userData){
+	function stockTransferMail($text, $userData){
 		
 		
 		// Load PHPMailer library
@@ -183,6 +183,7 @@ class StockTransfer extends CI_Controller {
 		$message = str_replace('%user_email%', $user_email, $message); 
 		$message = str_replace('%created_date%', $created_date, $message); 
 		$message = str_replace('%url%', $url, $message); 
+		$message = str_replace('%text%', $text, $message); 
 				
 		
 
@@ -251,23 +252,7 @@ class StockTransfer extends CI_Controller {
 			$retail_stock_header_id = $this->input->get('id');
 			$data2 = $this->inventory_stock_transfer_detail_model->fetch_single_join($stock_batch_id);
 			
-			//var_dump($emp_branch_id);
-			if($sys_user_group_name == "Admin" ){
-				$data1[0]['show_accept'] = 1;
-				$data1[0]['show_approve'] = 1;
-			}
-			else if($sys_user_group_name == "Manager" && $emp_branch_id == $data1[0]['branch_id_to']){
-				$data1[0]['show_accept'] = 1;
-				$data1[0]['show_approve'] = 0;
-			}
-			else if($sys_user_group_name == "Manager" && $emp_branch_id == $data1[0]['branch_id_from']){
-				$data1[0]['show_accept'] = 0;
-				$data1[0]['show_approve'] = 1;
-			}
-			else{
-				$data1[0]['show_accept'] = 0;
-				$data1[0]['show_approve'] = 0;
-			}
+			
 			
 			$jsonArr = array('header' => $data1, 'detail' => $data2);
 			
@@ -462,27 +447,21 @@ class StockTransfer extends CI_Controller {
 			else if($phparray["stockHeader"][0]->is_approved == 1){
 				$data = array(
 					'approved_by' =>	($phparray["stockHeader"][0]->is_approved == 1) ? $emp_id : 0,
-					'is_approved' =>	$phparray["stockHeader"][0]->is_approved,
+					'is_approved' =>	$phparray["stockHeader"][0]->is_approved
 				);
 				$this->inventory_stock_transfer_header_model->update_single($phparray["stockHeader"][0]->inventory_stock_transfer_header_id, $data);
 				
-				$userData = $this->inventory_stock_transfer_header_model->fetch_single($phparray["stockHeader"][0]->inventory_stock_transfer_header_id);
+				$userData = $this->inventory_stock_transfer_header_model->fetch_inform_user_info($phparray["stockHeader"][0]->inventory_stock_transfer_header_id);
 				
-				var_dump($userData[0]);
-				//$this->stockTransferMail($userData);
+				//var_dump($userData[0]);
+				$text = 'You have received a Stock Tranfer Request from '.$userData[0]["from_branch"];
 				
-			}
-			else if($phparray["stockHeader"][0]->is_accepted == 1){
-				$data = array(
-					'is_accepted' =>	$phparray["stockHeader"][0]->is_accepted,
-					'accepted_by' =>	($phparray["stockHeader"][0]->is_accepted == 1) ? $emp_id : 0,
+				$this->stockTransferMail($text, $userData);
+				
+				$array = array(
+					'success'		=>	true,
+					'message'		=>	'Data Updated!'
 				);
-				$this->inventory_stock_transfer_header_model->update_single($phparray["stockHeader"][0]->inventory_stock_transfer_header_id, $data);
-				
-				$userData = $this->inventory_stock_transfer_header_model->fetch_single($phparray["stockHeader"][0]->inventory_stock_transfer_header_id);
-				
-				var_dump($userData[0]);
-				//$this->stockTransferMail($userData);
 				
 			}
 			
@@ -494,7 +473,145 @@ class StockTransfer extends CI_Controller {
 				'message'		=>	'Error!'
 			);
 		}
+		echo json_encode($array);
+	}
+	
+	function accept()
+	{				
+		$json = json_decode(file_get_contents("php://input"));
+			
+		$phparray = (array) $json;
+		
+		$itemArray = array();
+		$stockHeader = $phparray["stockHeader"];	
+		$branch_id = $this->session->userdata('emp_branch_id');
+		$created_by = $this->session->userdata('user_id');
+		$emp_id =  $this->session->userdata('emp_id');
+		
+		$inventory_stock_transfer_header_id = $stockHeader[0]->inventory_stock_transfer_header_id;
+		$stock_type = $stockHeader[0]->stock_type;
+		
+		$itemData = $this->inventory_stock_transfer_detail_model->fetch_single_join($inventory_stock_transfer_header_id);
+		
+	
+		if($stock_type == 'Rental'){
+			$stock_ok = 0;
+			$items = 0;
+			//var_dump($itemData);
+			foreach($itemData as $item){
+				
+				$no_of_items = $item["no_of_items"];
+				$item_id = $item["item_id"];
+				$is_sub_item = $item["is_sub_item"];
+				
+				$itemData = $this->inventory_stock_retail_detail_model->fetch_item_count_by_item_id_type_branch($item_id, $is_sub_item, $branch_id);
+				
+				if($itemData[0]["available_stock"] >= $no_of_items){
+					$stock_ok++;
+				}
+				else{
+					$stock_ok--;
+				}
+				$items++;
+			}
+			
+			if($items == $stock_ok){
+				
+				$data = array(
+					'accepted_by' =>	$created_by,
+					'is_accepted' =>	1
+				);
+				$this->inventory_stock_transfer_header_model->update_single($inventory_stock_transfer_header_id, $data);
+				
+				$array = array(
+					'success'		=>	true,
+					'message'		=>	'Data Updated!'
+				);
+			}
+			else{
+				$array = array(
+					'error'			=>	true,
+					'message'		=>	'Not enough stocks to accept this request!'
+				);
+			}
+			
+		}
+		else if($stock_type == 'Retail'){
+			$stock_ok = 0;
+			$items = 0;
+				
+			//var_dump($itemData);
+			foreach($itemData as $item){
+				
+				$no_of_items = $item["no_of_items"];
+				$item_id = $item["item_id"];
+				$is_sub_item = $item["is_sub_item"];
+				
+				$itemData = $this->inventory_stock_retail_detail_model->fetch_item_count_by_item_id_type_branch($item_id, $is_sub_item, $branch_id);
+				
+				if($itemData[0]["available_stock"] >= $no_of_items){
+					$stock_ok++;
+				}
+				else{
+					$stock_ok--;
+				}
+				$items++;
+			}
+			
+			if($items == $stock_ok){
+				
+				$data = array(
+					'accepted_by' =>	$created_by,
+					'is_accepted' =>	1
+				);
+				$this->inventory_stock_transfer_header_model->update_single($inventory_stock_transfer_header_id, $data);
+				
+				$itemData1 = $this->inventory_stock_retail_detail_model->fetch_items_for_transfer($item_id, $is_sub_item, $branch_id);
+				
+				foreach($itemData1 as $item1){
+					var_dump($item1);
+					echo "</br></br>";
+										
+					if($itemData[0]["available_stock"] >= $no_of_items){
+						$retail_stock_detail_id = ["retail_stock_detail_id"];
+						$available_stock_count = ["retail_stock_detail_id"] - $no_of_items;
+						
+						$data = array(
+							'available_stock_count' =>	$available_stock_count
+						);
+						
+						$this->inventory_stock_retail_detail_model->update_single($retail_stock_detail_id, $data);
+						
+					}
+					if($itemData[0]["available_stock"] < $no_of_items){
+						$retail_stock_detail_id = ["retail_stock_detail_id"];
+						$available_stock_count = 0;
+						
+						$data = array(
+							'available_stock_count' =>	$available_stock_count
+						);
+						
+						$this->inventory_stock_retail_detail_model->update_single($retail_stock_detail_id, $data);
+					}
+				}
+				
+				$array = array(
+					'success'		=>	true,
+					'message'		=>	'Data Updated!'
+				);
+			}
+			else{
+				$array = array(
+					'error'			=>	true,
+					'message'		=>	'Not enough stocks to accept this request!'
+				);
+			}
+			
+			
+			
+		}
 		//echo json_encode($array);
+		
 	}
 
 	function delete()

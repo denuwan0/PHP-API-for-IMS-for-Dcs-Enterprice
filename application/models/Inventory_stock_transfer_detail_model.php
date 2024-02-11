@@ -49,6 +49,7 @@ class Inventory_stock_transfer_detail_model extends CI_Model{
 		$this->db->join('inventory_sub_item', 'inventory_sub_item.sub_item_id = inventory_stock_transfer_detail.item_id','left');
 		$this->db->where('inventory_stock_transfer_detail.inventory_stock_transfer_header_id', $transfer_id);
 		$query = $this->db->get();
+		//var_dump($this->db->last_query());
 		return $query->result_array();
 	}
 	
