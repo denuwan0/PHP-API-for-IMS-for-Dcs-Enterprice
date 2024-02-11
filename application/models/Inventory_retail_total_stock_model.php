@@ -66,11 +66,23 @@ class Inventory_retail_total_stock_model extends CI_Model{
 	
 	function fetch_all_join()
 	{
-		$this->db->select('*');
-		$this->db->from('inventory_retail_total_stock');
-		$this->db->join('inventory_retail_total_stock_category', 'inventory_retail_total_stock.item_category = inventory_retail_total_stock_category.item_category_id','left');
-		//$this->db->where('company.company_id', $company_id);
-		return $query = $this->db->get();
+		$query = $this->db->query("SELECT inventory_retail_total_stock.retail_stock_id, inventory_retail_total_stock.item_id, inventory_retail_total_stock.is_sub_item, inventory_retail_total_stock.max_sale_price, inventory_retail_total_stock.min_sale_price, inventory_retail_total_stock.full_stock_count, inventory_retail_total_stock.stock_re_order_level, inventory_retail_total_stock.branch_id, company_branch.company_branch_name, inventory_retail_total_stock.is_active_retail_stock, IF(inventory_retail_total_stock.is_sub_item = 0, inventory_item.item_name, inventory_sub_item.sub_item_name)  as item_name FROM `inventory_retail_total_stock` left join inventory_item on  inventory_retail_total_stock.item_id = inventory_item.item_id left join inventory_sub_item on  inventory_retail_total_stock.item_id = inventory_sub_item.sub_item_id left join company_branch ON  inventory_retail_total_stock.branch_id = company_branch.company_branch_id;");
+
+		return $query;
+	}
+	
+	function fetch_all_join_by_branch_id($branch_id)
+	{
+		$query = $this->db->query("SELECT inventory_retail_total_stock.retail_stock_id, inventory_retail_total_stock.item_id, inventory_retail_total_stock.is_sub_item, inventory_retail_total_stock.max_sale_price, inventory_retail_total_stock.min_sale_price, inventory_retail_total_stock.full_stock_count, inventory_retail_total_stock.stock_re_order_level, inventory_retail_total_stock.branch_id, company_branch.company_branch_name, inventory_retail_total_stock.is_active_retail_stock, IF(inventory_retail_total_stock.is_sub_item = 0, inventory_item.item_name, inventory_sub_item.sub_item_name)  as item_name FROM `inventory_retail_total_stock` left join inventory_item on  inventory_retail_total_stock.item_id = inventory_item.item_id left join inventory_sub_item on  inventory_retail_total_stock.item_id = inventory_sub_item.sub_item_id left join company_branch ON  inventory_retail_total_stock.branch_id = company_branch.company_branch_id WHERE inventory_retail_total_stock.branch_id = '$branch_id';");
+
+		return $query;
+	}
+	
+	function fetch_all_join_by_stock_id($stock_id)
+	{
+		$query = $this->db->query("SELECT inventory_retail_total_stock.retail_stock_id, inventory_retail_total_stock.item_id, inventory_retail_total_stock.is_sub_item, inventory_retail_total_stock.max_sale_price, inventory_retail_total_stock.min_sale_price, inventory_retail_total_stock.full_stock_count, inventory_retail_total_stock.stock_re_order_level, inventory_retail_total_stock.branch_id, company_branch.company_branch_name, inventory_retail_total_stock.is_active_retail_stock, IF(inventory_retail_total_stock.is_sub_item = 0, inventory_item.item_name, inventory_sub_item.sub_item_name)  as item_name FROM `inventory_retail_total_stock` left join inventory_item on  inventory_retail_total_stock.item_id = inventory_item.item_id left join inventory_sub_item on  inventory_retail_total_stock.item_id = inventory_sub_item.sub_item_id left join company_branch ON  inventory_retail_total_stock.branch_id = company_branch.company_branch_id WHERE inventory_retail_total_stock.retail_stock_id = '$stock_id';");
+		//echo $this->db->last_query();
+		return $query;
 	}
 	
 }
