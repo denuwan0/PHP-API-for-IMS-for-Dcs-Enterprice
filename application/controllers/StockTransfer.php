@@ -12,6 +12,8 @@ class StockTransfer extends CI_Controller {
 		$this->load->model('inventory_stock_retail_detail_model');
 		$this->load->model('inventory_stock_rental_header_model');
 		$this->load->model('inventory_stock_rental_detail_model');
+		$this->load->model('inventory_stock_rental_header_model');
+		$this->load->model('inventory_stock_rental_detail_model');
 		$this->load->model('Emp_model');
 		$this->load->model('Company_model');
 		

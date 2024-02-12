@@ -102,6 +102,31 @@ class StockRental extends CI_Controller {
 		echo json_encode($data->result_array());
 	}
 	
+	function fetch_all_total_stock_join()
+	{			
+		$sys_user_group_name = $this->session->userdata('sys_user_group_name');
+		//var_dump($this->session->userdata());
+		$emp_branch_id = $this->session->userdata('emp_branch_id');
+		if($sys_user_group_name == "Admin"){
+			$data = $this->Inventory_rental_total_stock_model->fetch_all_join();
+		echo json_encode($data->result_array());
+		}
+		else{
+			$data = $this->Inventory_rental_total_stock_model->fetch_all_join_by_branch_id($emp_branch_id);
+			echo json_encode($data->result_array());
+		}
+	}
+	
+	function fetch_all_total_stock_join_by_id()
+	{		
+		if($this->input->get('id')){
+			$id = $this->input->get('id');
+			$data = $this->Inventory_rental_total_stock_model->fetch_all_join_by_stock_id($id);
+			echo json_encode($data->result_array());
+		}
+		
+	}
+	
 	function remove_detail_item_by_line_id()
 	{	
 
