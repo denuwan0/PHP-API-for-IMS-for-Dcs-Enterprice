@@ -301,8 +301,7 @@ class StockRetail extends CI_Controller {
 					
 					foreach($itemArray as $value){
 						$status = 0;
-						if($retail_stock_header_id){
-							
+						if($retail_stock_header_id){							
 							$itemData = array(
 								'retail_stock_header_id' =>	$retail_stock_header_id,
 								'item_id' =>	$value->item_id,
@@ -359,6 +358,7 @@ class StockRetail extends CI_Controller {
 				);
 			}
 			if($phparray["stockHeader"][0]->is_active_inv_stock_retail == 1 && $phparray["stockHeader"][0]->is_approved_inv_stock_retail == 1){
+				
 				$data = array(
 					'retail_stock_header_id' =>	$retail_stock_header_id,
 					'stock_batch_id' =>	$phparray["stockHeader"][0]->stock_batch_id,
@@ -369,6 +369,7 @@ class StockRetail extends CI_Controller {
 				$status = $this->Inventory_stock_retail_header_model->update_single($phparray["stockHeader"][0]->retail_stock_header_id, $data);
 				
 				foreach($itemArray as $value){
+					
 					$itemData1 = array(
 						'item_id' =>	$value->item_id,
 						'full_stock_count' =>	$value->full_stock_count,
@@ -379,7 +380,6 @@ class StockRetail extends CI_Controller {
 					$status = $this->Inventory_stock_retail_detail_model->update_single($phparray["stockHeader"][0]->retail_stock_header_id, $value->retail_stock_detail_id, $itemData1);
 					
 					$available_no_of_items = $this->Inventory_stock_purchase_detail_model->fetch_available_no_of_items_by_main_and_sub_item_id_item_type($phparray["stockHeader"][0]->stock_batch_id, $value->item_id, $value->is_sub_item);
-					//var_dump($available_no_of_items);	
 					
 					$allocated_no_of_items = (int)$available_no_of_items[0]["allocated_no_of_items"];
 					$available_no_of_items = (int)$available_no_of_items[0]["available_no_of_items"];
@@ -388,8 +388,7 @@ class StockRetail extends CI_Controller {
 						
 						$available_no_of_items = $available_no_of_items - $value->full_stock_count;					
 						$allocated_no_of_items = ( $allocated_no_of_items) + ($value->full_stock_count);
-											
-						
+										
 						$itemData2 = array(
 							'allocated_no_of_items' =>	$allocated_no_of_items,
 							'available_no_of_items' =>	$available_no_of_items
@@ -450,8 +449,9 @@ class StockRetail extends CI_Controller {
 				);
 			}
 			if($phparray["stockHeader"][0]->is_active_inv_stock_retail == 0 && $phparray["stockHeader"][0]->is_approved_inv_stock_retail == 1){
+				
 				$array = array(
-					'success'		=>	true,
+					'success'		=>	false,
 					'message'		=>	'Cannot approve inactive document!'
 				);
 			}

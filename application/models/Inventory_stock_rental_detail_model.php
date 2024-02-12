@@ -39,10 +39,10 @@ class inventory_stock_rental_detail_model extends CI_Model{
 	{
 		$this->db->where('rental_stock_header_id', $rental_stock_header_id);
 		$this->db->where('rental_stock_id', $rental_stock_id);
-		$this->db->update('inventory_stock_retail_detail', $data);
-		echo $this->db->last_query();
+		$this->db->update('inventory_stock_rental_detail', $data);
+		$this->db->last_query();
 	}
-	
+		
 	function fetch_all_by_stock_batch_id($stock_batch_id)
 	{
 		$this->db->where('stock_batch_id', $stock_batch_id);

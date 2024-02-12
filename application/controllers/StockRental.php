@@ -226,7 +226,7 @@ class StockRental extends CI_Controller {
 		
 		if($phparray["stockHeader"][0]->stock_purchase_date != '' )
 		{			
-			if($phparray["stockHeader"][0]->is_active_inv_stock_rental == 0){
+			if($phparray["stockHeader"][0]->is_active_inv_stock_rental == 0 && $phparray["stockHeader"][0]->is_approved_inv_stock_rental == 0){
 				
 				/* SELECT DISTINCT TABLE_NAME 
 				FROM INFORMATION_SCHEMA.COLUMNS
@@ -260,19 +260,18 @@ class StockRental extends CI_Controller {
 					
 					$status = $this->Inventory_stock_rental_header_model->update_single($phparray["stockHeader"][0]->rental_stock_header_id, $data);
 					
-					if($status != null){
-						foreach($itemArray as $value){
-							$status = 0;
-							if($rental_stock_header_id){
-								$itemData = array(
-									'item_id' =>	$value->item_id,
-									'full_stock_count' =>	$value->full_stock_count,
-									'is_sub_item' =>	$value->is_sub_item
-								);	
-								
-								
-								$status = $this->Inventory_stock_rental_detail_model->update_single($value->rental_stock_id, $itemData);					
-							}
+					
+					foreach($itemArray as $value){
+						$status = 0;
+						if($rental_stock_header_id){
+							$itemData = array(
+								'item_id' =>	$value->item_id,
+								'full_stock_count' =>	$value->full_stock_count,
+								'is_sub_item' =>	$value->is_sub_item
+							);	
+							
+							
+							$status = $this->Inventory_stock_rental_detail_model->update_single($rental_stock_header_id, $value->rental_stock_id, $itemData);					
 						}
 					}
 				}
@@ -282,8 +281,7 @@ class StockRental extends CI_Controller {
 					'message'		=>	'Data Updated!'
 				);
 			}
-			if($phparray["stockHeader"][0]->is_active_inv_stock_rental == 1 && $phparray["stockHeader"][0]->is_approved_inv_stock_rental != 1){
-
+			if($phparray["stockHeader"][0]->is_active_inv_stock_rental == 1 && $phparray["stockHeader"][0]->is_approved_inv_stock_rental == 0){
 				
 				$data = array(
 					'rental_stock_header_id' =>	$rental_stock_header_id,
@@ -291,28 +289,28 @@ class StockRental extends CI_Controller {
 					'rental_stock_assigned_date' => $date,
 					'stock_batch_id' =>	$phparray["stockHeader"][0]->stock_batch_id,
 					'created_by' =>	$created_by,
-					'approved_by' =>	0,
-					'is_approved_inv_stock_rental' =>	0,
+					'approved_by' =>	($phparray["stockHeader"][0]->is_approved_inv_stock_rental == 1 ? $approved_by : 0),
+					'is_approved_inv_stock_rental' =>	$phparray["stockHeader"][0]->is_approved_inv_stock_rental,
 					'is_active_inv_stock_rental' =>	$phparray["stockHeader"][0]->is_active_inv_stock_rental
 				);	
 				
 				$status = $this->Inventory_stock_rental_header_model->update_single($phparray["stockHeader"][0]->rental_stock_header_id, $data);
 				
-				if($status != null){
-					foreach($itemArray as $value){
-						$status = 0;
-						if($rental_stock_header_id){
-							$itemData = array(
-								'rental_stock_header_id' =>	$rental_stock_header_id,
-								'item_id' =>	$value->item_id,
-								'full_stock_count' =>	$value->full_stock_count,
-								'is_sub_item' =>	$value->is_sub_item
-							);	
-							
-							$status = $this->Inventory_stock_rental_detail_model->update_single($value->rental_stock_detail_id, $itemData);					
-						}
+				
+				foreach($itemArray as $value){
+					$status = 0;
+					if($rental_stock_header_id){
+						$itemData = array(
+							'rental_stock_header_id' =>	$rental_stock_header_id,
+							'item_id' =>	$value->item_id,
+							'full_stock_count' =>	$value->full_stock_count,
+							'is_sub_item' =>	$value->is_sub_item
+						);	
+						
+						$status = $this->Inventory_stock_rental_detail_model->update_single($rental_stock_header_id, $value->rental_stock_detail_id, $itemData);					
 					}
 				}
+				
 				
 				$array = array(
 					'success'		=>	true,
@@ -323,13 +321,9 @@ class StockRental extends CI_Controller {
 				
 				$data = array(
 					'rental_stock_header_id' =>	$rental_stock_header_id,
-					'branch_id' =>	$branch_id,							
-					'rental_stock_assigned_date' => $date,
 					'stock_batch_id' =>	$phparray["stockHeader"][0]->stock_batch_id,
-					'created_by' =>	$created_by,
 					'approved_by' =>	$approved_by,
-					'is_approved_inv_stock_rental' =>	$phparray["stockHeader"][0]->is_approved_inv_stock_rental,
-					'is_active_inv_stock_rental' =>	$phparray["stockHeader"][0]->is_active_inv_stock_rental
+					'is_approved_inv_stock_rental' =>	$phparray["stockHeader"][0]->is_approved_inv_stock_rental
 				);
 				
 				$status = $this->Inventory_stock_rental_header_model->update_single($phparray["stockHeader"][0]->rental_stock_header_id, $data);
@@ -343,16 +337,20 @@ class StockRental extends CI_Controller {
 						'is_active_rental_stock_detail' =>	1
 					);
 										
-					$status = $this->Inventory_stock_rental_detail_model->update_single($value->rental_stock_id, $itemData1);
+					$status = $this->Inventory_stock_rental_detail_model->update_single($rental_stock_header_id, $value->rental_stock_id, $itemData1);
 					
 					$available_no_of_items = $this->Inventory_stock_purchase_detail_model->fetch_available_no_of_items_by_main_and_sub_item_id_item_type($phparray["stockHeader"][0]->stock_batch_id, $value->item_id, $value->is_sub_item);
-						
+					
+					$allocated_no_of_items = (int)$available_no_of_items[0]["allocated_no_of_items"];
+					$available_no_of_items = (int)$available_no_of_items[0]["available_no_of_items"];
 										
 					if($available_no_of_items){
-						$available_no_of_items = ($available_no_of_items[0]["available_no_of_items"]) - ($value->full_stock_count);
+						
+						$available_no_of_items = $available_no_of_items - $value->full_stock_count;					
+						$allocated_no_of_items = ( $allocated_no_of_items) + ($value->full_stock_count);
 						
 						$itemData2 = array(
-							'allocated_no_of_items' =>	$value->full_stock_count,
+							'allocated_no_of_items' =>	$allocated_no_of_items,
 							'available_no_of_items' =>	$available_no_of_items
 						);
 						
