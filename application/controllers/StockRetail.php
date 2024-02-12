@@ -478,4 +478,89 @@ class StockRetail extends CI_Controller {
 		echo json_encode($data->result_array());
 	}
 	
+	function update_item_details()
+	{
+		$this->form_validation->set_rules('retail_stock_id', 'retail_stock_id', 'required');
+		$this->form_validation->set_rules('item_id', 'item_id', 'required');
+		$this->form_validation->set_rules('max_sale_price', 'max_sale_price', 'required');
+		$this->form_validation->set_rules('min_sale_price', 'min_sale_price', 'required');
+		$this->form_validation->set_rules('stock_re_order_level', 'stock_re_order_level', 'required');
+				
+		
+		if($this->form_validation->run())
+		{			
+			if($this->input->post('is_active_retail_stock') == 0){	
+			
+				/* SELECT DISTINCT TABLE_NAME 
+				FROM INFORMATION_SCHEMA.COLUMNS
+				WHERE COLUMN_NAME IN ('retail_stock_id')
+					AND TABLE_SCHEMA='dcs_db'; */
+					
+				/*
+				bank
+				bank_branch */
+			
+				$status = 0;
+				//$status += ($this->bank_branch_model->fetch_all_by_bank_id($this->input->post('bank_id')))->num_rows();
+								
+				if($status>0){
+					$array = array(
+						'error'			=>	true,
+						'message'		=>	'Retail Stock is being used by other modules at the moment!'
+					);
+				}
+				else{
+					
+					$data = array(
+						'item_id'	=>	$this->input->post('item_id'),
+						'max_sale_price'	=>	$this->input->post('max_sale_price'),
+						'min_sale_price'	=>	$this->input->post('min_sale_price'),
+						'stock_re_order_level'	=>	$this->input->post('stock_re_order_level'),
+						'is_active_retail_stock'	=>	$this->input->post('is_active_retail_stock')
+					);
+					
+					$this->Inventory_retail_total_stock_model->update_single($this->input->post('retail_stock_id'), $data);
+
+					$array = array(
+						'success'		=>	true,
+						'message'		=>	'Changes Updated!'
+					);
+				}
+			}
+			else{
+				
+				$data = array(
+					'item_id'	=>	$this->input->post('item_id'),
+					'max_sale_price'	=>	$this->input->post('max_sale_price'),
+					'min_sale_price'	=>	$this->input->post('min_sale_price'),
+					'stock_re_order_level'	=>	$this->input->post('stock_re_order_level'),
+					'is_active_retail_stock'	=>	$this->input->post('is_active_retail_stock')
+				);
+
+				$this->Inventory_retail_total_stock_model->update_single($this->input->post('retail_stock_id'), $data);
+
+				$array = array(
+					'success'		=>	true,
+					'message'		=>	'Changes Updated!'
+				);
+			}			
+			
+		}
+		else
+		{
+
+			
+			$array = array(
+				'error'			=>	true,
+				'message'		=>	'Please Fill Required Fields!',
+				'item_id'	=>	form_error('item_id'),
+				'max_sale_price'	=>	form_error('max_sale_price'),
+				'min_sale_price'	=>	form_error('min_sale_price'),
+				'stock_re_order_level'	=>	form_error('stock_re_order_level')
+			);
+		}
+		
+		echo json_encode($array);
+	}
+	
 }
