@@ -23,8 +23,20 @@ class StockRetail extends CI_Controller {
 
 	function index()
 	{
-		$data = $this->Inventory_stock_retail_header_model->fetch_all();
-		echo json_encode($data->result_array());
+		
+		$sys_user_group_name = $this->session->userdata('sys_user_group_name');
+		//var_dump($this->session->userdata());
+		$emp_branch_id = $this->session->userdata('emp_branch_id');
+		if($sys_user_group_name == "Admin"){
+			$data = $this->Inventory_stock_retail_header_model->fetch_all();
+			echo json_encode($data->result_array());
+		}
+		else{
+			$data = $this->Inventory_stock_retail_header_model->fetch_all_join_by_branch_id($emp_branch_id);
+			echo json_encode($data->result_array());
+		}
+		
+		
 	}
 	
 	function insert()

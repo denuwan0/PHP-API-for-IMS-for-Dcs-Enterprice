@@ -91,7 +91,17 @@ class Inventory_stock_retail_header_model extends CI_Model{
 		//$this->db->group_by('inventory_item_with_sub_items.main_item_id', 'DESC');
 		$this->db->where('inventory_stock_retail_header.retail_stock_header_id', $retail_stock_header_id );
 		return $query = $this->db->get();
-		print_r($this->db->last_query());    
+		//print_r($this->db->last_query());    
+	}
+	
+	function fetch_all_join_by_branch_id($emp_branch_id)
+	{
+		$this->db->select('*');
+		$this->db->from('inventory_stock_retail_header');
+		//$this->db->join('inventory_stock_retail_detail', 'inventory_stock_retail_header.retail_stock_header_id  = inventory_stock_retail_detail.retail_stock_header_id','left');
+		$this->db->where('inventory_stock_retail_header.branch_id', $emp_branch_id );
+		return $query = $this->db->get();
+		//print_r($this->db->last_query());    
 	}
 	
 	function fetch_all_join_by_item_admin()
