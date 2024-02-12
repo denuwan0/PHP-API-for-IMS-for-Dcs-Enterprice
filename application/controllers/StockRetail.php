@@ -128,6 +128,7 @@ class StockRetail extends CI_Controller {
 		
 	}
 	
+	
 	function remove_detail_item_by_line_id()
 	{	
 
