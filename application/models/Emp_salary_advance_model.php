@@ -19,6 +19,13 @@ class Emp_salary_advance_model extends CI_Model{
 		return $query->result_array();
 	}
 	
+	function fetch_single_by_advance_id($advance_id)
+	{
+		$this->db->where('advance_id', $advance_id);
+		$query = $this->db->get('emp_salary_advance');
+		return $query;
+	}
+	
 	function fetch_single_by_emp_id($emp_id)
 	{
 		$this->db->where('emp_id', $emp_id);
