@@ -32,6 +32,9 @@ class EmpSalaryAllowance extends CI_Controller {
 		$this->form_validation->set_rules('valid_to_date', 'valid_to_date', 'required');
 		$this->form_validation->set_rules('emp_id', 'emp_id', 'required');
 		
+		$branch_id = $this->session->userdata('emp_branch_id');
+		$created_by = $this->session->userdata('user_id');
+		
 		if($this->form_validation->run())
 		{
 			$data = array(
@@ -41,6 +44,7 @@ class EmpSalaryAllowance extends CI_Controller {
 				'valid_from_date'	=>	$this->input->post('valid_from_date'),
 				'valid_to_date'	=>	$this->input->post('valid_to_date'),
 				'emp_id'	=>	$this->input->post('emp_id'),
+				'created_by'	=>	$created_by,
 				'is_approve_sal_allow'	=>	$this->input->post('is_approve_sal_allow'),
 				'is_active_sal_allow' =>	$this->input->post('is_active_sal_allow')
 			);
@@ -115,31 +119,47 @@ class EmpSalaryAllowance extends CI_Controller {
 
 	function update()
 	{
-		$this->form_validation->set_rules('location_id', 'Location Id', 'required');
-		$this->form_validation->set_rules('location_name', 'Location Name', 'required');
-		$this->form_validation->set_rules('country_id', 'Country', 'required');
-		$this->form_validation->set_rules('location_desc', 'Description', 'required');
-		//$this->form_validation->set_rules('is_active_country', 'Description', 'required');
+		$this->form_validation->set_rules('emp_salary_allowance_id', 'emp_salary_allowance_id', 'required');
+		$this->form_validation->set_rules('allowance_id', 'allowance_id', 'required');
+		$this->form_validation->set_rules('branch_id', 'branch_id', 'required');
+		$this->form_validation->set_rules('amount', 'amount', 'required');
+		$this->form_validation->set_rules('valid_from_date', 'valid_from_date', 'required');
+		$this->form_validation->set_rules('valid_to_date', 'valid_to_date', 'required');
+		$this->form_validation->set_rules('emp_id', 'emp_id', 'required');
+		
+		$branch_id = $this->session->userdata('emp_branch_id');
+		$created_by = $this->session->userdata('user_id');
+		
 		if($this->form_validation->run())
 		{			
-			if($this->input->post('is_active_location') == 0){				
-				$status = $this->branch_model->fetch_single($this->input->post('location_id'));
-				if(count($status)>0){
+			if($this->input->post('is_active_sal_allow') == 0){	
+
+				/* SELECT DISTINCT TABLE_NAME 
+				FROM INFORMATION_SCHEMA.COLUMNS
+				WHERE COLUMN_NAME IN ('emp_salary_advance_id')
+					AND TABLE_SCHEMA='dcs_db'; */
+				$status = 0;
+				//$status = $this->branch_model->fetch_single($this->input->post('location_id'));
+				if($status>0){
 					$array = array(
 						'error'			=>	true,
-						'message'		=>	'Location is being used by other modules at the moment!'
+						'message'		=>	'Salary Allowance is being used by other modules at the moment!'
 					);
 				}
 				else{
 					$data = array(
-						'location_id'	=>	$this->input->post('location_id'),
-						'country_id'	=>	$this->input->post('country_id'),
-						'location_name'	=>	$this->input->post('location_name'),
-						'location_desc'	=>	$this->input->post('location_desc'),
-						'is_active_location'	=>	$this->input->post('is_active_location')
+						'allowance_id'	=>	$this->input->post('allowance_id'),
+						'branch_id'	=>	$this->input->post('branch_id'),
+						'amount'	=>	$this->input->post('amount'),
+						'valid_from_date'	=>	$this->input->post('valid_from_date'),
+						'valid_to_date'	=>	$this->input->post('valid_to_date'),
+						'emp_id'	=>	$this->input->post('emp_id'),
+						'approved_by'	=>	$created_by,
+						'is_approve_sal_allow'	=>	$this->input->post('is_approve_sal_allow'),
+						'is_active_sal_allow' =>	$this->input->post('is_active_sal_allow')
 					);
 
-					$this->emp_salary_allowance_model->update_single($this->input->post('location_id'), $data);
+					$this->emp_salary_allowance_model->update_single($this->input->post('emp_salary_allowance_id'), $data);
 
 					$array = array(
 						'success'		=>	true,
@@ -149,14 +169,18 @@ class EmpSalaryAllowance extends CI_Controller {
 			}
 			else{
 				$data = array(
-					'location_id'	=>	$this->input->post('location_id'),
-					'location_name'	=>	$this->input->post('location_name'),
-					'country_id'	=>	$this->input->post('country_id'),
-					'location_desc'		=>	$this->input->post('location_desc'),
-					'is_active_location'	=>	$this->input->post('is_active_location')
+					'allowance_id'	=>	$this->input->post('allowance_id'),
+					'branch_id'	=>	$this->input->post('branch_id'),
+					'amount'	=>	$this->input->post('amount'),
+					'valid_from_date'	=>	$this->input->post('valid_from_date'),
+					'valid_to_date'	=>	$this->input->post('valid_to_date'),
+					'emp_id'	=>	$this->input->post('emp_id'),
+					'approved_by'	=>	$created_by,
+					'is_approve_sal_allow'	=>	$this->input->post('is_approve_sal_allow'),
+					'is_active_sal_allow' =>	$this->input->post('is_active_sal_allow')
 				);
 
-				$this->emp_salary_allowance_model->update_single($this->input->post('location_id'), $data);
+				$this->emp_salary_allowance_model->update_single($this->input->post('emp_salary_allowance_id'), $data);
 
 				$array = array(
 					'success'		=>	true,
