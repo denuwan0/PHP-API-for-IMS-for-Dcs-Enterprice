@@ -58,7 +58,7 @@ class EmpAllowance extends CI_Controller {
 	}
 	
 	function fetch_all_active()
-	{		
+	{	
 		$data = $this->emp_allowance_model->fetch_all_active();
 		echo json_encode($data->result_array());
 		

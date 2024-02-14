@@ -11,7 +11,8 @@ class Emp_salary_advance_model extends CI_Model{
 		$this->db->order_by('emp_salary_advance_id', 'ASC');
 		$this->db->join('emp_advance', 'emp_salary_advance.advance_id = emp_advance.advance_id','left');
 		$this->db->join('emp_details', 'emp_salary_advance.emp_id = emp_details.emp_id','left');
-		return $this->db->get('emp_salary_advance');
+		$query = $this->db->get('emp_salary_advance');
+		return $query->result_array();
 	}
 	
 	function fetch_single_join($id){
