@@ -3,7 +3,13 @@
 class Emp_advance_model extends CI_Model{   
     
 	function fetch_all(){
-		$this->db->order_by('advance_id', 'DESC');
+		$this->db->order_by('advance_id', 'ASC');
+		return $this->db->get('emp_advance');
+	}
+	
+	function fetch_all_active(){
+		$this->db->where('is_active_advance', 1);
+		$this->db->order_by('advance_id', 'ASC');
 		return $this->db->get('emp_advance');
 	}
 	
@@ -12,9 +18,9 @@ class Emp_advance_model extends CI_Model{
 		$this->db->insert('emp_advance', $data);
 	}
 
-	function fetch_single($advance_id)
+	function fetch_all_join_by_branch_id($branch_id)
 	{
-		$this->db->where('advance_id', $advance_id);
+		$this->db->where('branch_id', $branch_id);
 		$query = $this->db->get('emp_advance');
 		return $query->result_array();
 	}
