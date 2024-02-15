@@ -19,6 +19,13 @@ class Emp_salary_bonus_model extends CI_Model{
 		return $query->result_array();
 	}
 	
+	function fetch_single_by_bonus_id($bonus_id)
+	{
+		$this->db->where('bonus_id', $bonus_id);
+		$query = $this->db->get('emp_salary_bonus');
+		return $query;
+	}
+	
 	function fetch_single_by_emp_id($emp_id)
 	{
 		$this->db->where('emp_id', $emp_id);
