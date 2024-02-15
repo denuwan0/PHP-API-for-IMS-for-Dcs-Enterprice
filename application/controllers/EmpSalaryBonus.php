@@ -6,7 +6,7 @@ class EmpSalaryBonus extends CI_Controller {
 	public function __construct()
 	{
 		parent::__construct();
-		$this->load->model('emp_model');
+		$this->load->model('emp_salary_bonus_model');
 		$this->load->library('form_validation');
 		
 		//$is_ajax = 'xmlhttprequest' == strtolower( $_SERVER['HTTP_X_REQUESTED_WITH'] ?? '' );
@@ -19,7 +19,7 @@ class EmpSalaryBonus extends CI_Controller {
 
 	function index()
 	{
-		$data = $this->emp_model->fetch_all();
+		$data = $this->emp_salary_bonus_model->fetch_all();
 		echo json_encode($data->result_array());
 	}
 	
@@ -37,7 +37,7 @@ class EmpSalaryBonus extends CI_Controller {
 				'is_active_location' =>	$this->input->post('is_active_location')
 			);
 
-			$this->emp_model->insert($data);
+			$this->emp_salary_bonus_model->insert($data);
 
 			$array = array(
 				'success'		=>	true,
@@ -59,7 +59,7 @@ class EmpSalaryBonus extends CI_Controller {
 	
 	function fetch_all_active()
 	{		
-		$data = $this->emp_model->fetch_all_active();
+		$data = $this->emp_salary_bonus_model->fetch_all_active();
 		echo json_encode($data->result_array());
 		
 	}
@@ -69,7 +69,7 @@ class EmpSalaryBonus extends CI_Controller {
 		if($this->input->get('id'))
 		{			
 			$id = $this->input->get('id');
-			$data = $this->emp_model->fetch_single($id);
+			$data = $this->emp_salary_bonus_model->fetch_single($id);
 			
 			echo json_encode($data);
 		}
@@ -80,7 +80,7 @@ class EmpSalaryBonus extends CI_Controller {
 		if($this->input->get('id'))
 		{			
 			$id = $this->input->get('id');
-			$data = $this->emp_model->fetch_single_join($id);
+			$data = $this->emp_salary_bonus_model->fetch_single_join($id);
 			
 			echo json_encode($data);
 		}
@@ -88,7 +88,7 @@ class EmpSalaryBonus extends CI_Controller {
 	
 	function fetch_all_join()
 	{	
-		$data = $this->emp_model->fetch_all_join();
+		$data = $this->emp_salary_bonus_model->fetch_all_join();
 		
 		echo json_encode($data);
 	}
@@ -119,7 +119,7 @@ class EmpSalaryBonus extends CI_Controller {
 						'is_active_location'	=>	$this->input->post('is_active_location')
 					);
 
-					$this->emp_model->update_single($this->input->post('location_id'), $data);
+					$this->emp_salary_bonus_model->update_single($this->input->post('location_id'), $data);
 
 					$array = array(
 						'success'		=>	true,
@@ -136,7 +136,7 @@ class EmpSalaryBonus extends CI_Controller {
 					'is_active_location'	=>	$this->input->post('is_active_location')
 				);
 
-				$this->emp_model->update_single($this->input->post('location_id'), $data);
+				$this->emp_salary_bonus_model->update_single($this->input->post('location_id'), $data);
 
 				$array = array(
 					'success'		=>	true,
@@ -160,7 +160,7 @@ class EmpSalaryBonus extends CI_Controller {
 	{
 		if($this->input->post('id'))
 		{
-			if($this->emp_model->delete_single($this->input->post('id')))
+			if($this->emp_salary_bonus_model->delete_single($this->input->post('id')))
 			{
 				$array = array(
 
