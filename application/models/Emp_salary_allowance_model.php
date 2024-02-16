@@ -15,8 +15,8 @@ class Emp_salary_allowance_model extends CI_Model{
 		
 	function fetch_all_join(){
 		$this->db->order_by('emp_salary_allowance_id', 'ASC');
-		$this->db->join('emp_allowance', 'emp_salary_allowance_id.allowance_id = emp_allowance.allowance_id','left');
-		$this->db->join('emp_details', 'emp_salary_allowance_id.emp_id = emp_details.emp_id','left');
+		$this->db->join('emp_allowance', 'emp_salary_allowance.allowance_id = emp_allowance.allowance_id','left');
+		$this->db->join('emp_details', 'emp_salary_allowance.emp_id = emp_details.emp_id','left');
 		$query = $this->db->get('emp_salary_allowance');
 		//echo $this->db->last_query();
 		return $query;

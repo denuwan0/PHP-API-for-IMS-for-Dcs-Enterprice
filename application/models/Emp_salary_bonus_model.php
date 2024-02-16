@@ -53,4 +53,33 @@ class Emp_salary_bonus_model extends CI_Model{
 		}
 	}
 	
+	function fetch_all_join(){
+		$this->db->order_by('emp_bonus_id', 'ASC');
+		$this->db->join('emp_bonus', 'emp_salary_bonus.bonus_id = emp_bonus.bonus_id','left');
+		$this->db->join('emp_details', 'emp_salary_bonus.emp_id = emp_details.emp_id','left');
+		$query = $this->db->get('emp_salary_bonus');
+		//echo $this->db->last_query();
+		return $query;
+	}
+	
+	function fetch_all_join_by_branch_id($branch_id){
+		
+		$this->db->order_by('emp_bonus_id', 'ASC');
+		$this->db->where('branch_id', $branch_id);	
+		$this->db->join('emp_bonus', 'emp_salary_bonus.bonus_id = emp_bonus.bonus_id','left');
+		$this->db->join('emp_details', 'emp_salary_bonus.emp_id = emp_details.emp_id','left');
+		$query = $this->db->get('emp_salary_bonus');
+		return $query;
+	}
+	
+	function fetch_single_join($id){
+		$this->db->order_by('emp_bonus_id', 'ASC');
+		$this->db->where('emp_bonus_id', $id);
+		$this->db->join('emp_bonus', 'emp_salary_bonus.bonus_id = emp_bonus.bonus_id','left');
+		$this->db->join('emp_details', 'emp_salary_bonus.emp_id = emp_details.emp_id','left');
+		$query = $this->db->get('emp_salary_bonus');
+		//echo $this->db->last_query();
+		return $query;
+	}
+	
 }

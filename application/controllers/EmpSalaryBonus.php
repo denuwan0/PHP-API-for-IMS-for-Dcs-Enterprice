@@ -7,6 +7,7 @@ class EmpSalaryBonus extends CI_Controller {
 	{
 		parent::__construct();
 		$this->load->model('emp_salary_bonus_model');
+		$this->load->model('emp_bonus_model');
 		$this->load->library('form_validation');
 		
 		//$is_ajax = 'xmlhttprequest' == strtolower( $_SERVER['HTTP_X_REQUESTED_WITH'] ?? '' );
@@ -25,16 +26,24 @@ class EmpSalaryBonus extends CI_Controller {
 	
 	function insert()
 	{		
-		$this->form_validation->set_rules('location_name', 'Location Name', 'required');
-		$this->form_validation->set_rules('country_id', 'Country', 'required');
-		$this->form_validation->set_rules('location_desc', 'Description', 'required');
+		$this->form_validation->set_rules('bonus_id', 'bonus_id', 'required');
+		$this->form_validation->set_rules('branch_id', 'branch_id', 'required');
+		$this->form_validation->set_rules('amount', 'amount', 'required');
+		$this->form_validation->set_rules('year', 'year', 'required');
+		$this->form_validation->set_rules('month', 'month', 'required');
+		$this->form_validation->set_rules('emp_id', 'emp_id', 'required');
+		
 		if($this->form_validation->run())
 		{
 			$data = array(
-				'location_name'	=>	$this->input->post('location_name'),
-				'country_id'	=>	$this->input->post('country_id'),
-				'location_desc'	=>	$this->input->post('location_desc'),
-				'is_active_location' =>	$this->input->post('is_active_location')
+				'bonus_id'	=>	$this->input->post('bonus_id'),
+				'branch_id'	=>	$this->input->post('branch_id'),
+				'amount'	=>	$this->input->post('amount'),
+				'year'	=>	$this->input->post('year'),
+				'month'	=>	$this->input->post('month'),
+				'emp_id'	=>	$this->input->post('emp_id'),
+				'is_approve_sal_bonus'	=>	$this->input->post('is_approve_sal_bonus'),
+				'is_active_sal_bonus' =>	$this->input->post('is_active_sal_bonus')
 			);
 
 			$this->emp_salary_bonus_model->insert($data);
@@ -49,9 +58,12 @@ class EmpSalaryBonus extends CI_Controller {
 			$array = array(
 				'error'			=>	true,
 				'message'		=>	'Error!',
-				'location_name'		=>	form_error('location_name'),
-				'country_id'		=>	form_error('country_id'),
-				'location_desc'		=>	form_error('location_desc')
+				'bonus_id'		=>	form_error('bonus_id'),
+				'branch_id'		=>	form_error('branch_id'),
+				'amount'		=>	form_error('amount'),
+				'year'		=>	form_error('year'),
+				'month'		=>	form_error('month'),
+				'emp_id'		=>	form_error('emp_id')
 			);
 		}
 		echo json_encode($array);
@@ -82,44 +94,68 @@ class EmpSalaryBonus extends CI_Controller {
 			$id = $this->input->get('id');
 			$data = $this->emp_salary_bonus_model->fetch_single_join($id);
 			
-			echo json_encode($data);
+			echo json_encode($data->result_array());
 		}
 	}
 	
 	function fetch_all_join()
-	{	
-		$data = $this->emp_salary_bonus_model->fetch_all_join();
-		
-		echo json_encode($data);
+	{		
+		$sys_user_group_name = $this->session->userdata('sys_user_group_name');
+		//var_dump($this->session->userdata());
+		$emp_branch_id = $this->session->userdata('emp_branch_id');
+		if($sys_user_group_name == "Admin"){
+			$data = $this->emp_salary_bonus_model->fetch_all_join();		
+			echo json_encode($data->result_array());
+		}
+		else{
+			$data = $this->emp_salary_bonus_model->fetch_all_join_by_branch_id($emp_branch_id);
+			echo json_encode($data->result_array());
+		}
 	}
 
 	function update()
 	{
-		$this->form_validation->set_rules('location_id', 'Location Id', 'required');
-		$this->form_validation->set_rules('location_name', 'Location Name', 'required');
-		$this->form_validation->set_rules('country_id', 'Country', 'required');
-		$this->form_validation->set_rules('location_desc', 'Description', 'required');
-		//$this->form_validation->set_rules('is_active_country', 'Description', 'required');
+		$this->form_validation->set_rules('emp_bonus_id', 'emp_bonus_id', 'required');
+		$this->form_validation->set_rules('bonus_id', 'bonus_id', 'required');
+		$this->form_validation->set_rules('branch_id', 'branch_id', 'required');
+		$this->form_validation->set_rules('amount', 'amount', 'required');
+		$this->form_validation->set_rules('year', 'year', 'required');
+		$this->form_validation->set_rules('month', 'month', 'required');
+		$this->form_validation->set_rules('emp_id', 'emp_id', 'required');
+		
+		$branch_id = $this->session->userdata('emp_branch_id');
+		$created_by = $this->session->userdata('user_id');
+		
 		if($this->form_validation->run())
 		{			
-			if($this->input->post('is_active_location') == 0){				
-				$status = $this->branch_model->fetch_single($this->input->post('location_id'));
-				if(count($status)>0){
+			if($this->input->post('is_active_sal_bonus') == 0){	
+
+				/* SELECT DISTINCT TABLE_NAME 
+				FROM INFORMATION_SCHEMA.COLUMNS
+				WHERE COLUMN_NAME IN ('emp_salary_advance_id')
+					AND TABLE_SCHEMA='dcs_db'; */
+				$status = 0;
+				//$status = $this->branch_model->fetch_single($this->input->post('location_id'));
+				if($status>0){
 					$array = array(
 						'error'			=>	true,
-						'message'		=>	'Location is being used by other modules at the moment!'
+						'message'		=>	'Salary Bonus is being used by other modules at the moment!'
 					);
 				}
 				else{
 					$data = array(
-						'location_id'	=>	$this->input->post('location_id'),
-						'country_id'	=>	$this->input->post('country_id'),
-						'location_name'	=>	$this->input->post('location_name'),
-						'location_desc'	=>	$this->input->post('location_desc'),
-						'is_active_location'	=>	$this->input->post('is_active_location')
+						'bonus_id'	=>	$this->input->post('bonus_id'),
+						'branch_id'	=>	$this->input->post('branch_id'),
+						'amount'	=>	$this->input->post('amount'),
+						'year'	=>	$this->input->post('year'),
+						'month'	=>	$this->input->post('month'),
+						'emp_id'	=>	$this->input->post('emp_id'),
+						'approved_by'	=>	$created_by,
+						'is_approve_sal_bonus'	=>	$this->input->post('is_approve_sal_bonus'),
+						'is_active_sal_bonus' =>	$this->input->post('is_active_sal_bonus')
 					);
 
-					$this->emp_salary_bonus_model->update_single($this->input->post('location_id'), $data);
+					$this->emp_salary_bonus_model->update_single($this->input->post('emp_bonus_id'), $data);
 
 					$array = array(
 						'success'		=>	true,
@@ -129,14 +165,18 @@ class EmpSalaryBonus extends CI_Controller {
 			}
 			else{
 				$data = array(
-					'location_id'	=>	$this->input->post('location_id'),
-					'location_name'	=>	$this->input->post('location_name'),
-					'country_id'	=>	$this->input->post('country_id'),
-					'location_desc'		=>	$this->input->post('location_desc'),
-					'is_active_location'	=>	$this->input->post('is_active_location')
+					'bonus_id'	=>	$this->input->post('bonus_id'),
+					'branch_id'	=>	$this->input->post('branch_id'),
+					'amount'	=>	$this->input->post('amount'),
+					'year'	=>	$this->input->post('year'),
+					'month'	=>	$this->input->post('month'),
+					'emp_id'	=>	$this->input->post('emp_id'),
+					'approved_by'	=>	$created_by,
+					'is_approve_sal_bonus'	=>	$this->input->post('is_approve_sal_bonus'),
+					'is_active_sal_bonus' =>	$this->input->post('is_active_sal_bonus')
 				);
 
-				$this->emp_salary_bonus_model->update_single($this->input->post('location_id'), $data);
+				$this->emp_salary_bonus_model->update_single($this->input->post('emp_bonus_id'), $data);
 
 				$array = array(
 					'success'		=>	true,
