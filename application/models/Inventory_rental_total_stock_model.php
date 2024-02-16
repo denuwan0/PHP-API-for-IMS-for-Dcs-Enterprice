@@ -55,12 +55,14 @@ class Inventory_rental_total_stock_model extends CI_Model{
 		}
 	}
 		
-	function fetch_single_by_branch_id_item_id_is_sub($item_id, $branch_id, $is_sub_item)
+	function fetch_single_by_branch_id_item_id_is_sub($item_id, $is_sub_item, $branch_id)
 	{
 		$this->db->where('item_id', $item_id);
 		$this->db->where('is_sub_item', $is_sub_item);
 		$this->db->where('branch_id', $branch_id);
+		$this->db->where('is_active_rental_stock', 1);
 		$query = $this->db->get('inventory_rental_total_stock');
+		//echo $this->db->last_query();
 		return $query->result_array();
 	}
 	
