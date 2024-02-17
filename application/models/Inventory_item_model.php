@@ -64,4 +64,13 @@ class Inventory_item_model extends CI_Model{
 		return $query = $this->db->get();
 	}
 	
+	function fetch_all_active_items_by_category_id($id)
+	{
+		$query = $this->db->query("SELECT inventory_item.item_id AS item_id, inventory_item.item_name AS item_name, inventory_item.item_image_url AS image_url, 0 as is_sub_item FROM inventory_item WHERE inventory_item.item_category = $id AND inventory_item.is_active_inv_item = 1 UNION SELECT inventory_sub_item.sub_item_id AS item_id, inventory_sub_item.sub_item_name AS item_name, inventory_sub_item.sub_item_image_url AS image_url, 1 as is_sub_item FROM inventory_sub_item WHERE inventory_sub_item.sub_item_category = $id AND inventory_sub_item.is_active_inv_sub_item = 1 GROUP BY item_id, is_sub_item;");
+		
+		return $query->result_array();
+	}
+	
+	
+	
 }

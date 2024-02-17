@@ -247,4 +247,19 @@ class Item extends CI_Controller {
 		echo json_encode($data->result_array());
 	}
 	
+	function fetch_all_main_sub_item_by_category_id()
+	{	
+	
+	
+		if($this->input->get('id'))
+		{
+			$data = $this->inventory_item_model->fetch_all_active_items_by_category_id($this->input->get('id'));
+			//$mainItems = $mainItems->result_array();
+			
+			//var_dump(array_merge($mainItems,$subItems));
+			echo json_encode($data);
+		}
+		
+	}
+	
 }
