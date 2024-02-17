@@ -4,6 +4,7 @@ class inventory_stock_rental_header_model extends CI_Model{
     
 	function fetch_all(){
 		$this->db->order_by('rental_stock_header_id', 'ASC');
+		$this->db->join('company_branch', 'inventory_stock_rental_header.branch_id = company_branch.company_branch_id','left');
 		return $this->db->get('inventory_stock_rental_header');
 	}
 	
@@ -31,6 +32,7 @@ class inventory_stock_rental_header_model extends CI_Model{
 	function fetch_all_by_branch_id($branch_id)
 	{
 		$this->db->where('branch_id', $branch_id);
+		$this->db->join('company_branch', 'inventory_stock_rental_header.branch_id = company_branch.company_branch_id','left');
 		$query = $this->db->get('inventory_stock_rental_header');
 		return $query;
 	}

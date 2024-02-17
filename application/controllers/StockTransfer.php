@@ -512,9 +512,11 @@ class StockTransfer extends CI_Controller {
 				$item_id = $item["item_id"];
 				$is_sub_item = $item["is_sub_item"];
 				
-				$rentalItemData = $this->inventory_rental_total_stock_model->fetch_single_by_branch_id_item_id_is_sub($item_id, $is_sub_item, $branch_id);				
+				$rentalItemData = $this->inventory_rental_total_stock_model->fetch_single_by_branch_id_item_id_is_sub($item_id, $is_sub_item, $branch_id);	
+				//var_dump($rentalItemData);
 				
 				$item_count = isset($rentalItemData[0]["full_stock_count"])?(int)$rentalItemData[0]["full_stock_count"]:0;
+				
 												
 				if($item_count >= $no_of_items){
 					$stock_ok++;
@@ -540,11 +542,9 @@ class StockTransfer extends CI_Controller {
 					$item_id = $item["item_id"];
 					$is_sub_item = $item["is_sub_item"];	
 					
+					//update giving branch stock count
 					
 					$stockGivingBranch = $this->inventory_rental_total_stock_model->fetch_single_by_branch_id_item_id_is_sub($item_id, $is_sub_item, $branch_id);
-					
-					$stockRequestedBranch = $this->inventory_rental_total_stock_model->fetch_single_by_branch_id_item_id_is_sub($item_id, $is_sub_item, $created_user[0]['branch_id_from']);
-					
 					
 					$to_full_stock_count = isset($stockGivingBranch[0]["full_stock_count"])? $stockGivingBranch[0]["full_stock_count"] : 0;
 					$to_full_stock_count = $to_full_stock_count - $no_of_items;										
@@ -555,13 +555,20 @@ class StockTransfer extends CI_Controller {
 					);
 					
 					$this->inventory_rental_total_stock_model->update_single($to_rental_stock_id, $data1);
+															
+					$stockRequestedBranch = $this->inventory_rental_total_stock_model->fetch_single_by_branch_id_item_id_is_sub($item_id, $is_sub_item, $created_user[0]['branch_id_from']);				
+																			
+					//update requesting branch stock count
 					
 					$from_full_stock_count = isset($stockRequestedBranch[0]["full_stock_count"]) ? $stockRequestedBranch[0]["full_stock_count"] : 0;
-					$from_full_stock_count = $from_full_stock_count + $no_of_items;
-					$from_rental_stock_id = $stockGivingBranch[0]["rental_stock_id"];
-					
-					if($from_full_stock_count == 0){
 						
+					$from_rental_stock_id = isset($stockRequestedBranch[0]["rental_stock_id"]) ? $stockRequestedBranch[0]["rental_stock_id"] : 0;
+					
+					
+														
+					
+					if($from_full_stock_count == 0 && $from_rental_stock_id == 0){
+						$from_full_stock_count = $from_full_stock_count + $no_of_items;						
 						$data2 = array(
 							'item_id' =>	$item_id,
 							'full_stock_count' =>	$from_full_stock_count,
@@ -571,27 +578,29 @@ class StockTransfer extends CI_Controller {
 						);
 						$this->inventory_rental_total_stock_model->insert($data2);
 					}
-					else{
+					else if($from_full_stock_count > 0 && $from_rental_stock_id != 0){						
+						$from_full_stock_count = $from_full_stock_count + $no_of_items;
 						$data2 = array(
 							'full_stock_count' =>	$from_full_stock_count
 						);
 						$this->inventory_rental_total_stock_model->update_single($from_rental_stock_id, $data2);
 					}
+										
+					$array = array(
+						'success'		=>	true,
+						'message'		=>	'Stock Transfer Accepted!'
+					);
 					
 									
 				}
 				
-				$array = array(
-					'success'		=>	true,
-					'message'		=>	'Data Updated!'
-				);
+				
 				echo json_encode($array);
 			}
 			else{
-				
-				$items = "item : ";
+				$itemsMsg = "";
+				/* $itemsMsg .= "item : ";
 				foreach($error as $item){
-					//var_dump($item["item_id"]);
 					if(count($error) == 1){
 						$items .= $item["item_id"];
 					}
@@ -599,11 +608,12 @@ class StockTransfer extends CI_Controller {
 						$items .= $item["item_id"].', ';
 					}
 					
-				}
+				} */
 				
 				$array = array(
 					'error'			=>	true,
-					'message'		=>	'Not enough stocks in '.$items.' to accept this request!'
+					//'message'		=>	'Not enough stocks in '.$items.' to accept this request!'
+					'message'		=>	'Not enough stocks to accept this request!'
 				);
 				echo json_encode($array);
 			}
@@ -621,9 +631,11 @@ class StockTransfer extends CI_Controller {
 				$item_id = $item["item_id"];
 				$is_sub_item = $item["is_sub_item"];
 				
-				$rentalItemData = $this->inventory_retail_total_stock_model->fetch_single_by_branch_id_item_id_is_sub($item_id, $is_sub_item, $branch_id);				
+				$rentalItemData = $this->inventory_retail_total_stock_model->fetch_single_by_branch_id_item_id_is_sub($item_id, $is_sub_item, $branch_id);	
+				//var_dump($rentalItemData);
 				
 				$item_count = isset($rentalItemData[0]["full_stock_count"])?(int)$rentalItemData[0]["full_stock_count"]:0;
+				
 												
 				if($item_count >= $no_of_items){
 					$stock_ok++;
@@ -649,11 +661,9 @@ class StockTransfer extends CI_Controller {
 					$item_id = $item["item_id"];
 					$is_sub_item = $item["is_sub_item"];	
 					
+					//update giving branch stock count
 					
 					$stockGivingBranch = $this->inventory_retail_total_stock_model->fetch_single_by_branch_id_item_id_is_sub($item_id, $is_sub_item, $branch_id);
-					
-					$stockRequestedBranch = $this->inventory_retail_total_stock_model->fetch_single_by_branch_id_item_id_is_sub($item_id, $is_sub_item, $created_user[0]['branch_id_from']);
-					
 					
 					$to_full_stock_count = isset($stockGivingBranch[0]["full_stock_count"])? $stockGivingBranch[0]["full_stock_count"] : 0;
 					$to_full_stock_count = $to_full_stock_count - $no_of_items;										
@@ -663,14 +673,21 @@ class StockTransfer extends CI_Controller {
 						'full_stock_count' =>	$to_full_stock_count
 					);
 					
-					//$this->inventory_retail_total_stock_model->update_single($to_rental_stock_id, $data1);
+					$this->inventory_retail_total_stock_model->update_single($to_rental_stock_id, $data1);
+															
+					$stockRequestedBranch = $this->inventory_retail_total_stock_model->fetch_single_by_branch_id_item_id_is_sub($item_id, $is_sub_item, $created_user[0]['branch_id_from']);				
+																			
+					//update requesting branch stock count
 					
 					$from_full_stock_count = isset($stockRequestedBranch[0]["full_stock_count"]) ? $stockRequestedBranch[0]["full_stock_count"] : 0;
-					$from_full_stock_count = $from_full_stock_count + $no_of_items;
-					$from_rental_stock_id = $stockGivingBranch[0]["rental_stock_id"];
-					
-					if($from_full_stock_count == 0){
 						
+					$from_rental_stock_id = isset($stockRequestedBranch[0]["rental_stock_id"]) ? $stockRequestedBranch[0]["rental_stock_id"] : 0;
+					
+					
+														
+					
+					if($from_full_stock_count == 0 && $from_rental_stock_id == 0){
+						$from_full_stock_count = $from_full_stock_count + $no_of_items;						
 						$data2 = array(
 							'item_id' =>	$item_id,
 							'full_stock_count' =>	$from_full_stock_count,
@@ -680,27 +697,29 @@ class StockTransfer extends CI_Controller {
 						);
 						$this->inventory_retail_total_stock_model->insert($data2);
 					}
-					else{
+					else if($from_full_stock_count > 0 && $from_rental_stock_id != 0){						
+						$from_full_stock_count = $from_full_stock_count + $no_of_items;
 						$data2 = array(
 							'full_stock_count' =>	$from_full_stock_count
 						);
 						$this->inventory_retail_total_stock_model->update_single($from_rental_stock_id, $data2);
 					}
+										
+					$array = array(
+						'success'		=>	true,
+						'message'		=>	'Stock Transfer Accepted!'
+					);
 					
 									
 				}
 				
-				$array = array(
-					'success'		=>	true,
-					'message'		=>	'Data Updated!'
-				);
+				
 				echo json_encode($array);
 			}
 			else{
-				
-				$items = "item : ";
+				$itemsMsg = "";
+				/* $itemsMsg .= "item : ";
 				foreach($error as $item){
-					//var_dump($item["item_id"]);
 					if(count($error) == 1){
 						$items .= $item["item_id"];
 					}
@@ -708,14 +727,16 @@ class StockTransfer extends CI_Controller {
 						$items .= $item["item_id"].', ';
 					}
 					
-				}
+				} */
 				
 				$array = array(
 					'error'			=>	true,
-					'message'		=>	'Not enough stocks in '.$items.' to accept this request!'
+					//'message'		=>	'Not enough stocks in '.$items.' to accept this request!'
+					'message'		=>	'Not enough stocks to accept this request!'
 				);
 				echo json_encode($array);
 			}
+			
 			
 		}
 		//echo json_encode($array);
@@ -749,7 +770,7 @@ class StockTransfer extends CI_Controller {
 			'message'		=>	'Data Updated!'
 		);
 		
-		$userData = $this->inventory_stock_transfer_header_model->fetch_inform_user_info($inventory_stock_transfer_header_id);
+		$userData = $this->inventory_stock_transfer_header_model->fetch_created_user_info($inventory_stock_transfer_header_id);
 		
 		$text = 'Your Stock Tranfer Request has been Rejected!';
 		$url = "http://localhost/dcs/stockTransfer/view";

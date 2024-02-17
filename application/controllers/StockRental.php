@@ -22,9 +22,19 @@ class StockRental extends CI_Controller {
 	}
 
 	function index()
-	{
-		$data = $this->Inventory_stock_rental_header_model->fetch_all();
-		echo json_encode($data->result_array());
+	{	
+		
+		$sys_user_group_name = $this->session->userdata('sys_user_group_name');
+		//var_dump($this->session->userdata());
+		$emp_branch_id = $this->session->userdata('emp_branch_id');
+		if($sys_user_group_name == "Admin"){
+			$data = $this->Inventory_stock_rental_header_model->fetch_all();
+			echo json_encode($data->result_array());
+		}
+		else{
+			$data = $this->Inventory_stock_rental_header_model->fetch_all_by_branch_id($emp_branch_id);
+			echo json_encode($data->result_array());
+		}
 	}
 	
 	function insert()
@@ -47,10 +57,10 @@ class StockRental extends CI_Controller {
 				
 		if($phparray["stockHeader"][0]->stock_batch_id != '' )
 		{
-			$itemData = array(
-				'branch_id' =>	$branch_id,							
+			$itemData = array(						
 				'rental_stock_assigned_date' => $date,
 				'stock_batch_id' =>	$phparray["stockHeader"][0]->stock_batch_id,
+				'branch_id' =>	$phparray["stockHeader"][0]->branch_id,
 				'created_by' =>	$created_by,
 				'approved_by' =>	0,
 				'is_approved_inv_stock_rental' =>	0,
@@ -478,6 +488,91 @@ class StockRental extends CI_Controller {
 		$data = $this->inventory_stock_purchase_header_model->fetch_all_join();
 		
 		echo json_encode($data->result_array());
+	}
+	
+	function update_item_details()
+	{
+		$this->form_validation->set_rules('rental_stock_id', 'rental_stock_id', 'required');
+		$this->form_validation->set_rules('item_id', 'item_id', 'required');
+		$this->form_validation->set_rules('max_rent_price', 'max_rent_price', 'required');
+		$this->form_validation->set_rules('min_rent_price', 'min_rent_price', 'required');
+		$this->form_validation->set_rules('stock_re_order_level', 'stock_re_order_level', 'required');
+				
+		
+		if($this->form_validation->run())
+		{			
+			if($this->input->post('is_active_rental_stock') == 0){	
+			
+				/* SELECT DISTINCT TABLE_NAME 
+				FROM INFORMATION_SCHEMA.COLUMNS
+				WHERE COLUMN_NAME IN ('rental_stock_id')
+					AND TABLE_SCHEMA='dcs_db'; */
+					
+				/*
+				bank
+				bank_branch */
+			
+				$status = 0;
+				//$status += ($this->bank_branch_model->fetch_all_by_bank_id($this->input->post('bank_id')))->num_rows();
+								
+				if($status>0){
+					$array = array(
+						'error'			=>	true,
+						'message'		=>	'Rental Stock is being used by other modules at the moment!'
+					);
+				}
+				else{
+					
+					$data = array(
+						'item_id'	=>	$this->input->post('item_id'),
+						'max_rent_price'	=>	$this->input->post('max_rent_price'),
+						'min_rent_price'	=>	$this->input->post('min_rent_price'),
+						'stock_re_order_level'	=>	$this->input->post('stock_re_order_level'),
+						'is_active_rental_stock'	=>	$this->input->post('is_active_rental_stock')
+					);
+					
+					$this->Inventory_rental_total_stock_model->update_single($this->input->post('rental_stock_id'), $data);
+
+					$array = array(
+						'success'		=>	true,
+						'message'		=>	'Changes Updated!'
+					);
+				}
+			}
+			else{
+				
+				$data = array(
+					'item_id'	=>	$this->input->post('item_id'),
+					'max_rent_price'	=>	$this->input->post('max_rent_price'),
+					'min_rent_price'	=>	$this->input->post('min_rent_price'),
+					'stock_re_order_level'	=>	$this->input->post('stock_re_order_level'),
+					'is_active_rental_stock'	=>	$this->input->post('is_active_rental_stock')
+				);
+
+				$this->Inventory_rental_total_stock_model->update_single($this->input->post('rental_stock_id'), $data);
+
+				$array = array(
+					'success'		=>	true,
+					'message'		=>	'Changes Updated!'
+				);
+			}			
+			
+		}
+		else
+		{
+
+			
+			$array = array(
+				'error'			=>	true,
+				'message'		=>	'Please Fill Required Fields!',
+				'item_id'	=>	form_error('item_id'),
+				'max_rent_price'	=>	form_error('max_rent_price'),
+				'min_rent_price'	=>	form_error('min_rent_price'),
+				'stock_re_order_level'	=>	form_error('stock_re_order_level')
+			);
+		}
+		
+		echo json_encode($array);
 	}
 	
 }
