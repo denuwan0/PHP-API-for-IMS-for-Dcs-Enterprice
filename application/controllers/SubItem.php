@@ -121,7 +121,7 @@ class SubItem extends CI_Controller {
 			$image_upload_path = "";
 			$sub_item_image_url = "";
 				
-			if($_FILES['sub_item_image_url']['name'] != '' && ($_FILES['sub_item_image_url']['type'] == 'image/jpeg' || $_FILES['sub_item_image_url']['type'] == 'image/png')){
+			if(isset($_FILES['sub_item_image_url']['name']) && $_FILES['sub_item_image_url']['name'] != '' && ($_FILES['sub_item_image_url']['type'] == 'image/jpeg' || $_FILES['sub_item_image_url']['type'] == 'image/png')){
 				$test = explode('.', $_FILES['sub_item_image_url']['name']);
 				$extension = end($test);    
 				$name = $_FILES['sub_item_image_url']['name'];
@@ -159,6 +159,8 @@ class SubItem extends CI_Controller {
 				else{
 					$data = array(
 						'sub_item_name'	=>	$this->input->post('sub_item_name'),
+						'sub_item_category'	=>	$this->input->post('sub_item_category'),
+						'sub_item_image_url'	=>	$sub_item_image_url,
 						'is_active_inv_sub_item'	=>	$this->input->post('is_active_inv_sub_item')
 					);
 					
@@ -173,6 +175,8 @@ class SubItem extends CI_Controller {
 			else{
 				$data = array(
 					'sub_item_name'	=>	$this->input->post('sub_item_name'),
+					'sub_item_category'	=>	$this->input->post('sub_item_category'),
+					'sub_item_image_url'	=>	$sub_item_image_url,
 					'is_active_inv_sub_item' =>	$this->input->post('is_active_inv_sub_item')
 				);
 

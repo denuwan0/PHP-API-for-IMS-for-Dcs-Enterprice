@@ -580,4 +580,29 @@ class StockRetail extends CI_Controller {
 		echo json_encode($array);
 	}
 	
+	function get_retail_item_details_by_item_id_branch_id_is_sub_item()
+	{	
+		$item_id = $this->input->post('item_id');
+		$is_sub_item = $this->input->post('is_sub_item');
+		$emp_branch_id = $this->session->userdata('emp_branch_id');
+		
+		$data = $this->Inventory_retail_total_stock_model->get_retail_item_details_by_item_id_branch_id_is_sub_item($item_id, $emp_branch_id, $is_sub_item);
+		
+		//var_dump($data->num_rows());
+		
+		if($data->num_rows() != 0){
+			echo json_encode($data->result_array());
+		}
+		else{
+			$array = array(
+				'success'		=>	false,
+				'message'		=>	'Product not Available at the moment!'
+			);
+			echo json_encode($array);
+		}
+		
+		
+		
+	}
+	
 }

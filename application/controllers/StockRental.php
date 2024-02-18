@@ -575,4 +575,11 @@ class StockRental extends CI_Controller {
 		echo json_encode($array);
 	}
 	
+	function get_rental_item_details()
+	{	
+		$data = $this->Inventory_rental_total_stock_model->fetch_all_join_active();
+		
+		echo json_encode($data);
+	}
+	
 }

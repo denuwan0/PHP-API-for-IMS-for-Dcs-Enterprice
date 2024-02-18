@@ -129,7 +129,7 @@ class Item extends CI_Controller {
 		$image_upload_path = "";
 		$item_image_url = "";
 			
-		if($_FILES['item_image_url']['name'] != '' && ($_FILES['item_image_url']['type'] == 'image/jpeg' || $_FILES['item_image_url']['type'] == 'image/png')){
+		if(isset($_FILES['item_image_url']['name']) && $_FILES['item_image_url']['name'] != '' && ($_FILES['item_image_url']['type'] == 'image/jpeg' || $_FILES['item_image_url']['type'] == 'image/png')){
 			$test = explode('.', $_FILES['item_image_url']['name']);
 			$extension = end($test);    
 			$name = $_FILES['item_image_url']['name'];
@@ -144,7 +144,7 @@ class Item extends CI_Controller {
 			$item_image_url = $this->input->post('old_image');
 		}
 	
-			if($this->input->post('is_active_bank') == 0){	
+			if($this->input->post('is_active_inv_item') == 0){	
 			
 				/* SELECT DISTINCT TABLE_NAME 
 				FROM INFORMATION_SCHEMA.COLUMNS
