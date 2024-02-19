@@ -43,8 +43,16 @@ class Emp_special_task_header_model extends CI_Model{
 	{
 		$this->db->select('*');
 		$this->db->from('emp_special_task_header');
-		$this->db->join('inventory_rental_invoice_header', 'emp_special_task_header.invoice_id =  inventory_rental_invoice_header.invoice_id','left');
 		//$this->db->where('company.company_id', $company_id);
+		$query = $this->db->get();
+		return $query;
+	}
+	
+	function fetch_single_join($id)
+	{
+		$this->db->select('*');
+		$this->db->from('emp_special_task_header');
+		$this->db->where('special_task_id', $id);
 		$query = $this->db->get();
 		return $query;
 	}
@@ -53,7 +61,6 @@ class Emp_special_task_header_model extends CI_Model{
 	{
 		$this->db->select('*');
 		$this->db->from('emp_special_task_header');
-		$this->db->join('inventory_rental_invoice_header', 'emp_special_task_header.invoice_id =  inventory_rental_invoice_header.invoice_id','left');
 		$this->db->where('is_complete', 1);
 		$query = $this->db->get();
 		return $query;
@@ -63,7 +70,6 @@ class Emp_special_task_header_model extends CI_Model{
 	{
 		$this->db->select('*');
 		$this->db->from('emp_special_task_header');
-		$this->db->join('inventory_rental_invoice_header', 'emp_special_task_header.invoice_id =  inventory_rental_invoice_header.invoice_id','left');
 		$this->db->where('branch_id', $branch_id);
 		$this->db->where('is_complete', 1);
 		$query = $this->db->get();

@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class EmpSpecialTask extends CI_Controller {
+class EmpTaskAssign extends CI_Controller {
 
 	public function __construct()
 	{

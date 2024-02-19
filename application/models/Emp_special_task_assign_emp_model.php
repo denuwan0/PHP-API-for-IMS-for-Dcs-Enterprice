@@ -16,7 +16,7 @@ class Emp_special_task_assign_emp_model extends CI_Model{
 	{
 		$this->db->where('assign_emp_line_id', $assign_emp_line_id);
 		$query = $this->db->get('emp_special_task_assign_emp');
-		return $query->result_array();
+		return $query;
 	}
 	
 	function fetch_single_by_emp_id($emp_id)
