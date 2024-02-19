@@ -47,7 +47,7 @@ class StockRetail extends CI_Controller {
 		
 		$itemArray = array();
 		$itemArray = $phparray["itemsArr"];
-		$branch_id = $this->session->userdata('emp_branch_id');
+		//$branch_id = $this->session->userdata('emp_branch_id');
 		$created_by = $this->session->userdata('user_id');
 		$date = date('Y-m-d');
 		
@@ -60,7 +60,7 @@ class StockRetail extends CI_Controller {
 		if($phparray["stockHeader"][0]->stock_batch_id != '' )
 		{
 			$itemData = array(
-				'branch_id' =>	$branch_id,							
+				'branch_id' =>	$phparray["stockHeader"][0]->branch_id,							
 				'retail_stock_assigned_date' => $date,
 				'stock_batch_id' =>	$phparray["stockHeader"][0]->stock_batch_id,
 				'created_by' =>	$created_by,
@@ -122,7 +122,7 @@ class StockRetail extends CI_Controller {
 		$emp_branch_id = $this->session->userdata('emp_branch_id');
 		if($sys_user_group_name == "Admin"){
 			$data = $this->Inventory_retail_total_stock_model->fetch_all_join();
-		echo json_encode($data->result_array());
+			echo json_encode($data->result_array());
 		}
 		else{
 			$data = $this->Inventory_retail_total_stock_model->fetch_all_join_by_branch_id($emp_branch_id);
@@ -253,13 +253,13 @@ class StockRetail extends CI_Controller {
 		
 		$itemArray = array();
 		$itemArray = $phparray["itemsArr"];
-		$branch_id = $this->session->userdata('emp_branch_id');
+		//$branch_id = $this->session->userdata('emp_branch_id');
 		$created_by = $this->session->userdata('user_id');
 		$approved_by = $this->session->userdata('user_id');
 		$date = date('Y-m-d');
 		$status = false;
 		$retail_stock_header_id = $phparray["stockHeader"][0]->retail_stock_header_id;
-		
+		$branch_id  = $phparray["stockHeader"][0]->branch_id;
 		
 		if($phparray["stockHeader"][0]->stock_purchase_date != '' )
 		{			
@@ -287,7 +287,7 @@ class StockRetail extends CI_Controller {
 				else{
 					$data = array(
 						'retail_stock_header_id' =>	$retail_stock_header_id,
-						'branch_id' =>	$branch_id,							
+						'branch_id' =>	$phparray["stockHeader"][0]->branch_id,						
 						'retail_stock_assigned_date' => $date,
 						'stock_batch_id' =>	$phparray["stockHeader"][0]->stock_batch_id,
 						'created_by' =>	$created_by,
@@ -325,7 +325,7 @@ class StockRetail extends CI_Controller {
 
 				$data = array(
 					'retail_stock_header_id' =>	$retail_stock_header_id,
-					'branch_id' =>	$branch_id,							
+					'branch_id' =>	$phparray["stockHeader"][0]->branch_id,						
 					'retail_stock_assigned_date' => $date,
 					'stock_batch_id' =>	$phparray["stockHeader"][0]->stock_batch_id,
 					'created_by' =>	$created_by,

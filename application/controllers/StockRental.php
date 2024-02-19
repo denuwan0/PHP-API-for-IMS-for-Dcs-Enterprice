@@ -45,11 +45,11 @@ class StockRental extends CI_Controller {
 		
 		$itemArray = array();
 		$itemArray = $phparray["itemsArr"];
-		$branch_id = $this->session->userdata('emp_branch_id');
+		//$branch_id = $this->session->userdata('emp_branch_id');
 		$created_by = $this->session->userdata('user_id');
 		$date = date('Y-m-d');
 		
-		
+		$branch_id = $phparray["stockHeader"][0]->branch_id;
 		
 		$status = false;
 		
@@ -251,12 +251,14 @@ class StockRental extends CI_Controller {
 		
 		$itemArray = array();
 		$itemArray = $phparray["itemsArr"];
-		$branch_id = $this->session->userdata('emp_branch_id');
+		//$branch_id = $this->session->userdata('emp_branch_id');
 		$created_by = $this->session->userdata('user_id');
 		$approved_by = $this->session->userdata('user_id');
 		$date = date('Y-m-d');
 		$status = false;
 		$rental_stock_header_id = $phparray["stockHeader"][0]->rental_stock_header_id;
+		
+		$branch_id = $phparray["stockHeader"][0]->branch_id;
 		
 		
 		if($phparray["stockHeader"][0]->stock_purchase_date != '' )
