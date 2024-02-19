@@ -30,9 +30,27 @@ class ItemCategory extends CI_Controller {
 		
 		if($this->form_validation->run())
 		{
+			$image_upload_path = "";
+			
+			if($_FILES['cat_img_url']['name'] != '' && ($_FILES['cat_img_url']['type'] == 'image/jpeg' || $_FILES['cat_img_url']['type'] == 'image/png')){
+				$test = explode('.', $_FILES['cat_img_url']['name']);
+				$extension = end($test);    
+				$name = $_FILES['cat_img_url']['name'];
+				$image_upload_path = $_SERVER["DOCUMENT_ROOT"].'/API/assets/img/category/'.$name;
+				
+				if(move_uploaded_file($_FILES['cat_img_url']['tmp_name'], $image_upload_path)){
+					
+					$cat_img_url = base_url().'assets/img/category/'.$name;
+				}
+			}
+			else{
+				$image_upload_path = $_SERVER["DOCUMENT_ROOT"]."/API/assets/img/download.png";
+			}
+			
 			$data = array(
 				'category_name'	=>	$this->input->post('category_name'),
 				'description'	=>	$this->input->post('description'),
+				'cat_img_url'	=>	$cat_img_url,
 				'is_active_inv_item_cat' =>	$this->input->post('is_active_inv_item_cat')
 			);
 
@@ -97,8 +115,29 @@ class ItemCategory extends CI_Controller {
 		$this->form_validation->set_rules('category_name', 'Category Name', 'required');
 		$this->form_validation->set_rules('description', 'Description', 'required');
 		
+				
 		if($this->form_validation->run())
-		{			
+		{	
+
+			$image_upload_path = "";
+			$cat_img_url = "";
+
+			if(isset($_FILES['cat_img_url']['name']) && $_FILES['cat_img_url']['name'] != '' && ($_FILES['cat_img_url']['type'] == 'image/jpeg' || $_FILES['cat_img_url']['type'] == 'image/png')){
+				$test = explode('.', $_FILES['cat_img_url']['name']);
+				$extension = end($test);    
+				$name = $_FILES['cat_img_url']['name'];
+				$image_upload_path = $_SERVER["DOCUMENT_ROOT"].'/API/assets/img/category/'.$name;
+				
+				if(move_uploaded_file($_FILES['cat_img_url']['tmp_name'], $image_upload_path)){
+					
+					$cat_img_url = base_url().'assets/img/category/'.$name;
+				}
+			}
+			else{
+				$cat_img_url = $this->input->post('old_image');
+			}
+				
+	
 			if($this->input->post('is_active_inv_item_cat') == 0){	
 			
 				/* SELECT DISTINCT TABLE_NAME 
@@ -120,6 +159,7 @@ class ItemCategory extends CI_Controller {
 					$data = array(
 						'item_category_id'	=>	$this->input->post('item_category_id'),
 						'category_name'	=>	$this->input->post('category_name'),
+						'cat_img_url'	=>	$cat_img_url,
 						'description'	=>	$this->input->post('description'),
 						'is_active_inv_item_cat'	=>	$this->input->post('is_active_inv_item_cat')
 					);
@@ -136,6 +176,7 @@ class ItemCategory extends CI_Controller {
 				$data = array(
 					'item_category_id'	=>	$this->input->post('item_category_id'),
 					'category_name'	=>	$this->input->post('category_name'),
+					'cat_img_url'	=>	$cat_img_url,
 					'description'	=>	$this->input->post('description'),
 					'is_active_inv_item_cat'	=>	$this->input->post('is_active_inv_item_cat')
 				);
