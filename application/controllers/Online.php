@@ -113,6 +113,12 @@ class Online extends CI_Controller {
 		echo json_encode($data->result_array());
 	}
 	
+	function productById($id)
+	{		
+		$data = $this->Inventory_stock_retail_header_model->fetch_all_active_retail_products_for_shopping_web();
+		echo json_encode($data->result_array());
+	}
+	
 	function fetch_all_total_stock_join()
 	{		
 		
