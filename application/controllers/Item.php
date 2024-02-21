@@ -15,12 +15,14 @@ class Item extends CI_Controller {
 		$this->load->model('online_buying_pattern_detail_model');
 		$this->load->model('online_shopping_kart_detail_model');
 		$this->load->model('online_special_offers_model');
+		$this->load->model('Inventory_retail_total_stock_model');
+		
 		
 		//$is_ajax = 'xmlhttprequest' == strtolower( $_SERVER['HTTP_X_REQUESTED_WITH'] ?? '' );
 		
-		if (!$this->input->is_ajax_request()) {
+		/* if (!$this->input->is_ajax_request()) {
 			exit('No direct script access allowed');
-		}
+		} */
 		
 	}
 
@@ -104,6 +106,17 @@ class Item extends CI_Controller {
 		{			
 			$id = $this->input->get('id');
 			$data = $this->inventory_item_model->fetch_single_join($id);
+			
+			echo json_encode($data->result_array());
+		}
+	}
+	
+	function fetch_single_join_for_web()
+	{
+		if($this->input->get('id'))
+		{			
+			$id = $this->input->get('id');
+			$data = $this->Inventory_retail_total_stock_model->fetch_item_detail_for_shopping_web($id);
 			
 			echo json_encode($data->result_array());
 		}

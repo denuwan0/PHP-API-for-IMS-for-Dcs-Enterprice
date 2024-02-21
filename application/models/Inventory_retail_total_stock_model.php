@@ -93,4 +93,11 @@ class Inventory_retail_total_stock_model extends CI_Model{
 		return $query;
 	}
 	
+	function fetch_item_detail_for_shopping_web($item_id)
+	{
+		$query = $this->db->query("SELECT inventory_retail_total_stock.retail_stock_id, inventory_retail_total_stock.item_id, inventory_retail_total_stock.is_sub_item,  IF(inventory_retail_total_stock.min_sale_price = 0, inventory_retail_total_stock.max_sale_price, inventory_retail_total_stock.min_sale_price) AS sale_price, inventory_retail_total_stock.full_stock_count, inventory_retail_total_stock.stock_re_order_level, inventory_retail_total_stock.branch_id, company_branch.company_branch_name, inventory_retail_total_stock.is_active_retail_stock, inventory_item.item_name, inventory_item.item_id, inventory_item.item_image_url, inventory_item.item_type, inventory_item.item_category, inventory_item.is_active_inv_item, inventory_item.is_feature, inventory_item.is_web_pattern, inventory_item.item_desc FROM `inventory_retail_total_stock` left join inventory_item on  inventory_retail_total_stock.item_id = inventory_item.item_id  left join company_branch ON  inventory_retail_total_stock.branch_id = company_branch.company_branch_id WHERE inventory_item.item_id = '$item_id' GROUP BY inventory_item.item_id;");
+		//echo $this->db->last_query();
+		return $query;
+	}
+	
 }
