@@ -490,8 +490,11 @@ class SysUser extends CI_Controller {
 					$this->Sys_user_model->insert($data);
 					
 					$userData = $this->Customer_model->fetch_single($this->input->post('emp_cust_id'));
+					
+					$text = "DCS Account Created!";
+					$url = "http://localhost/dcs/login/forgotPassword";	
 										
-					$this->accountCreateMail($userData);
+					$this->accountCreateMail($text, $userData, $url);
 					
 					$array = array(
 						'success'		=>	true,
@@ -531,7 +534,10 @@ class SysUser extends CI_Controller {
 					
 					$userData = $this->Emp_model->fetch_single($this->input->post('emp_cust_id'));
 										
-					$this->accountCreateMail($userData);
+					$text = "DCS Account Created!";
+					$url = "http://localhost/dcs/login/forgotPassword";	
+										
+					$this->accountCreateMail($text, $userData, $url);
 					
 					$array = array(
 						'success'		=>	true,
@@ -561,7 +567,7 @@ class SysUser extends CI_Controller {
 		
 	}
 	
-	function accountCreateMail($userData){
+	function accountCreateMail($text, $userData, $url){
 		
 		
 		// Load PHPMailer library
@@ -614,7 +620,7 @@ class SysUser extends CI_Controller {
 		$user_email = isset($userData[0]['customer_email'])? $userData[0]['customer_email']: $userData[0]['emp_email'];
 		
 		$mail->addAddress($user_email);
-		$activation_url = "testedUrl";		
+		$url = "http://localhost/dcs/login/forgotPassword";		
 		
 		$created_date = date("Y-m-d");
 		
@@ -632,12 +638,13 @@ class SysUser extends CI_Controller {
 		$message = str_replace('%user_contact%', $user_contact, $message); 
 		$message = str_replace('%user_email%', $user_email, $message); 
 		$message = str_replace('%created_date%', $created_date, $message); 
-		$message = str_replace('%activation_url%', $activation_url, $message); 
-				
+		$message = str_replace('%url%', $url, $message); 
+		$message = str_replace('%text%', $text, $message); 		
 		
 
 		// Email subject
-		$mail->Subject = 'DCS Enterprices Online Plateform account created!';
+		//$mail->Subject = 'DCS Enterprices Online Plateform account created!';
+		$mail->Subject = $text;
 
 		// Set email format to HTML
 		$mail->isHTML(true);
