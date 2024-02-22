@@ -536,7 +536,7 @@ class StockRetail extends CI_Controller {
 						'is_active_retail_stock'	=>	$this->input->post('is_active_retail_stock')
 					);
 					
-					$this->Inventory_retail_total_stock_model->update_single($this->input->post('retail_stock_id'), $data);
+					$this->Inventory_retail_total_stock_model->update_all_by_item_id($this->input->post('item_id'), $data);
 
 					$array = array(
 						'success'		=>	true,
@@ -554,7 +554,7 @@ class StockRetail extends CI_Controller {
 					'is_active_retail_stock'	=>	$this->input->post('is_active_retail_stock')
 				);
 
-				$this->Inventory_retail_total_stock_model->update_single($this->input->post('retail_stock_id'), $data);
+				$this->Inventory_retail_total_stock_model->update_all_by_item_id($this->input->post('item_id'), $data);
 
 				$array = array(
 					'success'		=>	true,

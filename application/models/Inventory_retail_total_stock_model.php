@@ -50,6 +50,12 @@ class Inventory_retail_total_stock_model extends CI_Model{
 		$this->db->where('retail_stock_id', $retail_stock_id);
 		$this->db->update('inventory_retail_total_stock', $data);
 	}
+	
+	function update_all_by_item_id($item_id, $data)
+	{
+		$this->db->where('item_id', $item_id);
+		$this->db->update('inventory_retail_total_stock', $data);
+	}
 
 	function delete_single($retail_stock_id)
 	{

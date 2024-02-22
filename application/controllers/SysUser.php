@@ -11,6 +11,8 @@ class SysUser extends CI_Controller {
 		$this->load->model('Sys_user_group_model');
 		$this->load->model('Customer_model');
 		$this->load->model('Company_model');
+		$this->load->model('Notify_model');
+		
 		$this->load->library('form_validation');
 		
 		
@@ -388,6 +390,9 @@ class SysUser extends CI_Controller {
 					);
 					
 					$this->Sys_user_model->update_single($user_id, $data);
+					
+					$this->Notify_model->update_single($user_id, $data);
+					
 					
 					$data = array(
 						'error'	=>	FALSE,

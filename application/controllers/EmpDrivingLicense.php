@@ -27,6 +27,7 @@ class EmpDrivingLicense extends CI_Controller {
 	function insert()
 	{		
 		$this->form_validation->set_rules('license_number', 'License No', 'required');
+		$this->form_validation->set_rules('emp_id', 'emp_id', 'required');
 		$this->form_validation->set_rules('valid_from_date', 'valid from', 'required');
 		$this->form_validation->set_rules('valid_to_date', 'valid to', 'required');
 		$this->form_validation->set_rules('license_type', 'Vehicle Category', 'required');
@@ -34,6 +35,7 @@ class EmpDrivingLicense extends CI_Controller {
 		{
 			$data = array(
 				'license_number'	=>	$this->input->post('license_number'),
+				'emp_id'	=>	$this->input->post('emp_id'),
 				'valid_from_date'	=>	$this->input->post('valid_from_date'),
 				'valid_to_date'	=>	$this->input->post('valid_to_date'),
 				'license_type'	=>	$this->input->post('license_type'),
@@ -53,6 +55,7 @@ class EmpDrivingLicense extends CI_Controller {
 				'error'			=>	true,
 				'message'		=>	'Error!',
 				'license_number'		=>	form_error('license_number'),
+				'emp_id'		=>	form_error('emp_id'),
 				'valid_from_date'		=>	form_error('valid_from_date'),
 				'valid_to_date'		=>	form_error('valid_to_date'),
 				'license_type'		=>	form_error('license_type')
