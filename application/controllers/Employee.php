@@ -110,13 +110,18 @@ class Employee extends CI_Controller {
 		$sys_user_group_name = $this->session->userdata('sys_user_group_name');
 		//var_dump($this->session->userdata());
 		$emp_branch_id = $this->session->userdata('emp_branch_id');
+		$emp_id = $this->session->userdata('emp_id');
 		if($sys_user_group_name == "Admin"){
 			$data = $this->emp_model->fetch_all_active();
 			echo json_encode($data->result_array());
 		}
-		else{
+		else if($sys_user_group_name == "Manager"){
 			$data = $this->emp_model->fetch_all_active_by_emp_branch_id($emp_branch_id);
 			echo json_encode($data->result_array());
+		}
+		else if($sys_user_group_name == "Staff"){
+			$data = $this->emp_model->fetch_all_join_branch_id_emp_id($emp_id);
+			echo json_encode($data);
 		}
 		
 	}

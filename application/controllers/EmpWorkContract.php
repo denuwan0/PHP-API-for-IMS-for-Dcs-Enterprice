@@ -116,11 +116,11 @@ class EmpWorkContract extends CI_Controller {
 			echo json_encode($data);
 		}
 		else if($sys_user_group_name == "Manager" ){
-			$data = $this->emp_drive_license_model->fetch_all_join_branch_id($emp_branch_id);
+			$data = $this->emp_work_contract_model->fetch_all_join_branch_id($emp_branch_id);
 			echo json_encode($data);
 		}
 		else if($sys_user_group_name == "Staff" ){
-			$data = $this->emp_drive_license_model->fetch_all_join_emp_id($emp_id);
+			$data = $this->emp_work_contract_model->fetch_all_join_emp_id($emp_id);
 			echo json_encode($data);
 		}
 	

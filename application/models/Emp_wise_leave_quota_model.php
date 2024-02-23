@@ -99,4 +99,12 @@ class Emp_wise_leave_quota_model extends CI_Model{
 		$query = $this->db->get();
 		return $query;
 	}
+		
+	function fetch_all_join_by_emp_id($emp_id)
+	{
+		$query = $this->db->query("SELECT * FROM `emp_wise_leave_quota` JOIN emp_leave_quota ON emp_wise_leave_quota.leave_quota_id = emp_leave_quota.leave_quota_id
+		JOIN emp_leave_type ON emp_leave_type.leave_type_id = emp_leave_quota.leave_type_id WHERE `emp_id` = '$emp_id' GROUP BY emp_wise_leave_quota.leave_quota_id AND emp_wise_leave_quota.is_hold_emp_wise_leave_quota = 0 AND emp_wise_leave_quota.is_active_emp_wise_leave_quota = 1 AND emp_wise_leave_quota.balance_leave_quota > 0;");
+		
+		return $query->result_array();
+	}
 }
