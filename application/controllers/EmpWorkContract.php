@@ -105,9 +105,26 @@ class EmpWorkContract extends CI_Controller {
 	
 	function fetch_all_join()
 	{	
-		$data = $this->emp_work_contract_model->fetch_all_join();
+		$sys_user_group_name = $this->session->userdata('sys_user_group_name');
+		//var_dump($this->session->userdata());
+		$emp_branch_id = $this->session->userdata('emp_branch_id');
+		$emp_epf = $this->session->userdata('emp_epf');
+		$emp_id = $this->session->userdata('emp_id');
 		
-		echo json_encode($data);
+		if($sys_user_group_name == "Admin" ){
+			$data = $this->emp_work_contract_model->fetch_all_join();		
+			echo json_encode($data);
+		}
+		else if($sys_user_group_name == "Manager" ){
+			$data = $this->emp_drive_license_model->fetch_all_join_branch_id($emp_branch_id);
+			echo json_encode($data);
+		}
+		else if($sys_user_group_name == "Staff" ){
+			$data = $this->emp_drive_license_model->fetch_all_join_emp_id($emp_id);
+			echo json_encode($data);
+		}
+	
+		
 	}
 
 

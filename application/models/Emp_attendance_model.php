@@ -70,6 +70,18 @@ class Emp_attendance_model extends CI_Model{
 		return $query->result_array();
 	}
 	
+	function fetch_all_active_by_emp_branch_id_emp_epf($branch_id, $emp_epf)
+	{
+		$this->db->select('*');
+		$this->db->from('emp_attendance');
+		$this->db->join('sys_user', 'emp_attendance.uploaded_by = sys_user.user_id','left');
+		$this->db->join('company_branch', 'emp_attendance.branch_id = company_branch.company_branch_id','left');	
+		$this->db->where('branch_id', $branch_id);
+		$this->db->where('emp_epf', $emp_epf);
+		$query = $this->db->get();
+		return $query->result_array();
+	}
+	
 	function fetch_single_join($id)
 	{
 		$this->db->select('*');

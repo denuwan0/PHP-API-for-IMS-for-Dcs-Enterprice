@@ -59,6 +59,21 @@ class Emp_work_contract_model extends CI_Model{
 		$query = $this->db->get();
 		return $query->result_array();
 	}
+	
+	function fetch_all_join()
+	{
+		$this->db->select('*');
+		$this->db->from('emp_work_contract');
+		$this->db->join('emp_details', 'emp_work_contract.emp_id = emp_details.emp_id','left');
+		$this->db->join('emp_grade', 'emp_work_contract.emp_grade_id = emp_grade.emp_grade_id','left');
+		$this->db->join('company_branch', 'emp_work_contract.emp_branch_id = company_branch.company_branch_id','left');
+		$this->db->join('company', 'emp_work_contract.emp_company_id = company.company_id','left');
+		$this->db->join('emp_designation', 'emp_work_contract.emp_desig_id = emp_designation.emp_desig_id','left');
+		$this->db->join('emp_work_schedule', 'emp_work_contract.emp_ws_id = emp_work_schedule.ws_id','left');
+		$this->db->where('work_contract_id ', $work_contract_id);
+		$query = $this->db->get();
+		return $query->result_array();
+	}
 		
 	function fetch_single_join($work_contract_id)
 	{

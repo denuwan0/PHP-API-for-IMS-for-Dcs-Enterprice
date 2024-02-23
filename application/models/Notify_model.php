@@ -75,7 +75,9 @@ class Notify_model extends CI_Model{
 					$body .= 'Please renew vehicle Revenue license for vehicle '.$data5[0]['license_plate_no'].'<br>';
 				}
 			}
-			
+			/* else if($sys_user_group_name == "Admin"){
+				
+			} */
 					
 			
 			$text = 'Daily reminder from DCS plateform';

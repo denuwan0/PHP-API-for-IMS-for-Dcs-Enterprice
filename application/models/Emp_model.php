@@ -98,6 +98,29 @@ class Emp_model extends CI_Model{
 		return $query->result_array();
 	}
 	
+	function fetch_all_join_branch_id($branch_id)
+	{
+		$this->db->select('*');
+		$this->db->from('emp_details');
+		$this->db->join('company_branch', 'emp_details.emp_branch_id = company_branch.company_branch_id','left');
+		$this->db->join('company', 'emp_details.emp_company_id = company.company_id','left');
+		$this->db->where('emp_branch_id', $branch_id);
+		$query = $this->db->get();
+		return $query->result_array();
+	}
+	
+	function fetch_all_join_branch_id_emp_id($emp_id)
+	{
+		$this->db->select('*');
+		$this->db->from('emp_details');
+		$this->db->join('company_branch', 'emp_details.emp_branch_id = company_branch.company_branch_id','left');
+		$this->db->join('sys_user', 'emp_details.emp_id  = sys_user.emp_cust_id','left');
+		$this->db->join('company', 'emp_details.emp_company_id = company.company_id','left');
+		$this->db->where('emp_id', $emp_id);
+		$query = $this->db->get();
+		return $query->result_array();
+	}
+	
 	function fetch_single_join($emp_id)
 	{
 		$this->db->select('*');

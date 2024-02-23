@@ -45,6 +45,26 @@ class Emp_drive_license_model extends CI_Model{
 		$query = $this->db->get();
 		return $query->result_array();
 	}
+	
+	function fetch_all_join_branch_id($branch_id)
+	{
+		$this->db->select('*');
+		$this->db->from('emp_driving_license');
+		$this->db->join('emp_details', 'emp_details.emp_id = emp_driving_license.emp_id','left');
+		$this->db->where('emp_branch_id', $branch_id);
+		$query = $this->db->get();
+		return $query->result_array();
+	}
+	
+	function fetch_all_join_emp_id($emp_id)
+	{
+		$this->db->select('*');
+		$this->db->from('emp_driving_license');
+		$this->db->join('emp_details', 'emp_details.emp_id = emp_driving_license.emp_id','left');
+		$this->db->where('emp_driving_license.emp_id', $emp_id);
+		$query = $this->db->get();
+		return $query->result_array();
+	}
 
 	function delete_single($driving_license_id)
 	{
