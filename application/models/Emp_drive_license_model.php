@@ -41,6 +41,7 @@ class Emp_drive_license_model extends CI_Model{
 	{
 		$this->db->select('*');
 		$this->db->from('emp_driving_license');
+		$this->db->join('emp_details', 'emp_details.emp_id = emp_driving_license.emp_id','left');
 		$query = $this->db->get();
 		return $query->result_array();
 	}

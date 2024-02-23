@@ -103,6 +103,7 @@ class EmpDrivingLicense extends CI_Controller {
 	function update()
 	{
 		$this->form_validation->set_rules('driving_license_id', 'License Id', 'required');
+		$this->form_validation->set_rules('emp_id', 'emp_id', 'required');
 		$this->form_validation->set_rules('license_number', 'License No', 'required');
 		$this->form_validation->set_rules('valid_from_date', 'valid from', 'required');
 		$this->form_validation->set_rules('valid_to_date', 'valid to', 'required');
@@ -119,11 +120,12 @@ class EmpDrivingLicense extends CI_Controller {
 				if(count($status)>0){
 					$array = array(
 						'error'			=>	true,
-						'message'		=>	'Location is being used by other modules at the moment!'
+						'message'		=>	'Driving Lisence is being used by other modules at the moment!'
 					);
 				}
 				else{
 					$data = array(
+						'emp_id'	=>	$this->input->post('emp_id'),
 						'license_number'	=>	$this->input->post('license_number'),
 						'valid_from_date'	=>	$this->input->post('valid_from_date'),
 						'valid_to_date'	=>	$this->input->post('valid_to_date'),
@@ -140,6 +142,7 @@ class EmpDrivingLicense extends CI_Controller {
 			}
 			else{
 				$data = array(
+					'emp_id'	=>	$this->input->post('emp_id'),
 					'license_number'	=>	$this->input->post('license_number'),
 					'valid_from_date'	=>	$this->input->post('valid_from_date'),
 					'valid_to_date'	=>	$this->input->post('valid_to_date'),

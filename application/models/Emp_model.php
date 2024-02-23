@@ -109,4 +109,16 @@ class Emp_model extends CI_Model{
 		return $query->result_array();
 	}
 	
+	function fetch_single_join_employee($user_id)
+	{
+		$this->db->select('*');
+		$this->db->from('emp_details');
+		$this->db->join('sys_user', 'emp_details.emp_id = sys_user.emp_cust_id','left');
+		$this->db->join('sys_user_group', 'sys_user.sys_user_group_id = sys_user_group.sys_user_group_id','left');
+		$this->db->where('sys_user.user_id', $user_id);
+		$this->db->where('sys_user.is_customer', 0 );
+		$query = $this->db->get();
+		return $query->result_array();
+	}
+	
 }

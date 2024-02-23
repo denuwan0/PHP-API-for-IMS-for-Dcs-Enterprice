@@ -109,6 +109,7 @@ class SysUser extends CI_Controller {
 							'emp_id'  			=> $emp_data_result[0]['emp_id'],
 							'emp_epf'  			=> $emp_data_result[0]['emp_epf'],
 							'emp_first_name'  	=> $emp_data_result[0]['emp_first_name'],
+							'emp_email'  	=> $emp_data_result[0]['emp_email'],
 							'emp_last_name'   	=> $emp_data_result[0]['emp_last_name'],
 							'emp_company_id'   	=> $emp_data_result[0]['emp_company_id'],
 							'emp_branch_id'   	=> $emp_data_result[0]['emp_branch_id'],
@@ -137,6 +138,7 @@ class SysUser extends CI_Controller {
 							'customer_working_address'   => $customer_data_result[0]['customer_working_address'],
 							'customer_shipping_address'  => $customer_data_result[0]['customer_shipping_address'],
 							'customer_contact_no'  		=> $customer_data_result[0]['customer_contact_no'],
+							'customer_email'  		=> $customer_data_result[0]['customer_email'],
 							'is_active_customer'   	=> $customer_data_result[0]['is_active_customer'],
 							'sys_user_group_name' => $user_data_result[0]['sys_user_group_name'],
 							'token'   			=> $user_data_result[0]['token'],
@@ -390,17 +392,36 @@ class SysUser extends CI_Controller {
 					);
 					
 					$this->Sys_user_model->update_single($user_id, $data);
+
+					$userData = $this->Emp_model->fetch_single_join_employee($user_id);
 					
-					$this->Notify_model->update_single($user_id, $data);
 					
 					
-					$data = array(
-						'error'	=>	FALSE,
-						'message'	=>	"OTP Verified",
-						'token'		=>	$token,
-						'logged_in' => TRUE,
-						'otp_verify'=> TRUE
-					);
+					if($userData){
+						
+															
+						$data = array(
+							'user_id'  			=> $user_id,
+							'emp_id'  			=> $userData[0]['emp_id'],
+							'emp_epf'  			=> $userData[0]['emp_epf'],
+							'emp_first_name'  	=> $userData[0]['emp_first_name'],
+							'emp_email'  		=> $userData[0]['emp_email'],
+							'emp_last_name'   	=> $userData[0]['emp_last_name'],
+							'emp_branch_id'   	=> $userData[0]['emp_branch_id'],
+							'is_active_emp'   	=> $userData[0]['is_active_emp'],
+							'sys_user_group_name'   	=> $userData[0]['sys_user_group_name'],
+							'error'	=>	FALSE,
+							'message'	=>	"OTP Verified",
+							'token'		=>	$token,
+							'logged_in' => TRUE,
+							'otp_verify'=> TRUE
+						);	
+
+						echo json_encode($data);
+						
+					}
+					
+					
 				
 				}
 				else{
@@ -408,7 +429,7 @@ class SysUser extends CI_Controller {
 						'error'		=>	TRUE,
 						'message'	=>	"OTP Verification Failed"
 					);
-					
+					echo json_encode($data);
 				}
 				
 			}
@@ -417,9 +438,10 @@ class SysUser extends CI_Controller {
 					'error'		=>	TRUE,
 					'message'	=>	"OTP Verification Failed"
 				);
-				
+				echo json_encode($data);
 			}
-			echo json_encode($data);
+			
+			
 		}
 		
 		
@@ -836,7 +858,8 @@ class SysUser extends CI_Controller {
 		$user_email = isset($userData[0]['customer_email'])? $userData[0]['customer_email']: $userData[0]['emp_email'];
 		
 		$mail->addAddress($user_email);
-		$activation_url = "testedUrl";		
+		//$activation_url = "testedUrl";
+		$activation_url = "http://localhost/dcs/";	
 		
 		$created_date = date("Y-m-d");
 		
