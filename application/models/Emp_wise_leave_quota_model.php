@@ -70,6 +70,7 @@ class Emp_wise_leave_quota_model extends CI_Model{
 		return $query;
 	}
 	
+	
 	function fetch_all_active_join()
 	{
 		$this->db->select('*');

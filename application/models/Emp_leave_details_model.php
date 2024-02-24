@@ -58,6 +58,7 @@ class Emp_leave_details_model extends CI_Model{
 		$query = $this->db->query("SELECT * FROM `emp_leave_details`
 		LEFT JOIN emp_wise_leave_quota ON emp_wise_leave_quota.emp_wise_leave_quota_id = emp_leave_details.emp_wise_leave_quota_id
 		LEFT JOIN emp_leave_quota ON emp_leave_quota.leave_quota_id = emp_wise_leave_quota.leave_quota_id
+		LEFT JOIN emp_details ON emp_details.emp_id = emp_leave_details.emp_id
 		LEFT JOIN emp_leave_type ON emp_leave_type.leave_type_id = emp_leave_quota.leave_type_id");
 
 		return $query;

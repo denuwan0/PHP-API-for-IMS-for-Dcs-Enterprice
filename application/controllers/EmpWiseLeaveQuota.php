@@ -376,12 +376,12 @@ class EmpWiseLeaveQuota extends CI_Controller {
 		$branch_id = $this->session->userdata('branch_id');
 		$user_group_name = $this->session->userdata('sys_user_group_name');
 		if($user_group_name == "Admin"){
-			$data = $this->Emp_wise_leave_quota_model->fetch_all_join();
-			echo json_encode($data->result_array());	
+			$data = $this->Emp_wise_leave_quota_model->fetch_all_join_by_emp_id($emp_id);
+			echo json_encode($data);	
 		}
 		else if($user_group_name == "Manager"){
-			$data = $this->Emp_wise_leave_quota_model->fetch_all_join_by_branch_id($branch_id);
-			echo json_encode($data->result_array());
+			$data = $this->Emp_wise_leave_quota_model->fetch_all_join_by_emp_id($emp_id);
+			echo json_encode($data);
 		}
 		else if($user_group_name == "Staff"){
 			$data = $this->Emp_wise_leave_quota_model->fetch_all_join_by_emp_id($emp_id);	

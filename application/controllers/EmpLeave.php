@@ -28,7 +28,8 @@ class EmpLeave extends CI_Controller {
 	}
 	
 	function insert()
-	{		
+	{	
+		$created_by = $this->session->userdata('user_id');
 		$this->form_validation->set_rules('leave_from_date', 'leave_from_date', 'required');
 		$this->form_validation->set_rules('leave_to_date', 'leave_to_date', 'required');
 		$this->form_validation->set_rules('emp_id', 'emp_id', 'required');
@@ -37,15 +38,30 @@ class EmpLeave extends CI_Controller {
 		
 		if($this->form_validation->run())
 		{
-			$data = array(
-				'leave_from_date'	=>	$this->input->post('leave_from_date'),
-				'leave_to_date'	=>	$this->input->post('leave_to_date'),
-				'emp_id'	=>	$this->input->post('emp_id'),
-				'emp_wise_leave_quota_id'	=>	$this->input->post('emp_wise_leave_quota_id'),
-				'leave_amount'	=>	$this->input->post('leave_amount'),
-				'created_by_emp_id'	=>	$this->input->post('created_by_emp_id'),
-				'is_active_leave_details' =>	$this->input->post('is_active_leave_details')
-			);
+			if($this->input->post('is_active_leave_details') == 1){
+				$data = array(
+					'leave_from_date'	=>	$this->input->post('leave_from_date'),
+					'leave_to_date'	=>	$this->input->post('leave_to_date'),
+					'emp_id'	=>	$this->input->post('emp_id'),
+					'emp_wise_leave_quota_id'	=>	$this->input->post('emp_wise_leave_quota_id'),
+					'leave_amount'	=>	$this->input->post('leave_amount'),
+					'created_by'	=>	$created_by,
+					'is_active_leave_details' =>	$this->input->post('is_active_leave_details')
+				);
+			}
+			else{
+				$data = array(
+					'leave_from_date'	=>	$this->input->post('leave_from_date'),
+					'leave_to_date'	=>	$this->input->post('leave_to_date'),
+					'emp_id'	=>	$this->input->post('emp_id'),
+					'emp_wise_leave_quota_id'	=>	$this->input->post('emp_wise_leave_quota_id'),
+					'leave_amount'	=>	$this->input->post('leave_amount'),
+					'created_by'	=>	$created_by,
+					'is_active_leave_details' =>	$this->input->post('is_active_leave_details')
+				);
+			}
+			
+			
 
 			$this->emp_leave_details_model->insert($data);
 
@@ -125,7 +141,7 @@ class EmpLeave extends CI_Controller {
 			echo json_encode($data->result_array());	
 		}
 		else if($user_group_name == "Manager"){
-			$data = $this->emp_leave_details_model->fetch_all_join_by_branch_id($branch_id);
+			$data = $this->emp_leave_details_model->fetch_all_join_by_emp_id($emp_id);
 			echo json_encode($data->result_array());
 		}
 		else if($user_group_name == "Staff"){
@@ -138,31 +154,46 @@ class EmpLeave extends CI_Controller {
 
 	function update()
 	{
-		$this->form_validation->set_rules('location_id', 'Location Id', 'required');
-		$this->form_validation->set_rules('location_name', 'Location Name', 'required');
-		$this->form_validation->set_rules('country_id', 'Country', 'required');
-		$this->form_validation->set_rules('location_desc', 'Description', 'required');
-		//$this->form_validation->set_rules('is_active_country', 'Description', 'required');
+		$created_by = $this->session->userdata('user_id');
+		$approved_by = 0;
+		
+		$user_group_name = $this->session->userdata('sys_user_group_name');
+		if($user_group_name == 'Admin' || $user_group_name == 'Manager'){
+			$approved_by = $this->session->userdata('user_id');
+		}
+		
+		$this->form_validation->set_rules('leave_detail_id', 'leave_detail_id', 'required');
+		$this->form_validation->set_rules('leave_from_date', 'leave_from_date', 'required');
+		$this->form_validation->set_rules('leave_to_date', 'leave_to_date', 'required');
+		$this->form_validation->set_rules('emp_id', 'emp_id', 'required');
+		$this->form_validation->set_rules('emp_wise_leave_quota_id', 'emp_wise_leave_quota_id', 'required');
+		$this->form_validation->set_rules('leave_amount', 'leave_amount', 'required');
+		
 		if($this->form_validation->run())
 		{			
-			if($this->input->post('is_active_location') == 0){				
-				$status = $this->branch_model->fetch_single($this->input->post('location_id'));
-				if(count($status)>0){
+			if($this->input->post('is_active_leave_details') == 0 ){				
+				//$status = $this->branch_model->fetch_single($this->input->post('location_id'));
+				$status =0;
+				if($status>0){
 					$array = array(
 						'error'			=>	true,
-						'message'		=>	'Location is being used by other modules at the moment!'
+						'message'		=>	'Leave is being used by other modules at the moment!'
 					);
 				}
 				else{
 					$data = array(
-						'location_id'	=>	$this->input->post('location_id'),
-						'country_id'	=>	$this->input->post('country_id'),
-						'location_name'	=>	$this->input->post('location_name'),
-						'location_desc'	=>	$this->input->post('location_desc'),
-						'is_active_location'	=>	$this->input->post('is_active_location')
+						'leave_from_date'	=>	$this->input->post('leave_from_date'),
+						'leave_to_date'	=>	$this->input->post('leave_to_date'),
+						'emp_id'	=>	$this->input->post('emp_id'),
+						'emp_wise_leave_quota_id'	=>	$this->input->post('emp_wise_leave_quota_id'),
+						'leave_amount'	=>	$this->input->post('leave_amount'),
+						'created_by'	=>	$created_by,
+						'approved_by'	=>	$approved_by,
+						'is_active_leave_details' =>	$this->input->post('is_active_leave_details'),
+						'is_approved_leave' =>	$this->input->post('is_approved_leave')
 					);
 
-					$this->emp_leave_details_model->update_single($this->input->post('location_id'), $data);
+					$this->emp_leave_details_model->update_single($this->input->post('leave_detail_id'), $data);
 
 					$array = array(
 						'success'		=>	true,
@@ -172,14 +203,18 @@ class EmpLeave extends CI_Controller {
 			}
 			else{
 				$data = array(
-					'location_id'	=>	$this->input->post('location_id'),
-					'location_name'	=>	$this->input->post('location_name'),
-					'country_id'	=>	$this->input->post('country_id'),
-					'location_desc'		=>	$this->input->post('location_desc'),
-					'is_active_location'	=>	$this->input->post('is_active_location')
+					'leave_from_date'	=>	$this->input->post('leave_from_date'),
+					'leave_to_date'	=>	$this->input->post('leave_to_date'),
+					'emp_id'	=>	$this->input->post('emp_id'),
+					'emp_wise_leave_quota_id'	=>	$this->input->post('emp_wise_leave_quota_id'),
+					'leave_amount'	=>	$this->input->post('leave_amount'),
+					'created_by'	=>	$created_by,
+					'approved_by'	=>	$approved_by,
+					'is_active_leave_details' =>	$this->input->post('is_active_leave_details'),
+					'is_approved_leave' =>	$this->input->post('is_approved_leave')
 				);
 
-				$this->emp_leave_details_model->update_single($this->input->post('location_id'), $data);
+				$this->emp_leave_details_model->update_single($this->input->post('leave_detail_id'), $data);
 
 				$array = array(
 					'success'		=>	true,
@@ -218,6 +253,102 @@ class EmpLeave extends CI_Controller {
 			}
 			echo json_encode($array);
 		}
+	}
+	
+	function LeaveMail($text, $userData, $url){
+		
+		
+		// Load PHPMailer library
+		$this->load->library('phpmailer_lib');
+
+		// PHPMailer object
+		$mail = $this->phpmailer_lib->load();
+		
+
+		// SMTP configuration
+		$mail->isSMTP();
+		$mail->Host     = 'smtp.gmail.com';
+		$mail->SMTPAuth = true;
+		$mail->Username = 'denuwan9@gmail.com';
+		$mail->Password = 'rcvzygygidoddhvl';
+		$mail->SMTPSecure = 'ssl';
+		$mail->Port     = 465;
+		//$mail->Port = 587;
+		//$mail->SMTPSecure = 'tls';	
+		
+		$mail->SMTPOptions = array(
+			'ssl' => array(
+				'verify_peer' => false,
+				'verify_peer_name' => false,
+				'allow_self_signed' => true
+			)
+		);
+
+		$mail->setFrom('denuwan9@gmail.com', 'DCS Enterprices');
+		$mail->addReplyTo('denuwan9@gmail.com', 'DCS Enterprices');
+
+		// Add a recipient	
+		
+
+		// Add cc or bcc 
+		//$mail->addCC('cc@example.com');
+		//$mail->addBCC('bcc@example.com');
+		$companyData1 = $this->Company_model->fetch_all_active();
+		$companyData2 = $companyData1->result_array();
+		
+				
+		$company_name = $companyData2[0]['company_name'];
+		$company_address = $companyData2[0]['company_address'];
+		$company_contact = $companyData2[0]['company_contact'];	
+		
+		
+
+		$user_name = isset($userData[0]["customer_name"])? $userData[0]["customer_name"]: $userData[0]["emp_first_name"];
+		$user_contact = isset($userData[0]["customer_contact_no"])? $userData[0]["customer_name"]: $userData[0]["emp_first_name"];
+		$user_email = isset($userData[0]['customer_email'])? $userData[0]['customer_email']: $userData[0]['emp_email'];
+		
+		$mail->addAddress($user_email);
+		$url = "http://localhost/dcs/stockTransfer/accept";		
+		
+		$created_date = date("Y-m-d");
+		
+		$company_logo = base_url().'assets/img/logo.jpg';
+		
+		$company_logo_elem = '<img src="http://localhost/API/assets/img/logo.jpg" height="100" width="100"></img>';
+		
+		$message = file_get_contents(base_url().'assets/template/stockTransfer.html'); 
+		//echo base_url().'assets/template/email.html';
+		$message = str_replace('%company_logo%', $company_logo_elem, $message); 
+		$message = str_replace('%company_name%', $company_name, $message); 
+		$message = str_replace('%company_address%', $company_address, $message); 
+		$message = str_replace('%company_contact%', $company_contact, $message); 
+		$message = str_replace('%user_name%', $user_name, $message); 
+		$message = str_replace('%user_contact%', $user_contact, $message); 
+		$message = str_replace('%user_email%', $user_email, $message); 
+		$message = str_replace('%created_date%', $created_date, $message); 
+		$message = str_replace('%url%', $url, $message); 
+		$message = str_replace('%text%', $text, $message); 
+				
+		
+
+		// Email subject
+		$mail->Subject = $text;
+
+		// Set email format to HTML
+		$mail->isHTML(true);
+
+		// Email body content
+		$mailContent = '';
+
+		$mail->Body = $message;
+		$mail->send();
+		// Send email
+		/* if(!$mail->send()){
+			echo 'Message could not be sent.';
+			echo 'Mailer Error: ' . $mail->ErrorInfo;
+		}else{
+			echo 'Message has been sent';
+		} */
 	}
 	
 }

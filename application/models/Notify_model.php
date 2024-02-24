@@ -37,6 +37,9 @@ class Notify_model extends CI_Model{
 					$is_driv_lic = $data1[0]['days_left'];
 					$body .= "Please Renew your Driving License";
 				}
+				else{
+					$body .= "You're all cought up!";
+				}
 				
 				//var_dump($query1->result_array());
 			}
