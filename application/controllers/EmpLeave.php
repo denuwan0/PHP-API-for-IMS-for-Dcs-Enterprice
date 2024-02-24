@@ -7,6 +7,7 @@ class EmpLeave extends CI_Controller {
 	{
 		parent::__construct();
 		$this->load->model('emp_model');
+		$this->load->model('Company_model');
 		$this->load->model('emp_leave_details_model');
 		$this->load->model('emp_wise_leave_quota_model');			
 		
@@ -30,6 +31,11 @@ class EmpLeave extends CI_Controller {
 	function insert()
 	{	
 		$created_by = $this->session->userdata('user_id');
+		$emp_id = $this->session->userdata('emp_id');
+		$emp_branch_id = $this->session->userdata('emp_branch_id');
+		$user_group_name = $this->session->userdata('sys_user_group_name');
+		$emp_name = $this->session->userdata('emp_first_name');
+				
 		$this->form_validation->set_rules('leave_from_date', 'leave_from_date', 'required');
 		$this->form_validation->set_rules('leave_to_date', 'leave_to_date', 'required');
 		$this->form_validation->set_rules('emp_id', 'emp_id', 'required');
@@ -42,17 +48,29 @@ class EmpLeave extends CI_Controller {
 				$data = array(
 					'leave_from_date'	=>	$this->input->post('leave_from_date'),
 					'leave_to_date'	=>	$this->input->post('leave_to_date'),
+					'branch_id'	=>	$emp_branch_id,
 					'emp_id'	=>	$this->input->post('emp_id'),
 					'emp_wise_leave_quota_id'	=>	$this->input->post('emp_wise_leave_quota_id'),
 					'leave_amount'	=>	$this->input->post('leave_amount'),
 					'created_by'	=>	$created_by,
 					'is_active_leave_details' =>	$this->input->post('is_active_leave_details')
 				);
+				
+				$userData = $this->emp_leave_details_model->fetch_branch_manager_by_branch_id($emp_branch_id);
+				//var_dump($userData);
+				
+				$text = 'You have received a Leave Request from '.$emp_name;
+				$url = "http://localhost/dcs/EmpLeave/approve";
+				
+				$this->LeaveMail($text, $userData, $url);
+											
+				
 			}
 			else{
 				$data = array(
 					'leave_from_date'	=>	$this->input->post('leave_from_date'),
 					'leave_to_date'	=>	$this->input->post('leave_to_date'),
+					'branch_id'	=>	$emp_branch_id,
 					'emp_id'	=>	$this->input->post('emp_id'),
 					'emp_wise_leave_quota_id'	=>	$this->input->post('emp_wise_leave_quota_id'),
 					'leave_amount'	=>	$this->input->post('leave_amount'),
@@ -126,7 +144,7 @@ class EmpLeave extends CI_Controller {
 			$id = $this->input->get('id');
 			$data = $this->emp_leave_details_model->fetch_single_join($id);
 			
-			echo json_encode($data);
+			echo json_encode($data->result_array());
 		}
 	}
 	
@@ -134,7 +152,7 @@ class EmpLeave extends CI_Controller {
 	{	
 		$created_by = $this->session->userdata('user_id');
 		$emp_id = $this->session->userdata('emp_id');
-		$branch_id = $this->session->userdata('branch_id');
+		$emp_branch_id = $this->session->userdata('emp_branch_id');
 		$user_group_name = $this->session->userdata('sys_user_group_name');
 		if($user_group_name == "Admin"){
 			$data = $this->emp_leave_details_model->fetch_all_join();		
@@ -147,6 +165,23 @@ class EmpLeave extends CI_Controller {
 		else if($user_group_name == "Staff"){
 			$data = $this->emp_leave_details_model->fetch_all_join_by_emp_id($emp_id);	
 			//var_dump($data);
+			echo json_encode($data->result_array());
+		}
+		
+	}
+	
+	function fetch_all_for_approve()
+	{	
+		$created_by = $this->session->userdata('user_id');
+		$emp_id = $this->session->userdata('emp_id');
+		$emp_branch_id = $this->session->userdata('emp_branch_id');
+		$user_group_name = $this->session->userdata('sys_user_group_name');
+		if($user_group_name == "Admin"){
+			$data = $this->emp_leave_details_model->fetch_all_join();		
+			echo json_encode($data->result_array());	
+		}
+		else if($user_group_name == "Manager"){
+			$data = $this->emp_leave_details_model->fetch_all_join_by_branch_id_for_mgr_approve($emp_id, $emp_branch_id);
 			echo json_encode($data->result_array());
 		}
 		
@@ -308,7 +343,7 @@ class EmpLeave extends CI_Controller {
 		$user_email = isset($userData[0]['customer_email'])? $userData[0]['customer_email']: $userData[0]['emp_email'];
 		
 		$mail->addAddress($user_email);
-		$url = "http://localhost/dcs/stockTransfer/accept";		
+		
 		
 		$created_date = date("Y-m-d");
 		
@@ -316,7 +351,7 @@ class EmpLeave extends CI_Controller {
 		
 		$company_logo_elem = '<img src="http://localhost/API/assets/img/logo.jpg" height="100" width="100"></img>';
 		
-		$message = file_get_contents(base_url().'assets/template/stockTransfer.html'); 
+		$message = file_get_contents(base_url().'assets/template/leave.html'); 
 		//echo base_url().'assets/template/email.html';
 		$message = str_replace('%company_logo%', $company_logo_elem, $message); 
 		$message = str_replace('%company_name%', $company_name, $message); 
@@ -349,6 +384,118 @@ class EmpLeave extends CI_Controller {
 		}else{
 			echo 'Message has been sent';
 		} */
+	}
+	
+	function approve()
+	{		
+					
+		$json = json_decode(file_get_contents("php://input"));
+			
+		$phparray = (array) $json;
+		
+		$itemArray = array();
+		$Header = $phparray["Header"];	
+		$branch_id = $this->session->userdata('emp_branch_id');
+		$created_by = $this->session->userdata('user_id');
+		$emp_id =  $this->session->userdata('emp_id');
+		
+		
+		
+		$approved_by = 0;
+		
+		$user_group_name = $this->session->userdata('sys_user_group_name');
+		if($user_group_name == 'Admin' || $user_group_name == 'Manager'){
+			$approved_by = $this->session->userdata('user_id');
+		}
+		
+		$leaveData = $this->emp_leave_details_model->fetch_single_join($Header[0]->leave_detail_id);
+		$leaveData = $leaveData->result_array();
+		//var_dump($leaveData[0]["leave_detail_id"]);
+		
+		if($leaveData[0]["leave_detail_id"] != "")
+		{		
+			if($Header[0]->is_approved_leave == 1 ){	
+
+				$quotaData = $this->emp_wise_leave_quota_model->fetch_single_join_active_non_hold($leaveData[0]["emp_wise_leave_quota_id"]);
+				
+				
+				
+				if(!empty($quotaData)){
+					$leave_amount = (float)$leaveData[0]["leave_amount"];
+					$balance_leave_quota = (float)$quotaData[0]["balance_leave_quota"];
+				
+					$new_balance = $balance_leave_quota - $leave_amount;
+				
+					if($new_balance < 0){
+						$array = array(
+							'success'		=>	false,
+							'message'		=>	'Leave Quoata Limit Exceeded!'
+						);
+					}
+					else{
+						$data = array(
+							'approved_by'	=>	$approved_by,
+							'is_approved_leave' =>	$Header[0]->is_approved_leave
+						);
+					
+						$this->emp_leave_details_model->update_single($leaveData[0]["leave_detail_id"], $data);
+						
+						
+						$data1 = array(
+							'balance_leave_quota'	=>	$new_balance
+						);
+						
+						$this->emp_wise_leave_quota_model->update_single($leaveData[0]["emp_wise_leave_quota_id"], $data1);
+						
+						//var_dump($quotaData);
+						
+						$text = 'Your leave request has been Approved!';
+						$url = "http://localhost/dcs/EmpLeave/view";
+						
+						$this->LeaveMail($text, $quotaData, $url);
+						
+						$array = array(
+							'success'		=>	true,
+							'message'		=>	'Leave Approved!'
+						);
+						
+						echo json_encode($array);
+					}
+				}
+				else{
+					$array = array(
+						'success'		=>	false,
+						'message'		=>	'Leave Quoata is Inactive/ Hold!'
+					);
+					echo json_encode($array);
+				}
+				
+			}
+			else{
+				$data = array(
+					'rejected_by'	=>	$approved_by,
+					'is_rejected_leave' =>	1
+				);
+			
+				$this->emp_leave_details_model->update_single($leaveData[0]["leave_detail_id"], $data);
+
+				$array = array(
+					'success'		=>	true,
+					'message'		=>	'Leave Rejected!'
+				);
+				echo json_encode($array);
+			}			
+			
+		}
+		else
+		{
+			$array = array(
+				'error'			=>	true,
+				'message'		=>	'Please Fill Required Fields!'
+			);
+			echo json_encode($array);
+		}
+		
 	}
 	
 }
