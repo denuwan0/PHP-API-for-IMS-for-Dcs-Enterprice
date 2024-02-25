@@ -32,6 +32,13 @@ class Customer_model extends CI_Model{
 		$query = $this->db->get('customer');
 		return $query->result_array();
 	}
+	
+	function fetch_single_by_nic($customer_old_nic_no)
+	{
+		$this->db->where('customer_old_nic_no', $customer_old_nic_no);
+		$query = $this->db->get('customer');
+		return $query->result_array();
+	}
 
 	function update_single($customer_id, $data)
 	{

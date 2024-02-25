@@ -71,6 +71,12 @@ class Inventory_item_model extends CI_Model{
 		return $query->result_array();
 	}
 	
+	function fetch_all_active_items_by_category_id_for_pos($id)
+	{
+		$query = $this->db->query("SELECT * FROM `inventory_item` WHERE `is_active_inv_item` = 1 AND `item_category` = '$id';");
+		
+		return $query->result_array();
+	}
 	
 	
 }

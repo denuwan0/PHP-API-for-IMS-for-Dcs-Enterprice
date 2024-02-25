@@ -99,6 +99,18 @@ class Customer extends CI_Controller {
 		}
 	}
 	
+	function fetch_single_by_nic()
+	{
+		
+		if($this->input->get('nic'))
+		{			
+			$id = $this->input->get('nic');
+			$data = $this->customer_model->fetch_single_by_nic($id);
+			
+			echo json_encode($data);
+		}
+	}
+	
 	function fetch_single_join()
 	{
 		if($this->input->get('id'))
