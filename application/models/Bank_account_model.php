@@ -68,4 +68,15 @@ class Bank_account_model extends CI_Model{
 		}
 	}
 	
+	function fetch_all_active_join()
+	{
+		$this->db->select('*');
+		$this->db->from('bank_account_details');
+		$this->db->join('bank_branch', 'bank_account_details.b_branch_id = bank_branch.b_branch_id','left');
+		$this->db->join('bank', 'bank_branch.bank_id = bank.bank_id','left');
+		$this->db->where('bank_account_details.is_active_bank_acc',1);
+		$query = $this->db->get();
+		return $query->result_array();
+	}
+	
 }

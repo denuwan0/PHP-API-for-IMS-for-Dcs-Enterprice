@@ -197,4 +197,11 @@ class BankAcc extends CI_Controller {
 		}
 	}
 	
+	function fetch_all_active_join()
+	{	
+		$data = $this->bank_account_model->fetch_all_active_join();
+		
+		echo json_encode($data);
+	}
+	
 }
