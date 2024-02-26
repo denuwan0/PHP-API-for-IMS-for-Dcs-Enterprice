@@ -14,10 +14,10 @@ class Pdf {
         $dompdf->render();
 		$pdf_string = $dompdf->output();
         file_put_contents($pdfroot, $pdf_string );
-        /* if($download)
+        if($download)
             $dompdf->stream($filename.'.pdf', array('Attachment' => 1));
         else
-            $dompdf->stream($filename.'.pdf', array('Attachment' => 0)); */
+            $dompdf->stream($filename.'.pdf', array('Attachment' => 0));
 		if(file_exists($pdfroot)){
 			return $pdfroot;
 		}

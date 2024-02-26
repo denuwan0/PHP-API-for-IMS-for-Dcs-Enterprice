@@ -10,6 +10,7 @@ class Inventory_retail_invoice_header_model extends CI_Model{
 	function insert($data)
 	{
 		$this->db->insert('inventory_retail_invoice_header', $data);
+		return $this->db->insert_id();
 	}
 
 	function fetch_single($invoice_id)
@@ -29,6 +30,14 @@ class Inventory_retail_invoice_header_model extends CI_Model{
 	function fetch_all_by_branch_id($branch_id)
 	{
 		$this->db->where('branch_id', $branch_id);
+		$query = $this->db->get('inventory_retail_invoice_header');
+		return $query;
+	}
+	
+	function fetch_all_by_branch_id_invoice_id($branch_id, $invoice_id)
+	{
+		$this->db->where('branch_id', $branch_id);
+		$this->db->where('invoice_id', $invoice_id);
 		$query = $this->db->get('inventory_retail_invoice_header');
 		return $query;
 	}
