@@ -127,18 +127,42 @@ class RetailInvoice extends CI_Controller {
 		
 		if($this->input->get('id'))
 		{
+			date_default_timezone_set('Asia/Colombo');
+			$date = date('Y-m-d');
+			$time = date('H:i:s');
 
 			$branch_id = $this->session->userdata('emp_branch_id');
 			$created_by = $this->session->userdata('user_id');	
 			$invoiceData = $this->Inventory_retail_invoice_header_model->fetch_all_by_branch_id_invoice_id($branch_id, $this->input->get('id'));
 			$invoiceData = $invoiceData->result_array();
+			$invoice_no = $invoiceData[0]["invoice_id"];
+			$total_amount = $invoiceData[0]["total_amount"];
 			
-			var_dump($invoiceData->result_array());
-			die();
 			
+			$customerData  = $this->Customer_model->fetch_single($invoiceData[0]['customer_id']);
+			
+			$itemData  = $this->Inventory_retail_invoice_detail_model->fetch_all_by_invoice_id($invoice_no);
+			$itemData  = $itemData->result_array();
+			
+			
+			
+			$itemHtml = '';
+			
+			foreach($itemData as $item){
+				
+				$itemHtml .='<tr>
+							<th>'.$item['item_name'].'</th>
+							<th>'.$item['item_desc'].'</th>
+							<th style="text-align: right;">'.$item['no_of_items'].'</th>
+							<th style="text-align: right;">'.($item['item_price']*$item['no_of_items']).'</th>
+						  </tr>';
+			}
+			
+			
+								
 			$compData = $this->Company_model->fetch_all_active();
 			$compData = $compData->result_array();
-			$order_no = 'invoice';
+			
 			
 			$company_logo = base_url().'assets/img/logo.jpg';
 			
@@ -149,14 +173,15 @@ class RetailInvoice extends CI_Controller {
 			$message = str_replace('%company_address%', $compData[0]['company_address'], $message); 
 			$message = str_replace('%company_contact%', $compData[0]['company_contact'], $message); 
 			//$message = str_replace('%company_email%', $compData[0]['company_logo'], $message); 
-			$message = str_replace('%customer_name%', 'test', $message); 
-			$message = str_replace('%customer_address%', 'test', $message); 
-			$message = str_replace('%customer_contact%', 'test', $message); 
-			$message = str_replace('%customer_email%', 'test', $message); 
-			$message = str_replace('%invoice_no%', 'test', $message); 
-			$message = str_replace('%created_date%', 'test', $message); 
-			$message = str_replace('%order_no%', $order_no, $message); 
-			//$message = str_replace('%testpassword%', $password, $message); 
+			$message = str_replace('%customer_name%', $customerData[0]['customer_name'], $message); 
+			$message = str_replace('%customer_address%', $customerData[0]['customer_working_address'], $message); 
+			$message = str_replace('%customer_contact%', $customerData[0]['customer_contact_no'], $message); 
+			$message = str_replace('%customer_email%', $customerData[0]['customer_email'], $message); 
+			$message = str_replace('%created_date%', $date, $message); 
+			$message = str_replace('%created_time%', $time, $message); 
+			$message = str_replace('%invoice_no%', $invoice_no, $message); 
+			$message = str_replace('%itemArr%',$itemHtml, $message); 
+			$message = str_replace('%total_amount%',$total_amount, $message); 
 					
 			//---------------PDF----------------------//
 			//$html = $this->load->view('template/pdfInvoice', $data, true);

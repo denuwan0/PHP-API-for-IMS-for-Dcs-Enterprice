@@ -147,7 +147,6 @@
 					%company_name%<br>
 					%company_address%<br>
 					Phone: %company_contact%<br>
-					Email: %company_email%
 					</font>
 				</td>
 				<td style="text-align: left; border: none;">
@@ -161,10 +160,9 @@
 				</td>
 				<td style="text-align: left; border: none;">
 					<font size="2" style="font-weight:bold">
-					Invoice: %invoice_no%<br>
+					Invoice Id: %invoice_no%<br>
 					Date: %created_date%<br>	
-					Order ID: %order_no%<br>
-					Status: %status%
+					Time: %created_time%<br>
 					</font>
 				</td>
 			  </tr>
@@ -172,42 +170,26 @@
 		</div>
         <div class="content" style="overflow-x:auto;">
             <table style="border: 1px solid black;  border-collapse: collapse;">
-			  <tr>
-				<th>Item Name</th>
-				<th>Description</th>
-				<th style="text-align: right;">Qty</th>
-				<th style="text-align: right;">Price</th>
-			  </tr>
-			  <tr>
-				<td>Jill</td>
-				<td>Smith</td>
-				<td style="text-align: right;">50</td>
-				<td style="text-align: right;">50</td>
-			  </tr>
-			  <tr>
-				<td>Eve</td>
-				<td>Jackson</td>
-				<td style="text-align: right;">94</td>
-				<td style="text-align: right;">50</td>
-			  </tr>
-			  <tr>
-				<td>Adam</td>
-				<td>Johnson</td>
-				<td style="text-align: right;">67</td>
-				<td style="text-align: right;">50</td>
-			  </tr>
-			  <tr>
-				<th colspan="3" style="text-align: right;">Total</th>
-				<th colspan="" style="text-align: right;">150</th>
-			  </tr>
+				<tr>
+					<th>Item Name</th>
+					<th>Description</th>
+					<th style="text-align: right;">Qty</th>
+					<th style="text-align: right;">Price</th>
+				</tr>
+				  
+				%itemArr%	  
+				<tr>
+					<th colspan="3" style="text-align: right;">Total</th>
+					<th colspan="" style="text-align: right;">%total_amount%</th>
+				 </tr>			  
+			 
 			</table>
         </div>
 		<div class="content" style="text-align: left;">
 			<p>*Conditions Apply.</p>
-			<p>*Please Scan QR Code view and feedback us within 7 days.</p>
 		<div>
 			<div class="cta-button">
-				<a href="https://www.example.com/shop" target="_blank">Pay Now</a>
+				<a style="display:none" href="https://www.example.com/shop" target="_blank">Pay Now</a>
 			</div>
 			<div class="footer">
 				<p>This is a system generated Document.</p>
