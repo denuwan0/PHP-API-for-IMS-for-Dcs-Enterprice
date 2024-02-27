@@ -154,7 +154,7 @@ class RetailInvoice extends CI_Controller {
 							<th>'.$item['item_name'].'</th>
 							<th>'.$item['item_desc'].'</th>
 							<th style="text-align: right;">'.$item['no_of_items'].'</th>
-							<th style="text-align: right;">'.($item['item_price']*$item['no_of_items']).'</th>
+							<th style="text-align: right;">'.(float)($item['item_price']*$item['no_of_items']).'</th>
 						  </tr>';
 			}
 			
