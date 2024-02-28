@@ -3,7 +3,7 @@
 class Emp_special_task_header_model extends CI_Model{   
     
 	function fetch_all(){
-		$this->db->order_by('special_task_id', 'DESC');
+		$this->db->order_by('special_task_id', 'ASC');
 		return $this->db->get('emp_special_task_header');
 	}
 	
@@ -37,6 +37,14 @@ class Emp_special_task_header_model extends CI_Model{
 		{
 			return false;
 		}
+	}
+	
+	function fetch_all_active(){
+		$this->db->select('*');
+		$this->db->from('emp_special_task_header');
+		$this->db->where('is_active_sp_task', 1);
+		$query = $this->db->get();
+		return $query;
 	}
 	
 	function fetch_all_join()

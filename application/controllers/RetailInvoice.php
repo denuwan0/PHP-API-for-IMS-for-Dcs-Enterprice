@@ -458,9 +458,37 @@ class RetailInvoice extends CI_Controller {
 	}
 	
 	function fetch_all_active()
-	{		
-		$data = $this->Inventory_stock_retail_header_model->fetch_all_active();
-		echo json_encode($data->result_array());
+	{	
+		$sys_user_group_name = $this->session->userdata('sys_user_group_name');
+		//var_dump($this->session->userdata());
+		$emp_branch_id = $this->session->userdata('emp_branch_id');
+		if($sys_user_group_name == "Admin"){
+			$data = $this->Inventory_retail_invoice_header_model->fetch_all_active();
+			echo json_encode($data->result_array());
+		}
+		else if($sys_user_group_name == "Manager"){
+			$data = $this->Inventory_retail_invoice_header_model->fetch_all_active_by_branch_id($emp_branch_id);
+			echo json_encode($data->result_array());
+		}
+	
+		
+	}
+	
+	function fetch_all_active_not_complete()
+	{	
+		$sys_user_group_name = $this->session->userdata('sys_user_group_name');
+		//var_dump($this->session->userdata());
+		$emp_branch_id = $this->session->userdata('emp_branch_id');
+		if($sys_user_group_name == "Admin"){
+			$data = $this->Inventory_retail_invoice_header_model->fetch_all_active_not_complete();
+			echo json_encode($data->result_array());
+		}
+		else if($sys_user_group_name == "Manager"){
+			$data = $this->Inventory_retail_invoice_header_model->fetch_all_active_by_branch_id_not_complete($emp_branch_id);
+			echo json_encode($data->result_array());
+		}
+	
+		
 	}
 	
 	function fetch_all_total_stock_join()
