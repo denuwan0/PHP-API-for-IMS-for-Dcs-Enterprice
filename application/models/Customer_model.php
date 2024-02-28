@@ -10,6 +10,7 @@ class Customer_model extends CI_Model{
 	function insert($data)
 	{
 		$this->db->insert('customer', $data);
+		return  $this->db->insert_id();
 	}
 
 	function fetch_single($customer_id)

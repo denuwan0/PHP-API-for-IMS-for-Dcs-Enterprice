@@ -11,6 +11,7 @@ class RetailInvoice extends CI_Controller {
 		$this->load->model('Inventory_retail_total_stock_model');
 		$this->load->model('Company_model');
 		$this->load->model('Customer_model');
+		$this->load->model('Order_payment_model');
 		$this->load->library('pdf');
 		$this->load->library('Ciqrcode');
 		
@@ -50,7 +51,7 @@ class RetailInvoice extends CI_Controller {
 		//var_dump($customerData[0]['customer_id']);				
 		
 				
-		if($customerData[0]['customer_id'] != '' )
+		if(isset($customerData[0]['customer_id']) && !empty($customerData[0]['customer_id']))
 		{
 			
 			$data1 = array(
@@ -108,6 +109,126 @@ class RetailInvoice extends CI_Controller {
 				'success'		=>	true,
 				'invoice_header_header_id'=>$invoice_header_header_id,
 				'message'		=>	'Data Saved!'
+			);
+			
+			
+			
+		}
+		else
+		{
+			$data1 = array(
+				'customer_name' =>	$customerDataArr[0]->customer_name,							
+				'customer_working_address' => $customerDataArr[0]->customer_working_address,
+				'customer_shipping_address' =>	$customerDataArr[0]->customer_shipping_address,
+				'customer_contact_no' =>	$customerDataArr[0]->customer_contact_no,
+				'customer_email' =>	$customerDataArr[0]->customer_email,
+				'customer_old_nic_no' =>	$customerDataArr[0]->customer_old_nic_no,
+				'is_active_customer' =>	1
+			);
+			
+			
+			$cusId = $this->Customer_model->insert($data1);
+						
+			$data2 = array(
+				'branch_id' 	=>	$branch_id,							
+				'emp_id' 		=> 	$created_by ,
+				'customer_id' 	=>	$cusId,
+				'total_amount' 	=>	0,
+				'created_date'	=>	$date,
+				'create_time' 	=>	$time,
+				'is_pos'		=>	1,
+				'is_active_inv_retail_invoice_hdr' =>	1,
+				'is_complete' =>	0
+			);	
+			
+			$invoice_header_header_id  = $this->Inventory_retail_invoice_header_model->insert($data2);
+			
+			$status = 0;
+			$total = 0;
+			foreach($selectedItemsArr as $value){
+								
+				if($invoice_header_header_id){
+					$itemData = array(
+						'invoice_id' =>	$invoice_header_header_id,
+						'item_id' =>	$value->item_id,
+						'no_of_items' =>	$value->qty,
+						'item_price' =>	$value->unit_price,
+						'is_active_inv_retail_invoice_detail' =>	1
+					);
+
+					$total += $value->unit_price*$value->qty;
+					
+					$status += $this->Inventory_retail_invoice_detail_model->insert($itemData);					
+				}
+			}
+			
+			$totalData = array(
+				'total_amount' =>	$total
+			);
+			
+			$this->Inventory_retail_invoice_header_model->update_single($invoice_header_header_id, $totalData);
+			
+			$array = array(
+				'success'		=>	true,
+				'invoice_header_header_id'=>$invoice_header_header_id,
+				'message'		=>	'Data Saved!'
+			);
+		}
+		echo json_encode($array);
+	}
+	
+	function updatePayment()
+	{				
+		$json = json_decode(file_get_contents("php://input"));
+		
+		$phparray = (array) $json;
+		
+		$paymentArr = array();
+		$paymentArr = $phparray["paymentArr"];
+		
+		$branch_id = $this->session->userdata('emp_branch_id');
+		$created_by = $this->session->userdata('user_id');
+		date_default_timezone_set('Asia/Colombo');
+		$date = date('Y-m-d');
+		$time = date('H:i:s');
+		$sys_user_group_name = $this->session->userdata('sys_user_group_name');
+		//var_dump($this->session->userdata());
+		
+		//var_dump($paymentArr);
+				
+		if($created_by != '' )
+		{
+			$payMethod = "";
+			
+			if($paymentArr[0]->payement_method == 'cashBtn'){
+				$payMethod = 'Cash';
+			}
+			else if($paymentArr[0]->payement_method == 'bankTransferBtn'){
+				$payMethod = 'Bank Transfer';
+			}
+			elseif($paymentArr[0]->payement_method == 'qrBtn'){
+				$payMethod = 'Lanka QR Payment';
+			}
+			else if($paymentArr[0]->payement_method == 'bankCardBtn'){
+				$payMethod = 'Bank Card Payment';
+			}
+			
+			$data1 = array(
+				'cust_id' =>	$paymentArr[0]->customer_id,							
+				'order_id' => $paymentArr[0]->invoice_header_header_id,
+				'payment_method' =>	$payMethod,
+				'payment_date' =>	$date,
+				'payment_time' =>	$time,
+				'reference' =>	$paymentArr[0]->payment_reference,
+				'is_retail_order' =>	1,
+				'is_complete' =>	1
+			);
+						
+			$this->Order_payment_model->insert($data1);			
+			
+			$array = array(
+				'success'		=>	true,
+				'message'		=>	'Payment Updated!'
 			);
 			
 			
