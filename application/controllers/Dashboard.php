@@ -47,16 +47,46 @@ class Dashboard extends CI_Controller {
 			$data4 = $this->Dashboard_model->fetch_all_active_customer_count_admin();
 			$data4 = $data4->result_array();
 			
+			$data5 = $this->Dashboard_model->fetch_all_complete_retail_order_admin();
+			$data5 = $data5->result_array();
+			
+			$data6 = $this->Dashboard_model->fetch_all_complete_rental_order_admin();
+			$data6 = $data6->result_array();
+			
+			$data7 = $this->Dashboard_model->fetch_all_complete_online_order_admin();
+			$data7 = $data7->result_array();
+			
+			$data8 = $this->Dashboard_model->fetch_all_latest_orders_admin();
+			$data8 = $data8->result_array();
+			
+			$data9 = $this->Dashboard_model->fetch_all_latest_items_admin();
+			$data9 = $data9->result_array();
+			
+			$data10 = $this->Dashboard_model->fetch_all_branch_wise_sale_admin();
+			$data10 = $data10->result_array();
+			
 			$system_users = $data1[0]['user_count'];
 			$yard_vehicles = $data2[0]['yard_vehicles'];
 			$yard_employees = $data3[0]['employee_count'];
 			$customers = $data4[0]['customer_count'];
 			
+			$complete_rental_orders = $data5[0]['retail_order_count'];
+			$complete_retail_orders = $data6[0]['rental_order_count'];
+			$complete_online_orders = $data7[0]['online_order_count'];
+			
+		
+			
 			$userdata = array(
-				'system_users'  	=> $system_users,
-				'yard_vehicles' 	=> $yard_vehicles,
-				'yard_employees' 	=> $yard_employees,
-				'customers'  		=> $customers
+				'system_users'  			=> $system_users,
+				'yard_vehicles' 			=> $yard_vehicles,
+				'yard_employees' 			=> $yard_employees,
+				'customers'  				=> $customers,
+				'complete_rental_orders' 	=> $complete_rental_orders,
+				'complete_retail_orders' 	=> $complete_retail_orders,
+				'complete_online_orders'  	=> $complete_online_orders,
+				'latest_orders'				=> $data8,
+				'latest_items'				=> $data9,
+				'branch_wise_sale'				=> $data10
 			);	
 			
 						
