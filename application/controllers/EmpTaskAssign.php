@@ -111,8 +111,7 @@ class EmpTaskAssign extends CI_Controller {
 		$user_group_name = $this->session->userdata('sys_user_group_name');
 		
 		$emp_data = $this->Sys_user_model->fetch_single($user_id);
-		$emp_id = $emp_data[0]['emp_cust_id'];
-		
+		$emp_id = $emp_data[0]['emp_cust_id'];		
 		
 		if($user_group_name == "Admin"){			
 			$data = $this->Emp_special_task_assign_emp_model->fetch_all_join();
@@ -122,9 +121,7 @@ class EmpTaskAssign extends CI_Controller {
 		}
 		else if($user_group_name == "Staff"){		
 			$data = $this->Emp_special_task_assign_emp_model->fetch_all_active_join_by_emp_id($emp_id);
-		}
-		
-		
+		}		
 			
 		echo json_encode($data->result_array());
 	}

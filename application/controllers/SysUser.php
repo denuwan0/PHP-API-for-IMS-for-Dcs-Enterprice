@@ -212,7 +212,7 @@ class SysUser extends CI_Controller {
 				
 				$message = "Test: Your OTP Code is ".$otp_code;
 				
-				//sendSms($contact_no, $message);
+				sendSms($contact_no, $message);
 				
 				$data = array(
 					'error'	=>	false,
