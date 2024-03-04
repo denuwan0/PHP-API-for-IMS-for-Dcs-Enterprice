@@ -134,7 +134,7 @@ class Inventory_stock_retail_header_model extends CI_Model{
 	
 	function fetch_all_active_retail_featured_products_for_shopping_web()
 	{
-		$query = $this->db->query("SELECT inventory_retail_total_stock.retail_stock_id, inventory_retail_total_stock.item_id, inventory_retail_total_stock.is_sub_item, inventory_retail_total_stock.max_sale_price, inventory_retail_total_stock.min_sale_price, inventory_retail_total_stock.stock_re_order_level, inventory_item.item_name, inventory_item.item_image_url, inventory_item.item_category  FROM inventory_retail_total_stock LEFT JOIN inventory_item ON inventory_retail_total_stock.item_id = inventory_item.item_id WHERE inventory_item.is_active_inv_item = 1 GROUP BY inventory_retail_total_stock.item_id, inventory_retail_total_stock.is_sub_item;");
+		$query = $this->db->query("SELECT inventory_retail_total_stock.retail_stock_id, inventory_retail_total_stock.item_id, inventory_retail_total_stock.is_sub_item, inventory_retail_total_stock.max_sale_price, inventory_retail_total_stock.min_sale_price, inventory_retail_total_stock.stock_re_order_level, inventory_item.item_name, inventory_item.item_image_url, inventory_item.item_category  FROM inventory_retail_total_stock LEFT JOIN inventory_item ON inventory_retail_total_stock.item_id = inventory_item.item_id WHERE inventory_item.is_active_inv_item = 1 AND inventory_retail_total_stock.branch_id = 1 GROUP BY inventory_retail_total_stock.item_id, inventory_retail_total_stock.is_sub_item;");
 		
 		return $query;
 	}
