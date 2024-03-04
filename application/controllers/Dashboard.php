@@ -108,38 +108,38 @@ class Dashboard extends CI_Controller {
 			$data2 = $this->Dashboard_model->fetch_all_active_yard_vehicles_count_manager($emp_branch_id);
 			$data2 = $data2->result_array();
 			
-			$data3 = $this->Dashboard_model->fetch_all_active_employee_count_manager();
+			$data3 = $this->Dashboard_model->fetch_all_active_employee_count_manager($emp_branch_id);
 			$data3 = $data3->result_array();
 			
-			$data4 = $this->Dashboard_model->fetch_all_active_customer_count_manager();
-			$data4 = $data4->result_array();
+			/* $data4 = $this->Dashboard_model->fetch_all_active_customer_count_manager();
+			$data4 = $data4->result_array(); */
 			
-			$data5 = $this->Dashboard_model->fetch_all_complete_retail_order_manager();
+			$data5 = $this->Dashboard_model->fetch_all_complete_retail_order_manager($emp_branch_id);
 			$data5 = $data5->result_array();
 			
-			$data6 = $this->Dashboard_model->fetch_all_complete_rental_order_manager();
+			$data6 = $this->Dashboard_model->fetch_all_complete_rental_order_manager($emp_branch_id);
 			$data6 = $data6->result_array();
 			
-			$data7 = $this->Dashboard_model->fetch_all_complete_online_order_manager();
-			$data7 = $data7->result_array();
+			/* $data7 = $this->Dashboard_model->fetch_all_complete_online_order_manager();
+			$data7 = $data7->result_array(); */
 			
-			$data8 = $this->Dashboard_model->fetch_all_latest_orders_manager();
+			$data8 = $this->Dashboard_model->fetch_all_latest_orders_manager($emp_branch_id);
 			$data8 = $data8->result_array();
 			
-			$data9 = $this->Dashboard_model->fetch_all_latest_items_manager();
+			$data9 = $this->Dashboard_model->fetch_all_latest_items_manager($emp_branch_id);
 			$data9 = $data9->result_array();
 			
-			$data10 = $this->Dashboard_model->fetch_all_branch_wise_sale_manager();
+			$data10 = $this->Dashboard_model->fetch_all_branch_wise_sale_manager($emp_branch_id);
 			$data10 = $data10->result_array();
 			
-			$system_users = $data1[0]['user_count'];
+			//$system_users = $data1[0]['user_count'];
 			$yard_vehicles = $data2[0]['yard_vehicles'];
 			$yard_employees = $data3[0]['employee_count'];
-			$customers = $data4[0]['customer_count'];
+			//$customers = $data4[0]['customer_count'];
 			
 			$complete_rental_orders = $data5[0]['retail_order_count'];
 			$complete_retail_orders = $data6[0]['rental_order_count'];
-			$complete_online_orders = $data7[0]['online_order_count'];
+			//$complete_online_orders = $data7[0]['online_order_count'];
 			
 		
 			
