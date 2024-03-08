@@ -917,104 +917,58 @@ class SysUser extends CI_Controller {
 	function login()
 	{
 		$data = json_decode(file_get_contents('php://input'), true);
+		$this->form_validation->set_rules('username', 'username', 'required');	
+		$this->form_validation->set_rules('password', 'password', 'required');
 		
-		if($data){
-			if($data['username'] && $data['password'])
-			{	
-				//check sys user table
-				$username = $data['username'];
-				$password = $data['password'];
-				$emp_id = '';
-				$customer_id = '';
+		if($this->form_validation->run())
+		{
+			$username = $this->input->post('username');
+			$password = $this->input->post('password');
+			
+			$hash = hash('sha256', $password);
 				
-				$username = preg_replace('/[^a-zA-Z0-9-_\.]/','', $username);//remove spaces and special charactors
-				$password = preg_replace('/\s/', '', $password);//remove spaces
+			$user_data = $this->Sys_user_model->validate_user_join($username, $hash);
+			
+			if($user_data){
+				$data = array(
+					'token'		=> "",
+					'otp_code'=> ""
+				);
 				
-				$hash = hash('sha256', $password);
+				$this->Sys_user_model->update_single($user_data[0]['user_id'], $data);
 				
-				$user_data = $this->Sys_user_model->validate_user_join($username, $hash);
-				
+				if($user_data[0]['sys_user_group_name'] != "Customer"){
+					$emp_id = $user_data[0]['emp_cust_id'];	
+					$emp_data_result = $this->Emp_model->fetch_single($emp_id);					
+					$user_data_result = $this->Sys_user_model->fetch_single_by_emp_id($emp_id);	
 
-											
-				if($user_data){	
-									
-					$data = array(
-						'token'		=> "",
-						'otp_code'=> ""
-					);
-					
-					$this->Sys_user_model->update_single($user_data[0]['user_id'], $data);
-					
-					
-					if($user_data[0]['sys_user_group_name'] != "Customer"){
-						$emp_id = $user_data[0]['emp_cust_id'];	
-						$emp_data_result = $this->Emp_model->fetch_single($emp_id);					
-						$user_data_result = $this->Sys_user_model->fetch_single_by_emp_id($emp_id);	
+					//var_dump($emp_data_result[0]);
+					$sys_user_group = $this->Sys_user_group_model->fetch_single($user_data_result[0]['sys_user_group_id']);
+														
+					$userdata = array(
+						'user_id'  			=> $user_data[0]['user_id'],
+						'sys_user_group_id' => $sys_user_group[0]['sys_user_group_id'],
+						'sys_user_group_name' => $sys_user_group[0]['sys_user_group_name'],
+						'emp_id'  			=> $emp_data_result[0]['emp_id'],
+						'emp_epf'  			=> $emp_data_result[0]['emp_epf'],
+						'emp_first_name'  	=> $emp_data_result[0]['emp_first_name'],
+						'emp_email'  	=> $emp_data_result[0]['emp_email'],
+						'emp_last_name'   	=> $emp_data_result[0]['emp_last_name'],
+						'emp_company_id'   	=> $emp_data_result[0]['emp_company_id'],
+						'emp_branch_id'   	=> $emp_data_result[0]['emp_branch_id'],
+						'is_active_emp'   	=> $emp_data_result[0]['is_active_emp'],
+						'token'   			=> $user_data_result[0]['token'],
+						'otp_code_gen_time' => $user_data_result[0]['otp_code_gen_time'],
+						'otp_verify'   		=> FALSE,
+						'logged_in' 		=> FALSE,
+						'error'		=>	false,
+						'message'	=>	"Valid User"
+					);	
 
-						//var_dump($emp_data_result[0]);
-						$sys_user_group = $this->Sys_user_group_model->fetch_single($user_data_result[0]['sys_user_group_id']);
-															
-						$userdata = array(
-							'user_id'  			=> $user_data[0]['user_id'],
-							'sys_user_group_id' => $sys_user_group[0]['sys_user_group_id'],
-							'sys_user_group_name' => $sys_user_group[0]['sys_user_group_name'],
-							'emp_id'  			=> $emp_data_result[0]['emp_id'],
-							'emp_epf'  			=> $emp_data_result[0]['emp_epf'],
-							'emp_first_name'  	=> $emp_data_result[0]['emp_first_name'],
-							'emp_email'  	=> $emp_data_result[0]['emp_email'],
-							'emp_last_name'   	=> $emp_data_result[0]['emp_last_name'],
-							'emp_company_id'   	=> $emp_data_result[0]['emp_company_id'],
-							'emp_branch_id'   	=> $emp_data_result[0]['emp_branch_id'],
-							'is_active_emp'   	=> $emp_data_result[0]['is_active_emp'],
-							'token'   			=> $user_data_result[0]['token'],
-							'otp_code_gen_time' => $user_data_result[0]['otp_code_gen_time'],
-							'otp_verify'   		=> FALSE,
-							'logged_in' 		=> FALSE,
-							'error'		=>	false,
-							'message'	=>	"Valid User"
-						);					
-						
-					}
-					else{
-						$customer_id = $user_data[0]['emp_cust_id'];
-						$customer_data_result = $this->Customer_model->fetch_single($customer_id);
-						$user_data_result = $this->Sys_user_model->fetch_single_join_by_cust_id($customer_id);
-						
-						//var_dump($user_data_result);
-						
-						$userdata = array(
-							'user_id'  			=> $user_data[0]['user_id'],
-							'customer_id' 		=> $customer_data_result[0]['customer_id'],
-							'customer_name'  	=> $customer_data_result[0]['customer_name'],
-							'customer_nic_address'  		=> $customer_data_result[0]['customer_nic_address'],
-							'customer_working_address'   => $customer_data_result[0]['customer_working_address'],
-							'customer_shipping_address'  => $customer_data_result[0]['customer_shipping_address'],
-							'customer_contact_no'  		=> $customer_data_result[0]['customer_contact_no'],
-							'customer_email'  		=> $customer_data_result[0]['customer_email'],
-							'is_active_customer'   	=> $customer_data_result[0]['is_active_customer'],
-							'sys_user_group_name' => $user_data_result[0]['sys_user_group_name'],
-							'token'   			=> $user_data_result[0]['token'],
-							'otp_code_gen_time' => $user_data_result[0]['otp_code_gen_time'],
-							'otp_verify'   		=> FALSE,
-							'logged_in' 		=> FALSE,
-							'error'		=>	false,
-							'message'	=>	"Valid User"
-						);
-						
-					}						
-					
 					$this->session->set_userdata($userdata);
-					echo json_encode($userdata);
-									
+					echo json_encode($userdata);	
+					
 				}
-				else{
-					$data = array(
-						'error'		=>	true,
-						'message'	=>	"Invalid credentials"
-					);
-					echo json_encode($data);
-				}
-									
 				
 			}
 			else{
@@ -1025,6 +979,14 @@ class SysUser extends CI_Controller {
 				echo json_encode($data);
 			}
 		}
+		else{
+			$data = array(
+				'error'		=>	true,
+				'message'	=>	"Invalid credentials"
+			);
+			echo json_encode($data);
+		}
+				
 		
 	}
 	
