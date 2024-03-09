@@ -125,6 +125,30 @@ class EmpTaskAssign extends CI_Controller {
 			
 		echo json_encode($data->result_array());
 	}
+	
+	function fetch_all_daily_task_join()
+	{	
+		//var_dump($this->session->userdata());
+	
+		$user_id = $this->session->userdata('user_id');
+		$branch_id = $this->session->userdata('emp_branch_id');
+		$user_group_name = $this->session->userdata('sys_user_group_name');
+		
+		$emp_data = $this->Sys_user_model->fetch_single($user_id);
+		$emp_id = $emp_data[0]['emp_cust_id'];		
+		
+		if($user_group_name == "Admin"){			
+			$data = $this->Emp_special_task_assign_emp_model->fetch_all_join();
+		}
+		else if($user_group_name == "Manager"){
+			$data = $this->Emp_special_task_assign_emp_model->fetch_all_active_join_by_branch_id($branch_id);
+		}
+		else if($user_group_name == "Staff"){		
+			$data = $this->Emp_special_task_assign_emp_model->fetch_all_daily_join_staff($emp_id);
+		}		
+			
+		echo json_encode($data->result_array());
+	}
 
 	function update()
 	{

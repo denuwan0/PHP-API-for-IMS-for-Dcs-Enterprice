@@ -169,6 +169,15 @@ GROUP BY branch_id;");
 		return $query;
 	}
 	
-	
+	function fetch_all_completed_tasks_staff($emp_id)
+	{
+		$query = $this->db->query("SELECT * FROM `emp_special_task_assign_emp` 
+		LEFT JOIN emp_details ON emp_details.emp_id = emp_special_task_assign_emp.emp_id
+		LEFT JOIN company_branch ON company_branch.company_branch_id = emp_special_task_assign_emp.branch_id 
+		LEFT JOIN emp_special_task_header ON emp_special_task_header.special_task_id = emp_special_task_assign_emp.special_task_id
+		WHERE `task_start_date` <= CURDATE() AND `task_end_date` >= CURDATE() AND emp_special_task_assign_emp.emp_id = '$emp_id';");
+		
+		return $query;
+	}
 	
 }
