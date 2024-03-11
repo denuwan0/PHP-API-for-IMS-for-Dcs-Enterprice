@@ -224,7 +224,9 @@ class RetailInvoice extends CI_Controller {
 				'is_complete' =>	1
 			);
 						
-			$this->Order_payment_model->insert($data1);			
+			$this->Order_payment_model->insert($data1);	
+
+				
 			
 			$array = array(
 				'success'		=>	true,
