@@ -98,4 +98,27 @@ class Inventory_retail_invoice_header_model extends CI_Model{
 		}
 	}
 	
+	function fetch_single_by_invoice_id($invoice_id)
+	{
+		$this->db->where('inventory_retail_invoice_header.invoice_id', $invoice_id);
+		$this->db->join('inventory_retail_invoice_detail', 'inventory_retail_invoice_detail.invoice_id  = inventory_retail_invoice_header.invoice_id ','left');
+		$query = $this->db->get('inventory_retail_invoice_header');
+		return $query;
+	}
+	
+	function fetch_invoice_header_by_invoice_id($invoice_id)
+	{
+		$this->db->where('inventory_retail_invoice_header.invoice_id', $invoice_id);
+		$this->db->join('customer', 'customer.customer_id    = inventory_retail_invoice_header.customer_id   ','left');
+		$query = $this->db->get('inventory_retail_invoice_header');
+		return $query;
+	}
+	
+	function fetch_invoice_detail_by_invoice_id($invoice_id)
+	{
+		$this->db->where('inventory_retail_invoice_detail.invoice_id', $invoice_id);
+		$this->db->join('inventory_item', 'inventory_item.item_id   = inventory_retail_invoice_detail.item_id  ','left');
+		$query = $this->db->get('inventory_retail_invoice_detail');
+		return $query;
+	}
 }

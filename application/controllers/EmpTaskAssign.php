@@ -263,4 +263,129 @@ class EmpTaskAssign extends CI_Controller {
 		echo json_encode($data->result_array());
 	}
 	
+	function updateComplete()
+	{
+		$this->form_validation->set_rules('assign_emp_line_id', 'assign_emp_line_id', 'required');
+		$this->form_validation->set_rules('is_complete', 'is_complete', 'required');
+		$this->form_validation->set_rules('order_type', 'order_type', 'required');
+		
+		if($this->form_validation->run())
+		{	
+		//var_dump($this->input->post('order_type'));
+			if($this->input->post('order_type') == 'Retail'){	
+				
+				$data = array(
+					'is_complete'	=>	$this->input->post('is_complete')
+				);
+
+				$this->Emp_special_task_assign_emp_model->update_single($this->input->post('assign_emp_line_id'), $data);
+
+				$array = array(
+					'success'		=>	true,
+					'message'		=>	'Changes Updated!'
+				);
+				echo json_encode($array);
+			}
+			else if($this->input->post('order_type') == 'Rental'){
+				$data = array(
+					'is_complete'	=>	$this->input->post('is_complete')
+				);
+
+				$this->Emp_special_task_assign_emp_model->update_single($this->input->post('assign_emp_line_id'), $data);
+
+				$array = array(
+					'success'		=>	true,
+					'message'		=>	'Changes Updated!'
+				);
+				echo json_encode($array);
+			}
+			else if($this->input->post('order_type') == 'Online'){
+				$data = array(
+					'is_complete'	=>	$this->input->post('is_complete')
+				);
+
+				$this->Emp_special_task_assign_emp_model->update_single($this->input->post('assign_emp_line_id'), $data);
+
+				$array = array(
+					'success'		=>	true,
+					'message'		=>	'Changes Updated!'
+				);
+				echo json_encode($array);
+			}	
+			
+		}
+		else
+		{
+			$array = array(
+				'error'			=>	true,
+				'message'		=>	'Error'
+			);
+			echo json_encode($array);
+		}
+		
+		
+	}
+	
+	function updateSkipped()
+	{
+		$this->form_validation->set_rules('assign_emp_line_id', 'assign_emp_line_id', 'required');
+		$this->form_validation->set_rules('is_skipped', 'is_skipped', 'required');
+		$this->form_validation->set_rules('order_type', 'order_type', 'required');
+		
+		if($this->form_validation->run())
+		{	
+		//var_dump($this->input->post('order_type'));
+			if($this->input->post('order_type') == 'Retail'){	
+				
+				$data = array(
+					'is_skipped'	=>	$this->input->post('is_skipped')
+				);
+
+				$this->Emp_special_task_assign_emp_model->update_single($this->input->post('assign_emp_line_id'), $data);
+
+				$array = array(
+					'success'		=>	true,
+					'message'		=>	'Changes Updated!'
+				);
+				echo json_encode($array);
+			}
+			else if($this->input->post('order_type') == 'Rental'){
+				$data = array(
+					'is_skipped'	=>	$this->input->post('is_skipped')
+				);
+
+				$this->Emp_special_task_assign_emp_model->update_single($this->input->post('assign_emp_line_id'), $data);
+
+				$array = array(
+					'success'		=>	true,
+					'message'		=>	'Changes Updated!'
+				);
+				echo json_encode($array);
+			}
+			else if($this->input->post('order_type') == 'Online'){
+				$data = array(
+					'is_skipped'	=>	$this->input->post('is_skipped')
+				);
+
+				$this->Emp_special_task_assign_emp_model->update_single($this->input->post('assign_emp_line_id'), $data);
+
+				$array = array(
+					'success'		=>	true,
+					'message'		=>	'Changes Updated!'
+				);
+				echo json_encode($array);
+			}	
+			
+		}
+		else
+		{
+			$array = array(
+				'error'			=>	true,
+				'message'		=>	'Error'
+			);
+			echo json_encode($array);
+		}
+		
+		
+	}
 }

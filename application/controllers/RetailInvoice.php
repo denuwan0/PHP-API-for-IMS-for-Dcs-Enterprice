@@ -983,4 +983,25 @@ class RetailInvoice extends CI_Controller {
 		
 	}
 	
+	function fetch_single_join_by_invoice_id()
+	{
+			
+		if($this->input->get('id'))
+		{			
+			$retail_stock_header_id = $this->input->get('id');
+			$data1 = $this->Inventory_retail_invoice_header_model->fetch_invoice_header_by_invoice_id($retail_stock_header_id)->result_array();
+			
+			//var_dump($data1);
+			
+			$retail_stock_header_id = $this->input->get('id');
+			$data2 = $this->Inventory_retail_invoice_header_model->fetch_invoice_detail_by_invoice_id($retail_stock_header_id)->result_array();
+			
+			//var_dump($data2);
+			
+			$jsonArr = array('header' => $data1, 'detail' => $data2);
+			
+			echo json_encode($jsonArr);
+		}
+	}
+	
 }
