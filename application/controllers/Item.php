@@ -276,8 +276,7 @@ class Item extends CI_Controller {
 	}
 	
 	function fetch_all_items_by_category_id()
-	{	
-	
+	{		
 	
 		if($this->input->get('id'))
 		{

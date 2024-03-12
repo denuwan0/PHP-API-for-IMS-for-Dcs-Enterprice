@@ -533,7 +533,7 @@ class StockRental extends CI_Controller {
 						'is_active_rental_stock'	=>	$this->input->post('is_active_rental_stock')
 					);
 					
-					$this->Inventory_rental_total_stock_model->update_single($this->input->post('rental_stock_id'), $data);
+					$this->Inventory_rental_total_stock_model->update_all_by_item_id($this->input->post('item_id'), $data);
 
 					$array = array(
 						'success'		=>	true,
@@ -551,7 +551,7 @@ class StockRental extends CI_Controller {
 					'is_active_rental_stock'	=>	$this->input->post('is_active_rental_stock')
 				);
 
-				$this->Inventory_rental_total_stock_model->update_single($this->input->post('rental_stock_id'), $data);
+				$this->Inventory_rental_total_stock_model->update_all_by_item_id($this->input->post('item_id'), $data);
 
 				$array = array(
 					'success'		=>	true,
@@ -582,6 +582,31 @@ class StockRental extends CI_Controller {
 		$data = $this->Inventory_rental_total_stock_model->fetch_all_join_active();
 		
 		echo json_encode($data);
+	}
+	
+	function get_rental_item_details_by_item_id_branch_id_is_sub_item()
+	{	
+		$item_id = $this->input->post('item_id');
+		$is_sub_item = $this->input->post('is_sub_item');
+		$emp_branch_id = $this->session->userdata('emp_branch_id');
+		
+		$data = $this->Inventory_rental_total_stock_model->get_rental_item_details_by_item_id_branch_id_is_sub_item($item_id, $emp_branch_id, $is_sub_item);
+		
+		//var_dump($data->num_rows());
+		
+		if($data->num_rows() != 0){
+			echo json_encode($data->result_array());
+		}
+		else{
+			$array = array(
+				'success'		=>	false,
+				'message'		=>	'Product not Available at the moment!'
+			);
+			echo json_encode($array);
+		}
+		
+		
+		
 	}
 	
 }

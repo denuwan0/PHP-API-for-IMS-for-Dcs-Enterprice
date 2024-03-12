@@ -80,12 +80,25 @@ class Inventory_rental_total_stock_model extends CI_Model{
 		return $query;
 	}
 	
+	function get_rental_item_details_by_item_id_branch_id_is_sub_item($item_id, $branch_id, $is_sub_item)
+	{
+		$query = $this->db->query("SELECT inventory_rental_total_stock.rental_stock_id, inventory_rental_total_stock.item_id, inventory_rental_total_stock.is_sub_item, inventory_rental_total_stock.max_rent_price, inventory_rental_total_stock.min_rent_price, inventory_rental_total_stock.full_stock_count, inventory_rental_total_stock.stock_re_order_level, inventory_rental_total_stock.branch_id, company_branch.company_branch_name, inventory_rental_total_stock.is_active_rental_stock, IF(inventory_rental_total_stock.is_sub_item = 0, inventory_item.item_name, inventory_sub_item.sub_item_name)  as item_name FROM `inventory_rental_total_stock` left join inventory_item on  inventory_rental_total_stock.item_id = inventory_item.item_id left join inventory_sub_item on  inventory_rental_total_stock.item_id = inventory_sub_item.sub_item_id left join company_branch ON  inventory_rental_total_stock.branch_id = company_branch.company_branch_id WHERE inventory_rental_total_stock.item_id = $item_id AND inventory_rental_total_stock.is_sub_item = $is_sub_item AND inventory_rental_total_stock.branch_id = $branch_id;");
+		//echo $this->db->last_query();
+		return $query;
+	}
+	
 	function fetch_all_join_by_stock_id($stock_id)
 	{
 		$query = $this->db->query("SELECT inventory_rental_total_stock.rental_stock_id, inventory_rental_total_stock.item_id, inventory_rental_total_stock.is_sub_item, inventory_rental_total_stock.full_stock_count, inventory_rental_total_stock.out_stock_count, inventory_rental_total_stock.branch_id, inventory_rental_total_stock.max_rent_price, inventory_rental_total_stock.min_rent_price, inventory_rental_total_stock.damage_stock_count, inventory_rental_total_stock.repair_stock_count, company_branch.company_branch_name, inventory_rental_total_stock.stock_re_order_level, inventory_rental_total_stock.is_active_rental_stock,
 		IF(inventory_rental_total_stock.is_sub_item = 0, inventory_item.item_name, inventory_sub_item.sub_item_name)  as item_name FROM `inventory_rental_total_stock` left join inventory_item on  inventory_rental_total_stock.item_id = inventory_item.item_id left join inventory_sub_item on  inventory_rental_total_stock.item_id = inventory_sub_item.sub_item_id left join company_branch ON  inventory_rental_total_stock.branch_id = company_branch.company_branch_id WHERE inventory_rental_total_stock.rental_stock_id = '$stock_id'");
 		//echo $this->db->last_query();
 		return $query;
+	}
+	
+	function update_all_by_item_id($item_id, $data)
+	{
+		$this->db->where('item_id', $item_id);
+		$this->db->update('inventory_rental_total_stock', $data);
 	}
 	
 }
