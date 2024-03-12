@@ -71,6 +71,7 @@ class RentalInvoice extends CI_Controller {
 				'emp_id' 		=> 	$created_by ,
 				'customer_id' 	=>	$customerData[0]['customer_id'],
 				'total_amount' 	=>	0,
+				'deposite_amount' 	=>	$customerDataArr[0]->deposite_amount,
 				'created_date'	=>	$date,
 				'create_time' 	=>	$time,
 				'is_pos'		=>	1,
