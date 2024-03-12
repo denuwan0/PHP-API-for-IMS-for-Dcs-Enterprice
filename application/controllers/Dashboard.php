@@ -203,11 +203,14 @@ class Dashboard extends CI_Controller {
 			$monthly_task_completed = $data1[0]['task_completed'];
 			$monthly_task_skipped = $data2[0]['task_skipped'];
 			
-			
-			$total_tasks = $monthly_task_completed+$monthly_task_skipped;
-			$monthly_task_completion_rate = ($monthly_task_completed / $total_tasks)*100;
-			
-			
+			if($monthly_task_completed == 0){
+				$monthly_task_completion_rate = 0;
+			}
+			else{
+				$total_tasks = $monthly_task_completed+$monthly_task_skipped;
+				$monthly_task_completion_rate = ($monthly_task_completed / $total_tasks)*100;
+			}
+							
 			
 			$userdata = array(
 				'monthly_rank' 			=> $rank,
