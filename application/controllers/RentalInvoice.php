@@ -75,7 +75,7 @@ class RentalInvoice extends CI_Controller {
 				'created_date'	=>	$date,
 				'create_time' 	=>	$time,
 				'is_pos'		=>	1,
-				'is_active_inv_retail_invoice_hdr' =>	1,
+				'is_active_inv_rent_invoice_hdr' =>	1,
 				'is_complete' =>	0
 			);	
 			
@@ -91,7 +91,7 @@ class RentalInvoice extends CI_Controller {
 						'item_id' =>	$value->item_id,
 						'no_of_items' =>	$value->qty,
 						'item_price' =>	$value->unit_price,
-						'is_active_inv_retail_invoice_detail' =>	1
+						'is_active_inv_rent_invoice_detail' =>	1
 					);
 
 					$total += $value->unit_price*$value->qty;
@@ -135,10 +135,11 @@ class RentalInvoice extends CI_Controller {
 				'emp_id' 		=> 	$created_by ,
 				'customer_id' 	=>	$cusId,
 				'total_amount' 	=>	0,
+				'deposite_amount' 	=>	$customerDataArr[0]->deposite_amount,
 				'created_date'	=>	$date,
 				'create_time' 	=>	$time,
 				'is_pos'		=>	1,
-				'is_active_inv_retail_invoice_hdr' =>	1,
+				'is_active_inv_rent_invoice_hdr' =>	1,
 				'is_complete' =>	0
 			);	
 			
@@ -154,7 +155,7 @@ class RentalInvoice extends CI_Controller {
 						'item_id' =>	$value->item_id,
 						'no_of_items' =>	$value->qty,
 						'item_price' =>	$value->unit_price,
-						'is_active_inv_retail_invoice_detail' =>	1
+						'is_active_inv_rent_invoice_detail' =>	1
 					);
 
 					$total += $value->unit_price*$value->qty;
@@ -260,14 +261,13 @@ class RentalInvoice extends CI_Controller {
 			$invoiceData = $this->Inventory_rental_invoice_header_model->fetch_all_by_branch_id_invoice_id($branch_id, $this->input->get('id'));
 			$invoiceData = $invoiceData->result_array();
 			$invoice_no = $invoiceData[0]["invoice_id"];
-			$total_amount = $invoiceData[0]["total_amount"];
-			
-			
+			$deposite_amount = $invoiceData[0]["deposite_amount"];
+						
 			$customerData  = $this->Customer_model->fetch_single($invoiceData[0]['customer_id']);
 			
 			$itemData  = $this->Inventory_rental_invoice_detail_model->fetch_all_by_invoice_id($invoice_no);
 			$itemData  = $itemData->result_array();
-			
+			$noOfDays = 1;
 			
 			
 			$itemHtml = '';
@@ -277,8 +277,9 @@ class RentalInvoice extends CI_Controller {
 				$itemHtml .='<tr>
 							<th>'.$item['item_name'].'</th>
 							<th>'.$item['item_desc'].'</th>
+							<th style="text-align: right;">'.$noOfDays.'</th>
 							<th style="text-align: right;">'.$item['no_of_items'].'</th>
-							<th style="text-align: right;">'.(float)($item['item_price']*$item['no_of_items']).'</th>
+							<th style="text-align: right;">Rs. '.(float)($item['item_price']*$item['no_of_items']*$noOfDays).'</th>
 						  </tr>';
 			}
 			
@@ -290,7 +291,7 @@ class RentalInvoice extends CI_Controller {
 			
 			$company_logo = base_url().'assets/img/logo.jpg';
 			
-			$message = file_get_contents(base_url().'assets/template/invoice.html'); 
+			$message = file_get_contents(base_url().'assets/template/rentalInvoice.html'); 
 			//echo base_url().'assets/template/email.html';
 			$message = str_replace('%company_logo%', $compData[0]['company_logo'], $message); 
 			$message = str_replace('%company_name%', $compData[0]['company_name'], $message); 
@@ -305,7 +306,7 @@ class RentalInvoice extends CI_Controller {
 			$message = str_replace('%created_time%', $time, $message); 
 			$message = str_replace('%invoice_no%', $invoice_no, $message); 
 			$message = str_replace('%itemArr%',$itemHtml, $message); 
-			$message = str_replace('%total_amount%',$total_amount, $message); 
+			$message = str_replace('%deposite_amount%',$deposite_amount, $message); 
 					
 			//---------------PDF----------------------//
 			//$html = $this->load->view('template/pdfInvoice', $data, true);

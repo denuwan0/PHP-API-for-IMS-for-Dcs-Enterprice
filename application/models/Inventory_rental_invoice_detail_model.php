@@ -46,4 +46,12 @@ class Inventory_rental_invoice_detail_model extends CI_Model{
 		}
 	}
 	
+	function fetch_all_by_invoice_id($invoice_id)
+	{
+		$this->db->select('*');
+		$this->db->from('inventory_rental_invoice_detail');
+		$this->db->join('inventory_item', 'inventory_item.item_id  = inventory_rental_invoice_detail.item_id ','left');
+		$query = $this->db->where('inventory_rental_invoice_detail.invoice_id', $invoice_id);
+		return $query = $this->db->get();
+	}
 }
