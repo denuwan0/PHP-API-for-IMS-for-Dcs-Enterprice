@@ -214,7 +214,8 @@ class RetailInvoice extends CI_Controller {
 			}
 			
 			$data1 = array(
-				'cust_id' =>	$paymentArr[0]->customer_id,							
+				'cust_id' =>	$paymentArr[0]->customer_id,	
+				'cust_id' =>	$branch_id,
 				'order_id' => $paymentArr[0]->invoice_header_header_id,
 				'payment_method' =>	$payMethod,
 				'payment_date' =>	$date,
@@ -226,6 +227,19 @@ class RetailInvoice extends CI_Controller {
 						
 			$this->Order_payment_model->insert($data1);	
 
+			$invoice_details  = $this->Inventory_retail_invoice_detail_model->fetch_all_by_invoice_id($paymentArr[0]->invoice_header_header_id);
+			$invoice_details  = $invoice_details->result_array();
+			
+			foreach($invoice_details as $item){
+				var_dump($item);
+				
+				$this->Inventory_retail_total_stock_model->fetch_single_by_branch_id_item_id_is_sub($retail_stock_id);
+				
+				$this->Inventory_retail_total_stock_model->update_single($invoice_header_header_id, $totalData);
+			}
+			
+			
+			die();
 				
 			
 			$array = array(
