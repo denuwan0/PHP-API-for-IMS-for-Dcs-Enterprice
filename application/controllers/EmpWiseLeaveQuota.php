@@ -36,7 +36,7 @@ class EmpWiseLeaveQuota extends CI_Controller {
 		$emp_id = $this->input->post('emp_id');
 		
 		$created_by = $this->session->userdata('user_id');
-		$branch_id = $this->session->userdata('branch_id');
+		$branch_id = $this->session->userdata('emp_branch_id');
 		$user_group_name = $this->session->userdata('sys_user_group_name');
 		
 		
@@ -259,11 +259,11 @@ class EmpWiseLeaveQuota extends CI_Controller {
 	function fetch_all_join()
 	{	
 		$created_by = $this->session->userdata('user_id');
-		$branch_id = $this->session->userdata('branch_id');
+		$branch_id = $this->session->userdata('emp_branch_id');
 		$user_group_name = $this->session->userdata('sys_user_group_name');
 		$emp_id =  $this->session->userdata('emp_id');
 		
-	
+		//var_dump($this->session->userdata());
 		
 		if($user_group_name == "Admin"){
 			$data = $this->Emp_wise_leave_quota_model->fetch_all_join();
@@ -377,20 +377,23 @@ class EmpWiseLeaveQuota extends CI_Controller {
 	{	
 		$created_by = $this->session->userdata('user_id');
 		$emp_id = $this->session->userdata('emp_id');
-		$branch_id = $this->session->userdata('branch_id');
+		$branch_id = $this->session->userdata('emp_branch_id');
 		$user_group_name = $this->session->userdata('sys_user_group_name');
+		
+	
+		
 		if($user_group_name == "Admin"){
 			$data = $this->Emp_wise_leave_quota_model->fetch_all_join_by_emp_id($emp_id);
-			echo json_encode($data);	
+			echo json_encode($data->result_array());	
 		}
 		else if($user_group_name == "Manager"){
 			$data = $this->Emp_wise_leave_quota_model->fetch_all_join_by_emp_id($emp_id);
-			echo json_encode($data);
+			echo json_encode($data->result_array());
 		}
 		else if($user_group_name == "Staff"){
 			$data = $this->Emp_wise_leave_quota_model->fetch_all_join_by_emp_id($emp_id);	
 			//var_dump($data);
-			echo json_encode($data);
+			echo json_encode($data->result_array());
 		}
 	
 		

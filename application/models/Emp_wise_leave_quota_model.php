@@ -108,7 +108,7 @@ class Emp_wise_leave_quota_model extends CI_Model{
 	{
 		$this->db->select('*');
 		$this->db->from('emp_wise_leave_quota');
-		$this->db->where('emp_details.emp_branch_id', $emp_id);
+		$this->db->where('emp_details.emp_branch_id', $branch_id);
 		$this->db->join('emp_leave_quota', 'emp_wise_leave_quota.leave_quota_id = emp_leave_quota.leave_quota_id','left');
 		$this->db->join('emp_details', 'emp_wise_leave_quota.emp_id = emp_details.emp_id','left');
 		$this->db->join('emp_leave_type', 'emp_leave_quota.leave_type_id = emp_leave_type.leave_type_id','left');
