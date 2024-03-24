@@ -121,4 +121,18 @@ class Inventory_retail_invoice_header_model extends CI_Model{
 		$query = $this->db->get('inventory_retail_invoice_detail');
 		return $query;
 	}
+	
+	function fetch_all_retail_header_details_admin()
+	{
+		$query = $this->db->query("SELECT *, inventory_retail_invoice_header.created_date AS invoice_date FROM `inventory_retail_invoice_header` LEFT JOIN customer ON customer.customer_id = inventory_retail_invoice_header.customer_id LEFT JOIN company_branch ON company_branch.company_branch_id = inventory_retail_invoice_header.branch_id");
+		
+		return $query;
+	}
+	
+	function fetch_all_retail_header_details_by_branch_id($branch_id)
+	{
+		$query = $this->db->query("SELECT *, inventory_retail_invoice_header.created_date AS invoice_date FROM `inventory_retail_invoice_header` LEFT JOIN customer ON customer.customer_id = inventory_retail_invoice_header.customer_id LEFT JOIN company_branch ON company_branch.company_branch_id = inventory_retail_invoice_header.branch_id WHERE `branch_id` = '$branch_id'");
+		
+		return $query;
+	}
 }

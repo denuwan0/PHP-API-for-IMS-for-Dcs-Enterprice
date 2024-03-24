@@ -26,158 +26,6 @@ class RetailOrder extends CI_Controller {
 
 	
 	
-	function insert()
-	{				
-		$json = json_decode(file_get_contents("php://input"));
-		
-		$phparray = (array) $json;
-		
-		$customerDataArr = array();
-		$selectedItemsArr = array();
-		$customerDataArr = $phparray["customerDataArr"];
-		$selectedItemsArr = $phparray["selectedItemsArr"];
-		
-		$branch_id = $this->session->userdata('emp_branch_id');
-		$created_by = $this->session->userdata('user_id');
-		date_default_timezone_set('Asia/Colombo');
-		$date = date('Y-m-d');
-		$time = date('H:i:s');
-		$sys_user_group_name = $this->session->userdata('sys_user_group_name');
-		//var_dump($this->session->userdata());
-		$emp_branch_id = $this->session->userdata('emp_branch_id');
-		
-				
-		//var_dump($this->session->userdata());
-		$customerData  = $this->Customer_model->fetch_single_by_nic($customerDataArr[0]->customer_old_nic_no);
-		//var_dump($customerData[0]['customer_id']);				
-		
-				
-		if(isset($customerData[0]['customer_id']) && !empty($customerData[0]['customer_id']))
-		{
-			
-			$data1 = array(
-				'customer_name' =>	$customerDataArr[0]->customer_name,							
-				'customer_working_address' => $customerDataArr[0]->customer_working_address,
-				'customer_shipping_address' =>	$customerDataArr[0]->customer_shipping_address,
-				'customer_contact_no' =>	$customerDataArr[0]->customer_contact_no,
-				'customer_email' =>	$customerDataArr[0]->customer_email
-			);
-			
-			
-			$this->Customer_model->update_single($customerData[0]['customer_id'], $data1);
-			
-			
-			$data2 = array(
-				'branch_id' 	=>	$branch_id,							
-				'emp_id' 		=> 	$created_by ,
-				'customer_id' 	=>	$customerData[0]['customer_id'],
-				'total_amount' 	=>	0,
-				'created_date'	=>	$date,
-				'create_time' 	=>	$time,
-				'is_pos'		=>	1,
-				'is_active_inv_retail_invoice_hdr' =>	1,
-				'is_complete' =>	0
-			);	
-			
-			$invoice_header_header_id  = $this->Inventory_retail_invoice_header_model->insert($data2);
-			
-			$status = 0;
-			$total = 0;
-			foreach($selectedItemsArr as $value){
-								
-				if($invoice_header_header_id){
-					$itemData = array(
-						'invoice_id' =>	$invoice_header_header_id,
-						'item_id' =>	$value->item_id,
-						'no_of_items' =>	$value->qty,
-						'item_price' =>	$value->unit_price,
-						'is_active_inv_retail_invoice_detail' =>	1
-					);
-
-					$total += $value->unit_price*$value->qty;
-					
-					$status += $this->Inventory_retail_invoice_detail_model->insert($itemData);					
-				}
-			}
-			
-			$totalData = array(
-				'total_amount' =>	$total
-			);
-			
-			$this->Inventory_retail_invoice_header_model->update_single($invoice_header_header_id, $totalData);
-			
-			$array = array(
-				'success'		=>	true,
-				'invoice_header_header_id'=>$invoice_header_header_id,
-				'message'		=>	'Data Saved!'
-			);
-			
-			
-			
-		}
-		else
-		{
-			$data1 = array(
-				'customer_name' =>	$customerDataArr[0]->customer_name,							
-				'customer_working_address' => $customerDataArr[0]->customer_working_address,
-				'customer_shipping_address' =>	$customerDataArr[0]->customer_shipping_address,
-				'customer_contact_no' =>	$customerDataArr[0]->customer_contact_no,
-				'customer_email' =>	$customerDataArr[0]->customer_email,
-				'customer_old_nic_no' =>	$customerDataArr[0]->customer_old_nic_no,
-				'is_active_customer' =>	1
-			);
-			
-			
-			$cusId = $this->Customer_model->insert($data1);
-						
-			$data2 = array(
-				'branch_id' 	=>	$branch_id,							
-				'emp_id' 		=> 	$created_by ,
-				'customer_id' 	=>	$cusId,
-				'total_amount' 	=>	0,
-				'created_date'	=>	$date,
-				'create_time' 	=>	$time,
-				'is_pos'		=>	1,
-				'is_active_inv_retail_invoice_hdr' =>	1,
-				'is_complete' =>	0
-			);	
-			
-			$invoice_header_header_id  = $this->Inventory_retail_invoice_header_model->insert($data2);
-			
-			$status = 0;
-			$total = 0;
-			foreach($selectedItemsArr as $value){
-								
-				if($invoice_header_header_id){
-					$itemData = array(
-						'invoice_id' =>	$invoice_header_header_id,
-						'item_id' =>	$value->item_id,
-						'no_of_items' =>	$value->qty,
-						'item_price' =>	$value->unit_price,
-						'is_active_inv_retail_invoice_detail' =>	1
-					);
-
-					$total += $value->unit_price*$value->qty;
-					
-					$status += $this->Inventory_retail_invoice_detail_model->insert($itemData);					
-				}
-			}
-			
-			$totalData = array(
-				'total_amount' =>	$total
-			);
-			
-			$this->Inventory_retail_invoice_header_model->update_single($invoice_header_header_id, $totalData);
-			
-			$array = array(
-				'success'		=>	true,
-				'invoice_header_header_id'=>$invoice_header_header_id,
-				'message'		=>	'Data Saved!'
-			);
-		}
-		echo json_encode($array);
-	}
-	
 	function updatePayment()
 	{				
 		$json = json_decode(file_get_contents("php://input"));
@@ -1019,11 +867,23 @@ class RetailOrder extends CI_Controller {
 		}
 	}
 	
-	function fetch_all_join()
+	function fetch_all_header()
 	{	
-		$data = $this->inventory_stock_purchase_header_model->fetch_all_join();
+		$sys_user_group_name = $this->session->userdata('sys_user_group_name');
+		//var_dump($this->session->userdata());
+		$emp_branch_id = $this->session->userdata('emp_branch_id');
+		if($sys_user_group_name == "Admin"){
+			$data = $this->Inventory_retail_invoice_header_model->fetch_all_retail_header_details_admin();
+			echo json_encode($data->result_array());
+		}
+		else{
+			$data = $this->Inventory_retail_invoice_header_model->fetch_all_retail_header_details_by_branch_id($emp_branch_id);
+			
+			echo json_encode($data->result_array());
+		}
+	
 		
-		echo json_encode($data->result_array());
+		
 	}
 	
 	function update_item_details()

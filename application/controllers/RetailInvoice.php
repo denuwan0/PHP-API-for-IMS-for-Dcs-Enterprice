@@ -216,19 +216,7 @@ class RetailInvoice extends CI_Controller {
 				$payMethod = 'Bank Card Payment';
 			}
 			
-			$data1 = array(
-				'cust_id' =>	$paymentArr[0]->customer_id,	
-				'cust_id' =>	$branch_id,
-				'order_id' => $paymentArr[0]->invoice_header_header_id,
-				'payment_method' =>	$payMethod,
-				'payment_date' =>	$date,
-				'payment_time' =>	$time,
-				'reference' =>	$paymentArr[0]->payment_reference,
-				'is_retail_order' =>	1,
-				'is_complete' =>	1
-			);
-						
-			$this->Order_payment_model->insert($data1);	
+			$order_complete = 0;
 
 			$invoice_details  = $this->Inventory_retail_invoice_detail_model->fetch_all_by_invoice_id($paymentArr[0]->invoice_header_header_id);
 			$invoice_details  = $invoice_details->result_array();
@@ -255,8 +243,11 @@ class RetailInvoice extends CI_Controller {
 					
 					$this->Inventory_retail_total_stock_model->update_single($itemDetails[0]['retail_stock_id'], $itemData);
 					
+					$order_complete=1;
+					
 				}
 				else{
+					$order_complete=0;
 					$array = array(
 						'error'			=>	true,
 						'message'		=>	'Out of Stock!'
@@ -280,9 +271,31 @@ class RetailInvoice extends CI_Controller {
 				
 			}
 			
-			
-			die();
+			if($order_complete == 1){
 				
+				$data1 = array(
+					'cust_id' =>	$paymentArr[0]->customer_id,	
+					'cust_id' =>	$branch_id,
+					'order_id' => $paymentArr[0]->invoice_header_header_id,
+					'payment_method' =>	$payMethod,
+					'payment_date' =>	$date,
+					'payment_time' =>	$time,
+					'reference' =>	$paymentArr[0]->payment_reference,
+					'is_retail_order' =>	1,
+					'is_complete' =>	1
+				);
+							
+				$this->Order_payment_model->insert($data1);	
+				
+				$data2 = array(
+					'is_complete' =>	1
+				);
+				
+				$invoice_details  = $this->Inventory_retail_invoice_header_model->update_single($paymentArr[0]->invoice_header_header_id, $data2);
+				
+			}
+			
+							
 			
 			$array = array(
 				'success'		=>	true,
