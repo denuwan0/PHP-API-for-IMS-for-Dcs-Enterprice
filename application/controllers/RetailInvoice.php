@@ -275,7 +275,7 @@ class RetailInvoice extends CI_Controller {
 				
 				$data1 = array(
 					'cust_id' =>	$paymentArr[0]->customer_id,	
-					'cust_id' =>	$branch_id,
+					'branch_id' =>	$branch_id,
 					'order_id' => $paymentArr[0]->invoice_header_header_id,
 					'payment_method' =>	$payMethod,
 					'payment_date' =>	$date,
@@ -288,7 +288,7 @@ class RetailInvoice extends CI_Controller {
 				$this->Order_payment_model->insert($data1);	
 				
 				$data2 = array(
-					'is_complete' =>	1
+					'is_confirmed' =>	1
 				);
 				
 				$invoice_details  = $this->Inventory_retail_invoice_header_model->update_single($paymentArr[0]->invoice_header_header_id, $data2);

@@ -82,6 +82,8 @@ class Inventory_retail_invoice_header_model extends CI_Model{
 	{
 		$this->db->where('invoice_id', $invoice_id);
 		$this->db->update('inventory_retail_invoice_header', $data);
+		
+		//echo $this->db->last_query();
 	}
 
 	function delete_single($invoice_id)

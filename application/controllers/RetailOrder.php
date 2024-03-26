@@ -580,8 +580,11 @@ class RetailOrder extends CI_Controller {
 			$data2 = $this->Inventory_retail_invoice_detail_model->fetch_all_by_invoice_id($retail_stock_header_id)->result_array();
 			
 			//var_dump($data2);
+			$retail_stock_header_id = $this->input->get('id');
+			$data3 = $this->Order_payment_model->fetch_latest_payment_by_retail_invoice_id($retail_stock_header_id)->result_array();
 			
-			$jsonArr = array('header' => $data1, 'detail' => $data2);
+			
+			$jsonArr = array('header' => $data1, 'detail' => $data2, 'payment_details' => $data3);
 			
 			echo json_encode($jsonArr);
 		}

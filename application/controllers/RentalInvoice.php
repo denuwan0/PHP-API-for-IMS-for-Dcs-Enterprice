@@ -76,6 +76,7 @@ class RentalInvoice extends CI_Controller {
 				'create_time' 	=>	$time,
 				'is_pos'		=>	1,
 				'is_active_inv_rent_invoice_hdr' =>	1,
+				'is_confirmed' =>	0,
 				'is_complete' =>	0
 			);	
 			
@@ -140,6 +141,7 @@ class RentalInvoice extends CI_Controller {
 				'create_time' 	=>	$time,
 				'is_pos'		=>	1,
 				'is_active_inv_rent_invoice_hdr' =>	1,
+				'is_confirmed' =>	0,
 				'is_complete' =>	0
 			);	
 			
@@ -223,12 +225,17 @@ class RentalInvoice extends CI_Controller {
 				'payment_time' =>	$time,
 				'reference' =>	$paymentArr[0]->payment_reference,
 				'is_retail_order' =>	1,
-				'is_complete' =>	1
+				'is_confirmed' =>	1,
+				'is_complete' =>	0
 			);
 						
 			$this->Order_payment_model->insert($data1);	
 
-				
+			$data2 = array(
+				'is_confirmed' =>	1
+			);
+			
+			$this->Inventory_rental_invoice_header_model->update_single($paymentArr[0]->invoice_header_header_id, $data2);	
 			
 			$array = array(
 				'success'		=>	true,
