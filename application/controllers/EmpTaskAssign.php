@@ -398,4 +398,68 @@ class EmpTaskAssign extends CI_Controller {
 		
 		
 	}
+	
+	function updateInactive()
+	{
+		$this->form_validation->set_rules('assign_emp_line_id', 'assign_emp_line_id', 'required');
+		$this->form_validation->set_rules('is_active_sp_task_assign', 'is_active_sp_task_assign', 'required');
+		$this->form_validation->set_rules('order_type', 'order_type', 'required');
+		
+		
+		if($this->form_validation->run())
+		{	
+		
+			if($this->input->post('order_type') == 'Retail'){	
+				
+				$data = array(
+					'is_active_sp_task_assign'	=>	$this->input->post('is_active_sp_task_assign')
+				);
+
+				$this->Emp_special_task_assign_emp_model->update_single($this->input->post('assign_emp_line_id'), $data);
+
+				$array = array(
+					'success'		=>	true,
+					'message'		=>	'Changes Updated!'
+				);
+				echo json_encode($array);
+			}
+			else if($this->input->post('order_type') == 'Rental'){
+				$data = array(
+					'is_active_sp_task_assign'	=>	$this->input->post('is_active_sp_task_assign')
+				);
+
+				$this->Emp_special_task_assign_emp_model->update_single($this->input->post('assign_emp_line_id'), $data);
+
+				$array = array(
+					'success'		=>	true,
+					'message'		=>	'Changes Updated!'
+				);
+				echo json_encode($array);
+			}
+			else if($this->input->post('order_type') == 'Online'){
+				$data = array(
+					'is_active_sp_task_assign'	=>	$this->input->post('is_active_sp_task_assign')
+				);
+
+				$this->Emp_special_task_assign_emp_model->update_single($this->input->post('assign_emp_line_id'), $data);
+
+				$array = array(
+					'success'		=>	true,
+					'message'		=>	'Changes Updated!'
+				);
+				echo json_encode($array);
+			}	
+			
+		}
+		else
+		{
+			$array = array(
+				'error'			=>	true,
+				'message'		=>	'Error'
+			);
+			echo json_encode($array);
+		}
+		
+		
+	}
 }

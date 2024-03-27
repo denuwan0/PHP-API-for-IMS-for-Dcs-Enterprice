@@ -53,12 +53,21 @@ class RentalInvoice extends CI_Controller {
 				
 		if(isset($customerData[0]['customer_id']) && !empty($customerData[0]['customer_id']))
 		{
+			$phonenumber = $customerDataArr[0]->customer_contact_no;
+			
+			if (strpos($phonenumber, '+94') !== false) {
+				// Remove '+' if present
+				$phonenumber = str_replace('+94', '94', $phonenumber);
+			} else if (strpos($phonenumber, '0') === 0) {
+				// Add '94' if it starts with '0'
+				$phonenumber = '94' . substr($phonenumber, 1);
+			}	
 			
 			$data1 = array(
 				'customer_name' =>	$customerDataArr[0]->customer_name,							
 				'customer_working_address' => $customerDataArr[0]->customer_working_address,
 				'customer_shipping_address' =>	$customerDataArr[0]->customer_shipping_address,
-				'customer_contact_no' =>	$customerDataArr[0]->customer_contact_no,
+				'customer_contact_no' =>	$phonenumber ,
 				'customer_email' =>	$customerDataArr[0]->customer_email
 			);
 			
@@ -76,7 +85,7 @@ class RentalInvoice extends CI_Controller {
 				'create_time' 	=>	$time,
 				'is_pos'		=>	1,
 				'is_active_inv_rent_invoice_hdr' =>	1,
-				'is_confirmed' =>	0,
+				'is_confirmed' =>	1,
 				'is_complete' =>	0
 			);	
 			
@@ -99,84 +108,69 @@ class RentalInvoice extends CI_Controller {
 					
 					$status += $this->Inventory_rental_invoice_detail_model->insert($itemData);					
 				}
-			}
-			
-			$totalData = array(
-				'total_amount' =>	$total
-			);
-			
-			$this->Inventory_rental_invoice_header_model->update_single($invoice_header_header_id, $totalData);
-			
-			$array = array(
-				'success'		=>	true,
-				'invoice_header_header_id'=>$invoice_header_header_id,
-				'message'		=>	'Data Saved!'
-			);
-			
-			
-			
-		}
-		else
-		{
-			$data1 = array(
-				'customer_name' =>	$customerDataArr[0]->customer_name,							
-				'customer_working_address' => $customerDataArr[0]->customer_working_address,
-				'customer_shipping_address' =>	$customerDataArr[0]->customer_shipping_address,
-				'customer_contact_no' =>	$customerDataArr[0]->customer_contact_no,
-				'customer_email' =>	$customerDataArr[0]->customer_email,
-				'customer_old_nic_no' =>	$customerDataArr[0]->customer_old_nic_no,
-				'is_active_customer' =>	1
-			);
-			
-			
-			$cusId = $this->Customer_model->insert($data1);
-						
-			$data2 = array(
-				'branch_id' 	=>	$branch_id,							
-				'emp_id' 		=> 	$created_by ,
-				'customer_id' 	=>	$cusId,
-				'total_amount' 	=>	0,
-				'deposite_amount' 	=>	$customerDataArr[0]->deposite_amount,
-				'created_date'	=>	$date,
-				'create_time' 	=>	$time,
-				'is_pos'		=>	1,
-				'is_active_inv_rent_invoice_hdr' =>	1,
-				'is_confirmed' =>	0,
-				'is_complete' =>	0
-			);	
-			
-			$invoice_header_header_id  = $this->Inventory_rental_invoice_header_model->insert($data2);
-			
-			$status = 0;
-			$total = 0;
-			foreach($selectedItemsArr as $value){
+				
 								
-				if($invoice_header_header_id){
-					$itemData = array(
-						'invoice_id' =>	$invoice_header_header_id,
-						'item_id' =>	$value->item_id,
-						'no_of_items' =>	$value->qty,
-						'item_price' =>	$value->unit_price,
-						'is_active_inv_rent_invoice_detail' =>	1
-					);
-
-					$total += $value->unit_price*$value->qty;
+				$itemDetails = $this->Inventory_rental_total_stock_model->fetch_single_by_branch_id_item_id_is_sub($value->item_id, $emp_branch_id, 0);
+				
+				
+				
+				//var_dump($value->item_id);
+				//var_dump($itemDetails);
+				
+				$full_stock_count =  $itemDetails[0]['full_stock_count'];
+				$out_stock_count =  $itemDetails[0]['out_stock_count'];
+				$no_of_items =  $value->qty;
+				
+				$stock_re_order_level =  $itemDetails[0]["stock_re_order_level"];
+				
+				
+				
+				if(($value->item_id == $itemDetails[0]['item_id']) && $full_stock_count > $no_of_items){
+					$full_stock_count = $full_stock_count - $no_of_items;
+					$out_stock_count = $out_stock_count + $no_of_items;
 					
-					$status += $this->Inventory_rental_invoice_detail_model->insert($itemData);					
+					$itemData = array(
+						'full_stock_count' =>	$full_stock_count,
+						'out_stock_count' =>	$out_stock_count
+					);
+				
+					
+					$this->Inventory_rental_total_stock_model->update_single($itemDetails[0]['rental_stock_id'], $itemData);
+					
+					
+					
 				}
+				else{
+					
+					$array = array(
+						'error'			=>	true,
+						'message'		=>	'Out of Stock!'
+					);
+				}
+				
+				
+				
+				if($full_stock_count <= $stock_re_order_level){
+					
+					$userData = $this->Emp_model->fetch_single($emp_id);
+										
+					$text = "Need to re order rental item Id: ".$item['item_id']." !";
+					$url = "http://localhost/dcs/stockRetail/view";	
+										
+					$this->reOrderLevelMail($text, $userData, $url);
+					
+				}
+				
 			}
-			
-			$totalData = array(
-				'total_amount' =>	$total
-			);
-			
-			$this->Inventory_rental_invoice_header_model->update_single($invoice_header_header_id, $totalData);
-			
+					
 			$array = array(
 				'success'		=>	true,
 				'invoice_header_header_id'=>$invoice_header_header_id,
 				'message'		=>	'Data Saved!'
 			);
+			
+			
+			
 		}
 		echo json_encode($array);
 	}

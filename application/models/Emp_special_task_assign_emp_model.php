@@ -88,11 +88,13 @@ class Emp_special_task_assign_emp_model extends CI_Model{
 		$this->db->join('emp_special_task_header', 'emp_special_task_assign_emp.special_task_id = emp_special_task_header.special_task_id','left');
 		$this->db->join('company_branch', 'emp_special_task_assign_emp.branch_id = company_branch.company_branch_id ','left');
 		$this->db->join('emp_details', 'emp_special_task_assign_emp.emp_id = emp_details.emp_id','left');
-		$this->db->join('inventory_retail_invoice_header', 'emp_special_task_assign_emp.invoice_id  = inventory_retail_invoice_header.invoice_id ','left');
+		//$this->db->join('inventory_retail_invoice_header', 'emp_special_task_assign_emp.invoice_id  = inventory_retail_invoice_header.invoice_id ','left');
 		$this->db->where('emp_special_task_assign_emp.branch_id', $branch_id);
 		$query = $this->db->get();
+		//echo $this->db->last_query();
 		return $query;
 	}
+	
 	
 	function fetch_all_active_join_by_emp_id($emp_id)
 	{

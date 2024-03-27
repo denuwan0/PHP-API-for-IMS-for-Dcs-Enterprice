@@ -92,4 +92,44 @@ class Inventory_rental_invoice_header_model extends CI_Model{
 		return $query;
 	}
 	
+	function fetch_all_rental_header_details_admin()
+	{
+		$query = $this->db->query("SELECT *, inventory_rental_invoice_header.created_date AS invoice_date FROM `inventory_rental_invoice_header` LEFT JOIN customer ON customer.customer_id = inventory_rental_invoice_header.customer_id LEFT JOIN company_branch ON company_branch.company_branch_id = inventory_rental_invoice_header.branch_id;");
+		
+		return $query;
+	}
+	
+	function fetch_all_rental_header_details_by_branch_id($branch_id)
+	{
+		$query = $this->db->query("SELECT *, inventory_rental_invoice_header.created_date AS invoice_date FROM `inventory_rental_invoice_header` LEFT JOIN customer ON customer.customer_id = inventory_rental_invoice_header.customer_id LEFT JOIN company_branch ON company_branch.company_branch_id = inventory_rental_invoice_header.branch_id WHERE `branch_id` = '$branch_id';");
+		
+		return $query;
+	}
+	
+	function fetch_invoice_header_by_invoice_id($invoice_id)
+	{
+		$this->db->where('inventory_rental_invoice_header.invoice_id', $invoice_id);
+		$this->db->join('customer', 'customer.customer_id    = inventory_rental_invoice_header.customer_id   ','left');
+		$query = $this->db->get('inventory_rental_invoice_header');
+		return $query;
+	}
+	
+	function fetch_all_active_by_branch_id_not_complete($branch_id){
+		$this->db->join('company_branch', 'company_branch.company_branch_id   = inventory_rental_invoice_header.branch_id ','left');
+		$this->db->join('customer', 'customer.customer_id    = inventory_rental_invoice_header.customer_id ','left');
+		$this->db->where('branch_id', $branch_id);	
+		$this->db->where('inventory_rental_invoice_header.is_active_inv_rent_invoice_hdr', 1);
+				$this->db->where('inventory_rental_invoice_header.is_complete', 0);
+		$query = $this->db->get('inventory_rental_invoice_header');
+		return $query;
+	}
+	
+	function fetch_invoice_detail_by_invoice_id($invoice_id)
+	{
+		$this->db->where('inventory_rental_invoice_detail.invoice_id', $invoice_id);
+		$this->db->join('inventory_item', 'inventory_item.item_id   = inventory_rental_invoice_detail.item_id  ','left');
+		$query = $this->db->get('inventory_rental_invoice_detail');
+		return $query;
+	}
+	
 }

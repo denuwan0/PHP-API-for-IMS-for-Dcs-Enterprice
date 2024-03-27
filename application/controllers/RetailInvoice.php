@@ -54,6 +54,15 @@ class RetailInvoice extends CI_Controller {
 				
 		if(isset($customerData[0]['customer_id']) && !empty($customerData[0]['customer_id']))
 		{
+			$phonenumber = $customerDataArr[0]->customer_contact_no;
+			
+			if (strpos($phonenumber, '+94') !== false) {
+				// Remove '+' if present
+				$phonenumber = str_replace('+94', '94', $phonenumber);
+			} else if (strpos($phonenumber, '0') === 0) {
+				// Add '94' if it starts with '0'
+				$phonenumber = '94' . substr($phonenumber, 1);
+			}
 			
 			$data1 = array(
 				'customer_name' =>	$customerDataArr[0]->customer_name,							

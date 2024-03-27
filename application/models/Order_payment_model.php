@@ -46,4 +46,11 @@ class Order_payment_model extends CI_Model{
 		return $query;
 	}
 	
+	function fetch_latest_payment_by_rental_invoice_id($invoice_id)
+	{
+		$query = $this->db->query("SELECT * FROM `order_payments` WHERE `order_id` = '$invoice_id' AND `is_rental_order` = 1 AND `is_complete` = 1 ORDER BY `payment_id` DESC LIMIT 1;");
+		
+		return $query;
+	}
+	
 }
