@@ -9,6 +9,7 @@ class EmpTaskAssign extends CI_Controller {
 		$this->load->model('Emp_special_task_header_model');
 		$this->load->model('Emp_special_task_assign_emp_model');
 		$this->load->model('Inventory_retail_invoice_header_model');
+		$this->load->model('Inventory_rental_invoice_header_model');
 		$this->load->model('Sys_user_model');
 		$this->load->library('form_validation');
 		
@@ -302,6 +303,13 @@ class EmpTaskAssign extends CI_Controller {
 				);
 
 				$this->Emp_special_task_assign_emp_model->update_single($this->input->post('assign_emp_line_id'), $data);
+				
+				$data2 = array(
+					'is_complete' =>	1
+				);
+				
+				
+				$invoice_details  = $this->Inventory_rental_invoice_header_model->update_single($this->input->post('invoice_id'), $data2);
 
 				$array = array(
 					'success'		=>	true,
