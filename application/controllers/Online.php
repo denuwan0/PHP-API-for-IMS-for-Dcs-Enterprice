@@ -11,13 +11,16 @@ class Online extends CI_Controller {
 		$this->load->model('Inventory_stock_purchase_header_model');
 		$this->load->model('Inventory_stock_purchase_detail_model');
 		$this->load->model('Inventory_retail_total_stock_model');
+		$this->load->model('Customer_model');
+		$this->load->model('Sys_user_model');
+		$this->load->model('Company_model');
 		$this->load->model('Inventory_item_model');
 		
 		//var_dump();
 		
-		if (!$this->input->is_ajax_request()) {
+		/* if (!$this->input->is_ajax_request()) {
 			exit('No direct script access allowed');
-		}
+		} */
 		
 	}
 
@@ -609,6 +612,208 @@ class Online extends CI_Controller {
 		
 		
 		
+	}
+	
+	function register_user()
+	{	
+
+		$json = json_decode(file_get_contents("php://input"));
+		
+		$phparray = (array) $json;
+		
+		$registerArr = array();
+		$registerArr = $phparray["registerArr"];
+		$date = date('Y-m-d');
+		
+				
+		
+		
+		$phonenumber = $registerArr[0]->customer_contact_no;
+		// Format phone number
+		if (strpos($phonenumber, '+94') !== false) {
+			// Remove '+' if present
+			$phonenumber = str_replace('+94', '94', $phonenumber);
+		} elseif (strpos($phonenumber, '0') === 0) {
+			// Add '94' if it starts with '0'
+			$phonenumber = '94' . substr($phonenumber, 1);
+		}
+		
+		$dataMob = $this->Customer_model->fetch_single_by_mobile($phonenumber);	
+		
+		$dataEmail = $this->Customer_model->fetch_single_by_email($registerArr[0]->customer_email);
+		
+		
+		
+		if(empty($dataMob) && empty($dataEmail)){
+			$data1 = array(
+				'customer_name'	=>	$registerArr[0]->customer_name,
+				'customer_working_address'	=>	$registerArr[0]->customer_working_address,
+				'customer_shipping_address'	=>	$registerArr[0]->customer_shipping_address,
+				'customer_old_nic_no'	=>	$registerArr[0]->customer_old_nic_no,
+				'customer_contact_no'	=>	$phonenumber,
+				'customer_email'	=>	$registerArr[0]->customer_email,
+				'created_date'	=>	$date,
+				'is_web'	=>	1,
+				'is_active_customer'	=>	1,
+			);
+			
+			$data = $this->Customer_model->insert($data1);
+			
+			
+			$password = preg_replace('/\s/', '', $registerArr[0]->password);//remove spaces				
+			$hash = hash('sha256', $password);
+			
+			$data2 = array(
+				'emp_cust_id'	=>	$data,
+				'sys_user_group_id'	=>	5,
+				'username'	=>	$registerArr[0]->customer_email,
+				'password'	=>	$hash,
+				'is_customer'	=>	1,
+				'is_active_sys_user'	=>	0,
+			);
+			
+			$data = $this->Sys_user_model->insert($data2);
+			
+			$userData = $this->Customer_model->fetch_single_by_email($registerArr[0]->customer_email);
+													
+			$text = "DCS Account Activation!";
+			$url = "http://localhost/web/Activation/prof/".$userData[0]["customer_id"];	
+								
+			$this->accountCreateMail($text, $userData, $url);
+			
+			$array = array(
+				'success'		=>	false,
+				'message'		=>	'Data Updated!'
+			);
+		}
+		else{
+			$array = array(
+				'success'		=>	false,
+				'message'		=>	'Customer already registered!'
+			);
+		}
+		
+				
+	
+		echo json_encode($array);
+	}
+	
+	
+	function accountCreateMail($text, $userData, $url){
+		
+		
+		// Load PHPMailer library
+		$this->load->library('phpmailer_lib');
+
+		// PHPMailer object
+		$mail = $this->phpmailer_lib->load();
+		
+
+		// SMTP configuration
+		$mail->isSMTP();
+		$mail->Host     = 'smtp.gmail.com';
+		$mail->SMTPAuth = true;
+		$mail->Username = 'denuwan9@gmail.com';
+		$mail->Password = 'rcvzygygidoddhvl';
+		$mail->SMTPSecure = 'ssl';
+		$mail->Port     = 465;
+		//$mail->Port = 587;
+		//$mail->SMTPSecure = 'tls';	
+		
+		$mail->SMTPOptions = array(
+			'ssl' => array(
+				'verify_peer' => false,
+				'verify_peer_name' => false,
+				'allow_self_signed' => true
+			)
+		);
+
+		$mail->setFrom('denuwan9@gmail.com', 'DCS Enterprices');
+		$mail->addReplyTo('denuwan9@gmail.com', 'DCS Enterprices');
+
+		// Add a recipient	
+		
+
+		// Add cc or bcc 
+		//$mail->addCC('cc@example.com');
+		//$mail->addBCC('bcc@example.com');
+		$companyData1 = $this->Company_model->fetch_all_active();
+		$companyData2 = $companyData1->result_array();
+		
+				
+		$company_name = $companyData2[0]['company_name'];
+		$company_address = $companyData2[0]['company_address'];
+		$company_contact = $companyData2[0]['company_contact'];	
+		
+		
+
+		$user_name = isset($userData[0]["customer_name"])? $userData[0]["customer_name"]: $userData[0]["emp_first_name"];
+		$user_contact = isset($userData[0]["customer_contact_no"])? $userData[0]["customer_name"]: $userData[0]["emp_first_name"];
+		$user_email = isset($userData[0]['customer_email'])? $userData[0]['customer_email']: $userData[0]['emp_email'];
+		
+		$mail->addAddress($user_email);
+			
+		
+		$created_date = date("Y-m-d");
+		
+		$company_logo = base_url().'assets/img/logo.jpg';
+		
+		$company_logo_elem = '<img src="http://localhost/API/assets/img/logo.jpg" height="100" width="100"></img>';
+		
+		$message = file_get_contents(base_url().'assets/template/userAccountCreated.html'); 
+		//echo base_url().'assets/template/email.html';
+		$message = str_replace('%company_logo%', $company_logo_elem, $message); 
+		$message = str_replace('%company_name%', $company_name, $message); 
+		$message = str_replace('%company_address%', $company_address, $message); 
+		$message = str_replace('%company_contact%', $company_contact, $message); 
+		$message = str_replace('%user_name%', $user_name, $message); 
+		$message = str_replace('%user_contact%', $user_contact, $message); 
+		$message = str_replace('%user_email%', $user_email, $message); 
+		$message = str_replace('%created_date%', $created_date, $message); 
+		$message = str_replace('%activation_url%', $url, $message); 
+		$message = str_replace('%text%', $text, $message); 		
+		
+
+		// Email subject
+		//$mail->Subject = 'DCS Enterprices Online Plateform account created!';
+		$mail->Subject = $text;
+
+		// Set email format to HTML
+		$mail->isHTML(true);
+
+		// Email body content
+		$mailContent = '';
+
+		$mail->Body = $message;
+		$mail->send();
+		// Send email
+		/* if(!$mail->send()){
+			echo 'Message could not be sent.';
+			echo 'Mailer Error: ' . $mail->ErrorInfo;
+		}else{
+			echo 'Message has been sent';
+		} */
+	}
+	
+	function accountActivation()
+	{
+		
+		$data = json_decode(file_get_contents('php://input'), true);
+		//var_dump($data["id"]);
+		
+		$data1 = $this->Sys_user_model->fetch_single_join_by_cust_id($data["id"]);
+		//var_dump($data1);
+		
+		$dataaArr = array(
+			'is_active_sys_user'	=>	1,
+		);
+		
+		$data2 = $this->Sys_user_model->update_single($data1[0]["user_id"], $dataaArr);
+		
+		$array = array(
+			'success'		=>	false,
+			'message'		=>	'Data Updated!'
+		);
 	}
 	
 }
