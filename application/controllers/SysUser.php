@@ -231,6 +231,99 @@ class SysUser extends CI_Controller {
 		}
 	}
 	
+	function restCodeGenEmp()
+	{
+		$data = json_decode(file_get_contents('php://input'), true);
+		
+		$resetMethodDisplay = $data['resetMethodDisplay'];
+		$inputMethodVal = $data['inputMethodVal'];
+		$emp_details = "";
+		$cust_details = "";
+		$user_data ="";
+		
+		if($resetMethodDisplay == "Mobile"){
+			/* $cust_details = $this->Customer_model->fetch_single_by_mobile($inputMethodVal);
+			if(!$cust_details){
+				$emp_details = $this->Emp_model->fetch_single_by_mobile($inputMethodVal);
+			} */
+			$emp_details = $this->Emp_model->fetch_single_by_mobile($inputMethodVal);	
+		}
+		if($resetMethodDisplay == "Email"){
+			/* $cust_details = $this->Customer_model->fetch_single_by_email($inputMethodVal);
+			if(!$cust_details){
+				$emp_details = $this->Emp_model->fetch_single_by_email($inputMethodVal);
+			} */	
+			$emp_details = $this->Emp_model->fetch_single_by_email($inputMethodVal);
+
+			var_dump($emp_details);
+		}
+				
+		if($emp_details || $cust_details){
+			
+								
+			if(!empty($emp_details)){
+				//var_dump($emp_details[0]['emp_id']);
+				$user_data = $this->Sys_user_model->fetch_single_join_by_emp_id($emp_details[0]['emp_id']);
+			}				
+			if(!empty($cust_details)){
+				//var_dump($cust_details[0]['customer_id']);
+				$user_data = $this->Sys_user_model->fetch_single_join_by_cust_id($cust_details[0]['customer_id']);
+			}
+			
+			var_dump($user_data);
+			
+									
+			if($user_data[0]['user_id']){	
+			
+				$user_id = $user_data[0]['user_id'];
+				$otp_code = random_int(100000, 999999);
+								
+				$data = array(
+					'otp_code'		=>	$otp_code
+				);
+				
+				$this->Sys_user_model->update_single($user_id, $data);
+												
+				$contact_no = "";
+								
+				if($user_data[0]["is_customer"] == 1){
+					$contact_no = $cust_details[0]["customer_contact_no"];					
+				}
+				else{
+					$contact_no = $emp_details[0]['emp_contact_no'];					
+				}				
+				
+				$message = "Test: Your OTP Code for Password reset is: ".$otp_code;
+				
+				sendSms($contact_no, $message);
+				
+				$data = array(
+					'error'	=>	false,
+					'user_id' => $user_id,
+					'message'	=>	"OTP Created"
+				);
+				
+				
+				echo json_encode($data);
+								
+			}
+			else{
+				$data = array(
+					'error'		=>	true,
+					'message'	=>	"Invalid credentials!"
+				);
+				echo json_encode($data);
+			}
+		}
+		else{
+			$data = array(
+				'error'		=>	true,
+				'message'	=>	"Invalid credentials!"
+			);
+			echo json_encode($data);
+		}
+	}
+	
 	function restCodeGen()
 	{
 		$data = json_decode(file_get_contents('php://input'), true);

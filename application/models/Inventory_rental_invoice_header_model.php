@@ -114,6 +114,15 @@ class Inventory_rental_invoice_header_model extends CI_Model{
 		return $query;
 	}
 	
+	function fetch_for_return_invoice_header_by_invoice_id($invoice_id)
+	{
+		$this->db->where('inventory_rental_invoice_header.invoice_id', $invoice_id);
+		$this->db->where('inventory_rental_invoice_header.is_items_returned', 0);
+		$this->db->join('customer', 'customer.customer_id    = inventory_rental_invoice_header.customer_id   ','left');
+		$query = $this->db->get('inventory_rental_invoice_header');
+		return $query;
+	}
+	
 	function fetch_all_active_by_branch_id_not_complete($branch_id){
 		$this->db->join('company_branch', 'company_branch.company_branch_id   = inventory_rental_invoice_header.branch_id ','left');
 		$this->db->join('customer', 'customer.customer_id    = inventory_rental_invoice_header.customer_id ','left');

@@ -9,6 +9,7 @@ class RentalInvoice extends CI_Controller {
 		$this->load->model('Inventory_rental_invoice_header_model');
 		$this->load->model('Inventory_rental_invoice_detail_model');
 		$this->load->model('Inventory_rental_total_stock_model');
+		$this->load->model('Inventory_rental_return_detail_model');
 		$this->load->model('Company_model');
 		$this->load->model('Customer_model');
 		$this->load->model('Order_payment_model');
@@ -237,6 +238,119 @@ class RentalInvoice extends CI_Controller {
 			);
 			
 			
+			
+		}
+		else
+		{
+			$array = array(
+				'error'			=>	true,
+				'message'		=>	'Error!'
+			);
+		}
+		echo json_encode($array);
+	}
+	
+	function returnUpdate()
+	{				
+		$json = json_decode(file_get_contents("php://input"));
+		
+		$phparray = (array) $json;
+		
+		$returnArr = array();
+		$returnArr = $phparray["returnArr"];
+		
+		$branch_id = $this->session->userdata('emp_branch_id');
+		$created_by = $this->session->userdata('user_id');
+		date_default_timezone_set('Asia/Colombo');
+		$date = date('Y-m-d');
+		$time = date('H:i:s');
+		$sys_user_group_name = $this->session->userdata('sys_user_group_name');
+		//var_dump($this->session->userdata());
+		
+		
+		
+			
+		if($created_by != '' )
+		{
+			//var_dump($phparray["returnArr"][0]->invoice_id);
+			$invoiceHead = $this->Inventory_rental_invoice_header_model->fetch_single($phparray["returnArr"][0]->invoice_id);	
+			
+			//var_dump($invoiceHead[0]["created_date"]);
+			$created_date = $invoiceHead[0]["created_date"];
+			$fully_returned_count = 0;
+			
+			foreach($phparray["returnArr"] as $value){
+				
+				$date1 = new DateTime($created_date);
+				$date2 = new DateTime($date);
+				$days  = $date2->diff($date1)->format('%a');
+				
+				$sub_total = ($value->item_price * $value->no_of_items_returned * $days);
+								
+				$data1 = array(
+					'returned_date' =>	$date,							
+					'invoice_id' => $value->invoice_id,
+					'item_id' =>	$value->item_id,
+					'item_price' =>	$value->item_price,
+					'no_of_items' =>	$value->no_of_items_returned,
+					'no_of_days' =>	$days,
+					'sub_total' =>	$sub_total,
+					'is_active_rental_return' =>	1
+				);
+				
+				$this->Inventory_rental_return_detail_model->insert($data1);
+
+				$itemDetail = $this->Inventory_rental_invoice_detail_model->fetch_item_return_detail_by_invoice_id_item_id($value->invoice_id, $value->item_id)->result_array();
+				
+				$itemSubTotal = $itemDetail[0]["sub_total"];
+				$sub_total = $sub_total + $itemDetail[0]["sub_total"];
+				$no_of_items_returned = $value->no_of_items_returned + $itemDetail[0]["no_of_items_returned"];				
+				
+				if($value->no_of_items == $no_of_items_returned){															
+					$this->Inventory_rental_invoice_detail_model->update_item_return_detail_by_invoice_id_item_id($value->invoice_id, $value->item_id, $no_of_items_returned, $sub_total, 1);
+					
+					$fully_returned_count++;
+				}
+				else{					
+					$this->Inventory_rental_invoice_detail_model->update_item_return_detail_by_invoice_id_item_id($value->invoice_id, $value->item_id, $no_of_items_returned, $sub_total, 0);
+				}
+				
+				$stockDetail = $this->Inventory_rental_total_stock_model->fetch_single_by_branch_id_item_id_is_sub($value->item_id, $branch_id, 0 );
+				
+				//var_dump($stockDetail);
+				$full_stock_count = $stockDetail[0]["full_stock_count"] + $value->no_of_items_returned;
+				$out_stock_count = $stockDetail[0]["out_stock_count"] - $value->no_of_items_returned;
+								
+				
+				$data2 = array(
+					'full_stock_count' =>	$full_stock_count,							
+					'out_stock_count' => $out_stock_count
+				);
+				$stockDetail = $this->Inventory_rental_total_stock_model->update_single( $stockDetail[0]["rental_stock_id"], $data2);
+				
+				
+				
+			}
+				
+			$itemCount = $this->Inventory_rental_invoice_detail_model->fetch_full_return_item_count_by_invoice($phparray["returnArr"][0]->invoice_id)->result_array();
+			
+			$itemDetailCount = $this->Inventory_rental_invoice_detail_model->fetch_item_count_by_invoice($phparray["returnArr"][0]->invoice_id)->result_array();
+			
+			
+			if($itemDetailCount[0]["item_count"] == $itemCount[0]["item_count"]){
+				$itemDetailCount = $this->Inventory_rental_invoice_detail_model->fetch_full_return_item_total_sum_by_invoice($phparray["returnArr"][0]->invoice_id)->result_array();
+				
+				$data3 = array(
+					'total_amount' =>	$itemDetailCount[0]["total"],
+					'is_items_returned' =>	1
+				);
+				$stockDetail = $this->Inventory_rental_invoice_header_model->update_single($phparray["returnArr"][0]->invoice_id, $data3);
+			}
+			
+			$array = array(
+				'error'			=>	false,
+				'message'		=>	'Changes Updated!'
+			);
 			
 		}
 		else

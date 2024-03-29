@@ -589,4 +589,29 @@ class RentalOrder extends CI_Controller {
 		}
 	}
 	
+	function fetch_for_return_single_join_by_invoice_id()
+	{
+			
+		if($this->input->get('id'))
+		{			
+			$rental_stock_header_id = $this->input->get('id');
+			$data1 = $this->Inventory_rental_invoice_header_model->fetch_for_return_invoice_header_by_invoice_id($rental_stock_header_id)->result_array();
+			
+			//var_dump($data1);
+			
+			$rental_stock_header_id = $this->input->get('id');
+			$data2 = $this->Inventory_rental_invoice_detail_model->fetch_for_return_all_by_invoice_id($rental_stock_header_id)->result_array();
+			
+			//var_dump($data2);
+			$rental_stock_header_id = $this->input->get('id');
+			$data3 = $this->Order_payment_model->fetch_latest_payment_by_rental_invoice_id($rental_stock_header_id)->result_array();
+			
+			
+			$jsonArr = array('header' => $data1, 'detail' => $data2, 'payment_details' => $data3);
+			
+			echo json_encode($jsonArr);
+		}
+	}
+	
+	
 }

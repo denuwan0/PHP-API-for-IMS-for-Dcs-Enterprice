@@ -107,6 +107,8 @@ class Sys_user_model extends CI_Model{
 	{
 		$this->db->where('user_id', $user_id);
 		$this->db->update('sys_user', $data);
+		
+		//echo $this->db->last_query();
 	}
 
 	function delete_single($user_id)
