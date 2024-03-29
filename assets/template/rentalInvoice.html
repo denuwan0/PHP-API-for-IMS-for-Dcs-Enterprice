@@ -170,15 +170,21 @@
 		</div>
         <div class="content" style="overflow-x:auto;">
             <table style="border: 1px solid black;  border-collapse: collapse;">
+				
 				<tr>
 					<th>Item Name</th>
 					<th>Description</th>
-					<th style="text-align: right;">No.of days</th>
-					<th style="text-align: right;">Qty</th>
 					<th style="text-align: right;">Daily Rate</th>
+					<th style="text-align: right;">Qty</th>
+					<th style="text-align: right;">Sub total</th>
 				</tr>
 				  
 				%itemArr%  
+				
+				<tr>
+					<th colspan="4">Total</th>
+					<th style="text-align: right;">Rs. %total% </th>
+				</tr>
 			 
 			</table>
 			<table style="border: 1px solid black;  border-collapse: collapse; margin-top: 10px;">

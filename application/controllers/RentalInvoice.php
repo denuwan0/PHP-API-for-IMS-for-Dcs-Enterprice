@@ -384,6 +384,9 @@ class RentalInvoice extends CI_Controller {
 			$itemData  = $itemData->result_array();
 			$noOfDays = 1;
 			
+			/* var_dump($itemData);
+			echo '<br/><br/><br/>';
+			die(); */
 			
 			$itemHtml = '';
 			
@@ -392,13 +395,13 @@ class RentalInvoice extends CI_Controller {
 				$itemHtml .='<tr>
 							<th>'.$item['item_name'].'</th>
 							<th>'.$item['item_desc'].'</th>
-							<th style="text-align: right;">'.$noOfDays.'</th>
+							<th style="text-align: right;">'.$item['item_price'].'</th>
 							<th style="text-align: right;">'.$item['no_of_items'].'</th>
-							<th style="text-align: right;">Rs. '.(float)($item['item_price']*$item['no_of_items']*$noOfDays).'</th>
+							<th style="text-align: right;">Rs. '.$item['sub_total'].'</th>
 						  </tr>';
 			}
 			
-			
+			$total = $invoiceData[0]["total_amount"];
 								
 			$compData = $this->Company_model->fetch_all_active();
 			$compData = $compData->result_array();
@@ -421,6 +424,7 @@ class RentalInvoice extends CI_Controller {
 			$message = str_replace('%created_time%', $time, $message); 
 			$message = str_replace('%invoice_no%', $invoice_no, $message); 
 			$message = str_replace('%itemArr%',$itemHtml, $message); 
+			$message = str_replace('%total%',$total, $message); 
 			$message = str_replace('%deposite_amount%',$deposite_amount, $message); 
 					
 			//---------------PDF----------------------//
