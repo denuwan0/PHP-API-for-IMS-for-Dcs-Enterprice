@@ -74,4 +74,11 @@ class Customer_model extends CI_Model{
 		$this->db->where('is_active_customer', 1);
 		return $query;
 	}
+	
+	function fetch_all_by_customer_email($email)
+	{
+		$this->db->where('customer_email', $email);
+		$query = $this->db->get('customer');
+		return $query;
+	}
 }

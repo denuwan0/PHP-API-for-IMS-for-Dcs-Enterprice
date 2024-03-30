@@ -14,7 +14,13 @@ class Online extends CI_Controller {
 		$this->load->model('Customer_model');
 		$this->load->model('Sys_user_model');
 		$this->load->model('Company_model');
+		$this->load->model('Notify_model');
 		$this->load->model('Inventory_item_model');
+		$this->load->library('form_validation');
+		
+		$this->load->model('Emp_model');
+		$this->load->model('Sys_user_group_model');
+		//$this->load->helper('otp');
 		
 		//var_dump();
 		
@@ -683,7 +689,7 @@ class Online extends CI_Controller {
 			
 			$array = array(
 				'success'		=>	false,
-				'message'		=>	'Data Updated!'
+				'message'		=>	'Data Saved!'
 			);
 		}
 		else{
@@ -811,9 +817,223 @@ class Online extends CI_Controller {
 		$data2 = $this->Sys_user_model->update_single($data1[0]["user_id"], $dataaArr);
 		
 		$array = array(
-			'success'		=>	false,
+			'success'		=>	true,
 			'message'		=>	'Data Updated!'
 		);
+		
+		echo json_encode($array);
 	}
 	
+	function searchByEmail()
+	{
+		
+		$json = json_decode(file_get_contents('php://input'), true);
+		$phparray = (array) $json;
+		
+		$searchArr = array();
+		//$searchArr = $phparray["email"];
+		$date = date('Y-m-d');
+		
+		$data1 = $this->Customer_model->fetch_all_by_customer_email($phparray["searchArr"][0]["email"])->result_array();
+		
+		if(!empty($data1)){
+			$data2 = $this->Sys_user_model->fetch_single_by_customer_id($data1[0]["customer_id"])->result_array();
+		}
+		
+		
+		//var_dump($data1);
+		
+		if(!empty($data2)){
+			
+			$user_id = $data2[0]['user_id'];
+			$contact_no = strval($data1[0]['customer_contact_no']) ;
+			
+			$otp_code = random_int(100000, 999999);
+							
+			$data = array(
+				'otp_code'		=>	$otp_code
+			);
+						
+			$this->Sys_user_model->update_single($user_id, $data);
+						
+			$message = "Test: Your OTP Code for Password reset is: ".$otp_code;
+			
+			sendSms($contact_no, $message); //0753785231
+			
+			$array = array(
+				'error'	=>	false,
+				'user_id' => $user_id,
+				'message'	=>	"Valid User!"
+			);
+			
+						
+		}
+		else{
+			$array = array(
+				'success'		=>	false,
+				'message'		=>	'Invalid User!'
+			);
+		}
+		
+		echo json_encode($array);
+		
+	}
+	
+	function resetPass()
+	{	
+
+		$json = json_decode(file_get_contents("php://input"));
+		
+		$phparray = (array) $json;
+		
+		$passArr = array();
+		$passArr = $phparray["passArr"];
+		$date = date('Y-m-d');
+					
+		$dataEmail = $this->Sys_user_model->fetch_single_join_by_user_id_and_otp($passArr[0]->user_id, $passArr[0]->otp);
+			
+		if(!empty($dataEmail)){
+			$password = preg_replace('/\s/', '', $passArr[0]->password);//remove spaces				
+			$hash = hash('sha256', $password);
+			
+			$data1 = array(
+				'password'	=>	$hash
+			);
+			
+			$data = $this->Sys_user_model->update_single($passArr[0]->user_id, $data1);
+						
+			$array = array(
+				'success'		=>	false,
+				'message'		=>	'Password reset successfull!'
+			);
+		}
+		else{
+			$array = array(
+				'success'		=>	true,
+				'message'		=>	'OTP validation failed!'
+			);
+		}
+		
+				
+	
+		echo json_encode($array);
+	}
+	
+	function login()
+	{
+		$json = json_decode(file_get_contents('php://input'), true);
+				
+		$phparray = (array) $json;
+		
+		$loginArr = array();
+		$loginArr = $phparray["loginArr"];
+		$date = date('Y-m-d');
+		
+		
+		
+		$hash = hash('sha256', $loginArr[0]['password']);
+			
+		$user_data = $this->Sys_user_model->validate_user_join($loginArr[0]['username'], $hash);
+		
+		
+				
+		if(!empty($user_data)){
+			
+			$otp_code = random_int(100000, 999999);
+			$token = bin2hex(random_bytes(10));
+			
+			$message = "Test: OTP Code: ".$otp_code;
+			
+			$data = array(
+				'token'		=> $token,
+				'otp_code'=> $otp_code
+			);
+			
+			$this->Sys_user_model->update_single($user_data[0]['user_id'], $data);
+			
+			$user_details = $this->Sys_user_model->fetch_online_customer_join($user_data[0]['user_id'])->result_array();
+			
+														
+			$userdata = array(
+				'user_id'  			=> $user_details[0]['user_id'],
+				'customer_id'  			=> $user_details[0]['emp_cust_id'],
+				'token'   			=> $user_details[0]['token'],
+				'customer_name'   			=> $user_details[0]['customer_name'],
+				'customer_shipping_address'   			=> $user_details[0]['customer_shipping_address'],
+				'customer_old_nic_no'   			=> $user_details[0]['customer_old_nic_no'],
+				'customer_contact_no'   			=> $user_details[0]['customer_contact_no'],
+				'customer_email'   			=> $user_details[0]['customer_email'],
+				'otp_verify'   		=> TRUE,
+				'logged_in' 		=> TRUE,
+				'error'		=>	false
+			);	
+			
+			sendSms($user_details[0]['customer_contact_no'], $message); //0753785231
+
+			//$this->session->set_userdata($userdata);
+			echo json_encode($userdata);	
+			
+		}
+		else{
+			$data = array(
+				'error'		=>	true,
+				'message'	=>	"Invalid credentials"
+			);
+			echo json_encode($data);
+		}
+				
+		
+	}
+	
+	function verifyOtp()
+	{	
+
+		$json = json_decode(file_get_contents("php://input"));
+		
+		$phparray = (array) $json;
+		
+		$otpArr = array();
+		$otpArr = $phparray["otpArr"];
+		$date = date('Y-m-d');
+		
+		$user_id = $otpArr[0]->user_id;
+		$otp =  $otpArr[0]->otp;
+		
+					
+		$dataEmail = $this->Sys_user_model->fetch_single_join_by_user_id_and_otp($user_id, $otp);
+			
+		if(!empty($dataEmail)){
+					
+			
+			$user_details = $this->Sys_user_model->fetch_online_customer_join($dataEmail[0]['user_id'])->result_array();
+			
+														
+			$userdata = array(
+				'user_id'  			=> $user_details[0]['user_id'],
+				'customer_id'  			=> $user_details[0]['emp_cust_id'],
+				'token'   			=> $user_details[0]['token'],
+				'customer_name'   			=> $user_details[0]['customer_name'],
+				'customer_shipping_address'   			=> $user_details[0]['customer_shipping_address'],
+				'customer_old_nic_no'   			=> $user_details[0]['customer_old_nic_no'],
+				'customer_contact_no'   			=> $user_details[0]['customer_contact_no'],
+				'customer_email'   			=> $user_details[0]['customer_email'],
+				'otp_verify'   		=> TRUE,
+				'logged_in' 		=> TRUE,
+				'error'		=>	false
+			);
+						
+			echo json_encode($userdata);
+		}
+		else{
+			$array = array(
+				'success'		=>	true,
+				'message'		=>	'OTP validation failed!'
+			);
+			echo json_encode($array);
+		}
+		
+				
+	
+		
+	}
 }

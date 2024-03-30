@@ -155,4 +155,16 @@ class Sys_user_model extends CI_Model{
 		$query = $this->db->get('sys_user');
 		return $query->result_array();
 	}
+	
+	function fetch_online_customer_join($user_id)
+	{
+		$this->db->select('*');
+		$this->db->from('sys_user');
+		$this->db->where('sys_user.is_active_sys_user', 1);
+		$this->db->where('sys_user.is_customer', 1);
+		$this->db->where('sys_user.user_id', $user_id);
+		$this->db->join('customer ', 'customer.customer_id  = sys_user.emp_cust_id','left');
+		$query = $this->db->get();
+		return $query;
+	}
 }
