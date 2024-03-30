@@ -1036,4 +1036,57 @@ class Online extends CI_Controller {
 	
 		
 	}
+	
+	function saveOrder()
+	{	
+
+		$json = json_decode(file_get_contents("php://input"));
+		
+		$phparray = (array) $json;
+		
+		$itemHeaderArr = array();
+		$itemsArr = array();
+		$itemHeaderArr = $phparray["itemHeaderArr"];
+		$itemsArr = $phparray["itemsArr"];
+		date_default_timezone_set('Asia/Colombo');
+		$date = date('Y-m-d');
+		$time = date('H:i:s');
+		
+					
+		$dataEmail = $this->Sys_user_model->fetch_single_join_by_user_id_and_otp($user_id, $otp);
+			
+		if(!empty($dataEmail)){
+					
+			
+			$user_details = $this->Sys_user_model->fetch_online_customer_join($dataEmail[0]['user_id'])->result_array();
+			
+														
+			$userdata = array(
+				'user_id'  			=> $user_details[0]['user_id'],
+				'customer_id'  			=> $user_details[0]['emp_cust_id'],
+				'token'   			=> $user_details[0]['token'],
+				'customer_name'   			=> $user_details[0]['customer_name'],
+				'customer_shipping_address'   			=> $user_details[0]['customer_shipping_address'],
+				'customer_old_nic_no'   			=> $user_details[0]['customer_old_nic_no'],
+				'customer_contact_no'   			=> $user_details[0]['customer_contact_no'],
+				'customer_email'   			=> $user_details[0]['customer_email'],
+				'otp_verify'   		=> TRUE,
+				'logged_in' 		=> TRUE,
+				'error'		=>	false
+			);
+						
+			echo json_encode($userdata);
+		}
+		else{
+			$array = array(
+				'success'		=>	true,
+				'message'		=>	'OTP validation failed!'
+			);
+			echo json_encode($array);
+		}
+		
+				
+	
+		
+	}
 }
