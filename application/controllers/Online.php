@@ -16,6 +16,8 @@ class Online extends CI_Controller {
 		$this->load->model('Company_model');
 		$this->load->model('Notify_model');
 		$this->load->model('Inventory_item_model');
+		$this->load->model('Online_shopping_kart_header_model');
+		$this->load->model('Order_payment_model');
 		$this->load->library('form_validation');
 		
 		$this->load->model('Emp_model');
@@ -1052,28 +1054,62 @@ class Online extends CI_Controller {
 		$date = date('Y-m-d');
 		$time = date('H:i:s');
 		
+		
+		//var_dump($itemHeaderArr);
+		
 					
-		$dataEmail = $this->Sys_user_model->fetch_single_join_by_user_id_and_otp($user_id, $otp);
-			
-		if(!empty($dataEmail)){
 					
+		if(!empty($itemHeaderArr) && !empty($itemsArr)){
 			
-			$user_details = $this->Sys_user_model->fetch_online_customer_join($dataEmail[0]['user_id'])->result_array();
-			
-														
-			$userdata = array(
-				'user_id'  			=> $user_details[0]['user_id'],
-				'customer_id'  			=> $user_details[0]['emp_cust_id'],
-				'token'   			=> $user_details[0]['token'],
-				'customer_name'   			=> $user_details[0]['customer_name'],
-				'customer_shipping_address'   			=> $user_details[0]['customer_shipping_address'],
-				'customer_old_nic_no'   			=> $user_details[0]['customer_old_nic_no'],
-				'customer_contact_no'   			=> $user_details[0]['customer_contact_no'],
-				'customer_email'   			=> $user_details[0]['customer_email'],
-				'otp_verify'   		=> TRUE,
-				'logged_in' 		=> TRUE,
-				'error'		=>	false
+			$cartdata = array(
+				'customer_id'  			=> $itemHeaderArr[0]->customer_id,
+				'total_amount'  			=> $itemHeaderArr[0]->total,
+				'create_date'   			=> $date,
+				'create_time'   			=> $time,
+				'is_paid'   			=> 1,
+				'is_confirmed'   			=> 0,
+				'is_complete'   			=> 0,
+				'is_active_shpng_kart_hdr'   			=> 1
 			);
+			
+			//$invoice_id = $this->Online_shopping_kart_header_model->insert($cartdata);
+			
+			foreach($itemsArr as $item){
+				var_dump($item);
+				
+				$cartDetaildata = array(
+					'invoice_id'  			=> $invoice_id,
+					'item_id'  			=> $item->item_id,
+					'item_price'  			=> $item->item_price,
+					'sub_total'  			=> $item->sub_total,
+					'item_qty'   			=> $item->item_qty,
+					'create_time'   			=> $item->item_id,
+					'is_paid'   			=> $item->item_id,
+					'is_confirmed'   			=> $item->item_id,
+					'is_complete'   			=> $item->item_id,
+					'is_active_shpng_kart_hdr'   			=> 1
+				);
+				
+			}
+					
+			
+			//$this->Online_shopping_kart_header_model->insert($cartdata);
+			
+			
+			
+			
+			$paydata = array(
+				'order_id'  			=> $itemHeaderArr[0]->customer_id,
+				'cust_id'  			=> $itemHeaderArr[0]->customer_id,
+				'reference'   			=> $itemHeaderArr[0]->payReference,
+				'payment_amount'   			=> itemHeaderArr[0]->total,
+				'payment_date'   			=> $date,
+				'payment_time'   			=> $time,
+				'payment_method'   			=> $itemHeaderArr[0]->payment_method,
+				'is_web_order'   			=> 1
+			);
+														
+			//$this->Order_payment_model->insert($cartdata);
 						
 			echo json_encode($userdata);
 		}
