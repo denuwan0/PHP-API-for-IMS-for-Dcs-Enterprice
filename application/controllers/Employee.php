@@ -22,6 +22,7 @@ class Employee extends CI_Controller {
 		$this->load->model('inventory_rental_invoice_header_model');
 		$this->load->model('inventory_retail_invoice_header_model');
 		$this->load->library('form_validation');
+		$this->load->helper('email');
 		
 		//$is_ajax = 'xmlhttprequest' == strtolower( $_SERVER['HTTP_X_REQUESTED_WITH'] ?? '' );
 		
@@ -53,9 +54,29 @@ class Employee extends CI_Controller {
 		$this->form_validation->set_rules('emp_email', 'Email', 'required');
 		$this->form_validation->set_rules('emp_emg_contact_no', 'Emergency Contact No', 'required');
 		
-		
 		if($this->form_validation->run())
 		{
+			
+			$phonenumber1 = $this->input->post('emp_contact_no');
+			
+			if (strpos($phonenumber1, '+94') !== false) {
+				// Remove '+' if present
+				$phonenumber1 = str_replace('+94', '94', $phonenumber1);
+			} else if (strpos($phonenumber1, '0') === 0) {
+				// Add '94' if it starts with '0'
+				$phonenumber1 = '94' . substr($phonenumber1, 1);
+			}
+			
+			$phonenumber2 = $this->input->post('emp_contact_no');
+			
+			if (strpos($phonenumber2, '+94') !== false) {
+				// Remove '+' if present
+				$phonenumber2 = str_replace('+94', '94', $phonenumber2);
+			} else if (strpos($phonenumber2, '0') === 0) {
+				// Add '94' if it starts with '0'
+				$phonenumber2 = '94' . substr($phonenumber2, 1);
+			}
+			
 			$data = array(
 				'emp_epf'	=>	$this->input->post('emp_epf'),
 				'emp_branch_id'	=>	$this->input->post('emp_branch_id'),
@@ -67,9 +88,9 @@ class Employee extends CI_Controller {
 				'emp_dob'	=>	$this->input->post('emp_dob'),
 				'emp_perm_address'	=>	$this->input->post('emp_perm_address'),
 				'emp_temp_address'	=>	$this->input->post('emp_temp_address'),
-				'emp_contact_no'	=>	$this->input->post('emp_contact_no'),
+				'emp_contact_no'	=>	$phonenumber1,
 				'emp_email'	=>	$this->input->post('emp_email'),
-				'emp_emg_contact_no'	=>	$this->input->post('emp_emg_contact_no'),
+				'emp_emg_contact_no'	=>	$phonenumber2,
 				'is_active_emp'	=>	$this->input->post('is_active_emp')
 			);
 

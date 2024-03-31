@@ -105,15 +105,18 @@ class EmpAttendance extends CI_Controller {
 				}
 				
 			}
-									
-
+			else{
+				$array = array(
+					'error'					=>	true
+				);
+			}						
+			
 			
 		}
 		else
 		{
 			$array = array(
-				'error'					=>	true,
-				'date'		=>	form_error('date')
+				'error'					=>	true
 			);
 		}
 		echo json_encode($array);

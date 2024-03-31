@@ -17,6 +17,7 @@ class Online extends CI_Controller {
 		$this->load->model('Notify_model');
 		$this->load->model('Inventory_item_model');
 		$this->load->model('Online_shopping_kart_header_model');
+		$this->load->model('Online_shopping_kart_detail_model');
 		$this->load->model('Order_payment_model');
 		$this->load->library('form_validation');
 		
@@ -1072,57 +1073,132 @@ class Online extends CI_Controller {
 				'is_active_shpng_kart_hdr'   			=> 1
 			);
 			
-			//$invoice_id = $this->Online_shopping_kart_header_model->insert($cartdata);
+			$invoice_id = $this->Online_shopping_kart_header_model->insert($cartdata);
+			
+			
 			
 			foreach($itemsArr as $item){
-				var_dump($item);
+				//var_dump($item);
 				
 				$cartDetaildata = array(
 					'invoice_id'  			=> $invoice_id,
 					'item_id'  			=> $item->item_id,
 					'item_price'  			=> $item->item_price,
 					'sub_total'  			=> $item->sub_total,
-					'item_qty'   			=> $item->item_qty,
-					'create_time'   			=> $item->item_id,
-					'is_paid'   			=> $item->item_id,
-					'is_confirmed'   			=> $item->item_id,
-					'is_complete'   			=> $item->item_id,
-					'is_active_shpng_kart_hdr'   			=> 1
+					'no_of_items'   			=> $item->item_qty,
+					'is_active_shpng_kart_detail'   			=> 1
 				);
 				
 			}
 					
 			
-			//$this->Online_shopping_kart_header_model->insert($cartdata);
-			
+			$this->Online_shopping_kart_detail_model->insert($cartDetaildata);
 			
 			
 			
 			$paydata = array(
-				'order_id'  			=> $itemHeaderArr[0]->customer_id,
+				'order_id'  			=> $invoice_id,
 				'cust_id'  			=> $itemHeaderArr[0]->customer_id,
+				'branch_id'   			=> 1,
 				'reference'   			=> $itemHeaderArr[0]->payReference,
-				'payment_amount'   			=> itemHeaderArr[0]->total,
-				'payment_date'   			=> $date,
-				'payment_time'   			=> $time,
+				'payment_date'   			=> $itemHeaderArr[0]->total,
+				'payment_amount'   			=> $time,
 				'payment_method'   			=> $itemHeaderArr[0]->payment_method,
-				'is_web_order'   			=> 1
+				'payment_time'   			=> $time,
+				'is_web_order'   			=> 1,
+				'is_complete'   			=> 1
 			);
 														
-			//$this->Order_payment_model->insert($cartdata);
-						
-			echo json_encode($userdata);
+			$this->Order_payment_model->insert($paydata);
+			
+			$array = array(
+				'success'		=>	true,
+				'message'		=>	'Order received! Will contact you for order confirmation, thank you.',
+				'order_id'		=>	$invoice_id
+			);
+			
+			echo json_encode($array);
 		}
 		else{
 			$array = array(
-				'success'		=>	true,
-				'message'		=>	'OTP validation failed!'
+				'success'		=>	false,
+				'message'		=>	'Error!'
 			);
 			echo json_encode($array);
 		}
 		
 				
 	
+		
+	}
+	
+	function printInvoice(){
+		
+		if($this->input->get('id'))
+		{
+			date_default_timezone_set('Asia/Colombo');
+			$date = date('Y-m-d');
+			$time = date('H:i:s');
+
+			$branch_id = 1;
+			$created_by = 1;	
+			$invoiceData = $this->Inventory_retail_invoice_header_model->fetch_all_by_branch_id_invoice_id($branch_id, $this->input->get('id'));
+			$invoiceData = $invoiceData->result_array();
+			$invoice_no = $invoiceData[0]["invoice_id"];
+			$total_amount = $invoiceData[0]["total_amount"];
+			
+			
+			$customerData  = $this->Customer_model->fetch_single($invoiceData[0]['customer_id']);
+			
+			$itemData  = $this->Inventory_retail_invoice_detail_model->fetch_all_by_invoice_id($invoice_no);
+			$itemData  = $itemData->result_array();
+			
+			
+			
+			$itemHtml = '';
+			
+			foreach($itemData as $item){
+				
+				$itemHtml .='<tr>
+							<th>'.$item['item_name'].'</th>
+							<th>'.$item['item_desc'].'</th>
+							<th style="text-align: right;">'.$item['no_of_items'].'</th>
+							<th style="text-align: right;">'.(float)($item['item_price']*$item['no_of_items']).'</th>
+						  </tr>';
+			}
+			
+			
+								
+			$compData = $this->Company_model->fetch_all_active();
+			$compData = $compData->result_array();
+			
+			
+			$company_logo = base_url().'assets/img/logo.jpg';
+			
+			$message = file_get_contents(base_url().'assets/template/invoice.html'); 
+			//echo base_url().'assets/template/email.html';
+			$message = str_replace('%company_logo%', $compData[0]['company_logo'], $message); 
+			$message = str_replace('%company_name%', $compData[0]['company_name'], $message); 
+			$message = str_replace('%company_address%', $compData[0]['company_address'], $message); 
+			$message = str_replace('%company_contact%', $compData[0]['company_contact'], $message); 
+			//$message = str_replace('%company_email%', $compData[0]['company_logo'], $message); 
+			$message = str_replace('%customer_name%', $customerData[0]['customer_name'], $message); 
+			$message = str_replace('%customer_address%', $customerData[0]['customer_working_address'], $message); 
+			$message = str_replace('%customer_contact%', $customerData[0]['customer_contact_no'], $message); 
+			$message = str_replace('%customer_email%', $customerData[0]['customer_email'], $message); 
+			$message = str_replace('%created_date%', $date, $message); 
+			$message = str_replace('%created_time%', $time, $message); 
+			$message = str_replace('%invoice_no%', $invoice_no, $message); 
+			$message = str_replace('%itemArr%',$itemHtml, $message); 
+			$message = str_replace('%total_amount%',$total_amount, $message); 
+					
+			//---------------PDF----------------------//
+			//$html = $this->load->view('template/pdfInvoice', $data, true);
+			$pdfUrl = $this->pdf->createPDF($message, 'Invoice', true);
+			//---------------PDF----------------------//
+		
+		}
+		
 		
 	}
 }

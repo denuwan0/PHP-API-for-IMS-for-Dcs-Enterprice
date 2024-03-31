@@ -899,7 +899,7 @@ class SysUser extends CI_Controller {
 	
 	function accountStatusMail($userData, $status){
 		
-		var_dump($userData);
+		//var_dump($userData);
 		
 		// Load PHPMailer library
 		$this->load->library('phpmailer_lib');
@@ -1081,6 +1081,14 @@ class SysUser extends CI_Controller {
 		}
 				
 		
+	}
+	
+	function fetch_inform_person_join()
+	{	
+		$branch_id = $this->input->post('branch_id');
+		$data = $this->Sys_user_model->fetch_inform_person_join($branch_id);
+		
+		echo json_encode($data->result_array());
 	}
 	
 }

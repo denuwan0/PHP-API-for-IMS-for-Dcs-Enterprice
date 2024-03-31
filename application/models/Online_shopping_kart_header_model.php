@@ -10,6 +10,7 @@ class Online_shopping_kart_header_model extends CI_Model{
 	function insert($data)
 	{
 		$this->db->insert('online_shopping_kart_header', $data);
+		return $this->db->insert_id();
 	}
 
 	function fetch_single($invoice_id)

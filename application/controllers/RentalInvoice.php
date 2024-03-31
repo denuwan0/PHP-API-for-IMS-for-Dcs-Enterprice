@@ -173,6 +173,12 @@ class RentalInvoice extends CI_Controller {
 			
 			
 		}
+		else{
+			$array = array(
+				'error'			=>	true,
+				'message'		=>	''
+			);
+		}
 		echo json_encode($array);
 	}
 	

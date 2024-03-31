@@ -167,4 +167,17 @@ class Sys_user_model extends CI_Model{
 		$query = $this->db->get();
 		return $query;
 	}
+	
+		
+	function fetch_inform_person_join($user_id)
+	{
+		$query = $this->db->query("SELECT * FROM `sys_user`
+		left join emp_details ON emp_details.emp_id = sys_user.emp_cust_id
+		left join company_branch ON company_branch.company_branch_id = emp_details.emp_branch_id
+		WHERE `is_customer` = 0 AND `is_active_sys_user` = 1
+		AND emp_details.emp_branch_id = '$user_id';");
+		
+		return $query;
+	}
+	
 }

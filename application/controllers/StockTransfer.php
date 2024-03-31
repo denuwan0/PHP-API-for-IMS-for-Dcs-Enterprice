@@ -631,11 +631,11 @@ class StockTransfer extends CI_Controller {
 				$item_id = $item["item_id"];
 				$is_sub_item = $item["is_sub_item"];
 				
-				$rentalItemData = $this->inventory_retail_total_stock_model->fetch_single_by_branch_id_item_id_is_sub($item_id, $is_sub_item, $branch_id);	
+				$rentalItemData = $this->inventory_retail_total_stock_model->fetch_single_by_branch_id_item_id_is_sub($item_id, $branch_id, $is_sub_item);	
 				//var_dump($rentalItemData);
 				
 				$item_count = isset($rentalItemData[0]["full_stock_count"])?(int)$rentalItemData[0]["full_stock_count"]:0;
-				
+				//var_dump($rentalItemData);
 												
 				if($item_count >= $no_of_items){
 					$stock_ok++;
@@ -663,11 +663,13 @@ class StockTransfer extends CI_Controller {
 					
 					//update giving branch stock count
 					
-					$stockGivingBranch = $this->inventory_retail_total_stock_model->fetch_single_by_branch_id_item_id_is_sub($item_id, $is_sub_item, $branch_id);
+					$stockGivingBranch = $this->inventory_retail_total_stock_model->fetch_single_by_branch_id_item_id_is_sub($item_id, $branch_id, $is_sub_item );
+					
+					
 					
 					$to_full_stock_count = isset($stockGivingBranch[0]["full_stock_count"])? $stockGivingBranch[0]["full_stock_count"] : 0;
 					$to_full_stock_count = $to_full_stock_count - $no_of_items;										
-					$to_rental_stock_id = $stockGivingBranch[0]["rental_stock_id"];
+					$to_rental_stock_id = $stockGivingBranch[0]["retail_stock_id"];
 					
 					$data1 = array(
 						'full_stock_count' =>	$to_full_stock_count
@@ -693,7 +695,7 @@ class StockTransfer extends CI_Controller {
 							'full_stock_count' =>	$from_full_stock_count,
 							'is_sub_item' =>	$is_sub_item,
 							'branch_id' =>	$created_user[0]['branch_id_from'],
-							'is_active_rental_stock' =>	1
+							'is_active_retail_stock' =>	1
 						);
 						$this->inventory_retail_total_stock_model->insert($data2);
 					}
